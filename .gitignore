@@ -1,0 +1,15 @@
+*.swp
+*.swo
+.DS_Store
+node_modules/
+*.xcuserstate
+*.xcworkspace
+!*.xcworkspace/
+Pods/
+Carthage/
+Build/
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+exportOptions.plist
