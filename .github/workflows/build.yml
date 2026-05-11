@@ -23,55 +23,17 @@ jobs:
       - name: Install xcodegen (2.1.0)
         run: npm install -g xcodegen@2.1.0
 
-      - name: Check tools
-        run: |
-          xcodebuild -version
-          export PATH="$(npm global bin):$PATH"
-          echo "xcodegen installed"
-
       - name: Generate Xcode project
         run: |
           export PATH="$(npm global bin):$PATH"
           xcodegen generate
 
-      - name: Patch pbxproj to remove duplicate outputs
-        run: |
-          PLIST=AdventureIsland.xcodeproj/project.pbxproj
-          
-          # Remove all PBXBuildPhase entries where name contains "CreateDirectory"
-          # We'll use a line-by-line perl approach for reliability
-          perl -i -ne '
-            BEGIN { $in_block = 0; $block_id = ""; }
-            if (/^\t([A-F0-9]{24} ) = \{$/) { 
-              $block_id = $1; 
-              $in_block = 1; 
-              @block = ($_);
-              next;
-            }
-            if ($in_block) {
-              push @block, $_;
-              if (/^\t\};$/) {
-                my $block = join("", @block);
-                # Check if this block has name = CreateDirectory and outputFiles with .app
-                if ($block =~ /name = CreateDirectory;/ && $block =~ /\.app/) {
-                  # Skip this block entirely - do not print
-                } else {
-                  print $block;
-                }
-                $in_block = 0;
-                @block = ();
-              }
-            } else {
-              print;
-            }
-          ' "$PLIST"
-          
-          echo "=== Verify ==="
-          grep -c "CreateDirectory" "$PLIST" || echo "0"
-          grep "outputFiles" "$PLIST" | grep -c "\.app" || echo "0"
-
-      - name: List project files
-        run: ls -la
+      - name: Upload generated pbxproj for debugging
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-pbxproj
+          path: AdventureIsland.xcodeproj/project.pbxproj
+          retention-days: 1
 
       - name: Build iOS project
         run: |
@@ -79,11 +41,18 @@ jobs:
           xcodebuild -project AdventureIsland.xcodeproj \
             -scheme AdventureIsland \
             -configuration Debug \
-            -destination 'platform=iOS Simulator,name=iPad (10th generation),OS=17.4' \
+            -destination 'generic/platform=iOS Simulator' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            build
+            build 2>&1 | tee build.log
+
+      - name: Upload build log
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          retention-days: 1
 
       - name: Find built app
         id: find-app
@@ -93,15 +62,12 @@ jobs:
           echo "Found app at: $APP_PATH"
 
       - name: Export IPA
+        if: success() && env.APP_PATH != ''
         run: |
-          if [ -n "${{ env.APP_PATH }}" ]; then
-            mkdir -p output
-            cd "${{ env.APP_PATH }}"
-            zip -r ../output/AdventureIsland.ipa AdventureIsland.app
-            echo "IPA created"
-          else
-            echo "Build may have failed"
-          fi
+          mkdir -p output
+          cd "${{ env.APP_PATH }}"
+          zip -r ../output/AdventureIsland.ipa AdventureIsland.app
+          echo "IPA created"
 
       - name: Upload IPA artifact
         if: success()
@@ -110,10 +76,3 @@ jobs:
           name: AdventureIsland-IPA
           path: output/AdventureIsland.ipa
           retention-days: 7
-
-      - name: Build summary
-        if: always()
-        run: |
-          echo "## Build Result" >> $GITHUB_STEP_SUMMARY
-          echo "- status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
-          echo "- runner: macOS 14" >> $GITHUB_STEP_SUMMARY
