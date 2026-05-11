@@ -43,7 +43,7 @@ jobs:
           xcodebuild -project AdventureIsland.xcodeproj \
             -scheme AdventureIsland \
             -configuration Debug \
-            -destination 'platform=iOS Simulator,name=iPad Pro 11-inch (M4)' \
+            -destination 'platform=iOS Simulator,name=iPad Pro (11-inch) (4th generation)' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
