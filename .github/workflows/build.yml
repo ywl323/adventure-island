@@ -20,8 +20,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install xcodegen (v2.41.0)
-        run: npm install -g xcodegen@2.41.0
+      - name: Install xcodegen (v2.2.0)
+        run: npm install -g xcodegen@2.2.0
 
       - name: Check tools
         run: |
