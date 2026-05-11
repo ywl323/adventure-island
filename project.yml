@@ -4,17 +4,6 @@ options:
   deploymentTarget:
     iOS: "15.0"
   compatibilityVersion: "Xcode 13.0"
-  generateEmptyDirectories: true
-  groupSortPosition: top
-
-settings:
-  base:
-    MARKETING_VERSION: "1.0.0"
-    CURRENT_PROJECT_VERSION: "1"
-    CODE_SIGN_IDENTITY: ""
-    CODE_SIGNING_REQUIRED: "NO"
-    SWIFT_VERSION: "5.0"
-    TARGETED_DEVICE_FAMILY: "2"
 
 targets:
   AdventureIsland:
@@ -23,17 +12,20 @@ targets:
     deploymentTarget:
       iOS: "15.0"
     sources:
-      - path: AdventureIsland
-        excludes:
-          - "**/.DS_Store"
+      - AdventureIsland
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.dev.adventureisland
         INFOPLIST_FILE: AdventureIsland/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_IDENTITY: ""
+        CODE_SIGNING_REQUIRED: "NO"
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "2"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks"
         ENABLE_BITCODE: "NO"
         ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: "YES"
+        CREATE_DIRECTORY_COMMANDS_IN_PHASE: "NO"
     info:
       path: AdventureIsland/Info.plist
       properties:
