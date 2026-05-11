@@ -15,28 +15,37 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install xcodegen
-        run: brew install xcodegen
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install xcodegen (2.1.0)
+        run: npm install -g xcodegen@2.1.0
 
       - name: Check tools
         run: |
           xcodebuild -version
-          xcodegen --version
+          node -p "require('xcodegen').version"
 
       - name: Generate Xcode project
         run: xcodegen generate
 
-      - name: Patch project for Xcode 15.4 compatibility
-        run: |
-          # Fix TARGETED_DEVICE_FAMILY to iPad only (2)
-          sed -i '' 's/TARGETED_DEVICE_FAMILY = "";/TARGETED_DEVICE_FAMILY = 2;/g' AdventureIsland.xcodeproj/project.pbxproj
-          # Fix IPHONEOS_DEPLOYMENT_TARGET if missing
-          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = "";/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' AdventureIsland.xcodeproj/project.pbxproj
-          echo "Patched project file"
-          grep -c "TARGETED_DEVICE_FAMILY = 2" AdventureIsland.xcodeproj/project.pbxproj || echo "patch failed"
-
       - name: List project files
-        run: ls -la
+        run: |
+          ls -la
+          echo "=== project.pbxproj header ==="
+          head -20 AdventureIsland.xcodeproj/project.pbxproj
+
+      - name: Patch project format version to Xcode 15.4 compatible
+        run: |
+          PLIST=AdventureIsland.xcodeproj/project.pbxproj
+          # Change project format version from 77 to 54 (Xcode 15 compatible)
+          sed -i '' 's/objectFormat = xcode16/objectFormat = xcode15/g' "$PLIST"
+          # Also try patching root version comment
+          sed -i '' 's/Xcode Internal Components/Xcode 15.4 Compatible/g' "$PLIST"
+          echo "=== After patch ==="
+          head -5 "$PLIST"
 
       - name: Build iOS project
         run: |
