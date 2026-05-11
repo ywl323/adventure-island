@@ -29,13 +29,25 @@ jobs:
           export PATH="$(npm global bin):$PATH"
           echo "xcodegen installed"
 
-      - name: List available simulators
-        run: xcrun simctl list devices available | grep -E "iPad|iPhone" | head -10
-
       - name: Generate Xcode project
         run: |
           export PATH="$(npm global bin):$PATH"
           xcodegen generate
+
+      - name: Patch pbxproj to remove duplicate CreateDirectory for .app output
+        run: |
+          PLIST=AdventureIsland.xcodeproj/project.pbxproj
+          
+          # Pattern: buildPhase section with name="CreateDirectory" and outputFilePath ending in .app"
+          # We need to find and remove the entire PBXBuildPhase entry that has:
+          #   name = CreateDirectory;
+          #   outputFiles = (... ".app");
+          
+          # Use perl for multi-line matching (more reliable than sed for complex patterns)
+          perl -i -0pe 's/(\t[A-F0-9]{24} ) = \{[^\}]*name = CreateDirectory;[^\}]*outputFiles = \[[^\]]*\.app[^\]]*\]\;[^\}]*\};//gs' "$PLIST"
+          
+          echo "=== Checking CreateDirectory entries remaining ==="
+          grep -c "CreateDirectory" "$PLIST" || echo "0"
 
       - name: List project files
         run: ls -la
