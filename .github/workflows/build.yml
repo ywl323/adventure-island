@@ -24,7 +24,9 @@ jobs:
         run: npm install -g xcodegen@1.10.3001
 
       - name: Check tools
-        run: xcodebuild -version
+        run: |
+          xcodebuild -version
+          xcodegen --version 2>/dev/null || echo "xcodegen installed"
 
       - name: Generate Xcode project
         run: xcodegen
@@ -32,13 +34,16 @@ jobs:
       - name: List project files
         run: ls -la
 
+      - name: List available simulators
+        run: xcrun simctl list devices available | grep -i "ipad\|iPhone" | head -10
+
       - name: Build iOS project
         run: |
           rm -rf ~/Library/Developer/Xcode/DerivedData/AdventureIsland-*
           xcodebuild -project AdventureIsland.xcodeproj \
             -scheme AdventureIsland \
             -configuration Debug \
-            -destination 'platform=iOS Simulator,name=iPad Pro 11-inch (M4),OS=17.4' \
+            -destination 'platform=iOS Simulator,name=iPad Pro 11-inch (M4)' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
