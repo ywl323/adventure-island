@@ -28,12 +28,79 @@ jobs:
           export PATH="$(npm global bin):$PATH"
           xcodegen generate
 
-      - name: Upload generated pbxproj for debugging
-        uses: actions/upload-artifact@v4
-        with:
-          name: generated-pbxproj
-          path: AdventureIsland.xcodeproj/project.pbxproj
-          retention-days: 1
+      - name: Fix duplicate outputs using Python
+        run: |
+          python3 << 'PYEOF'
+          import re
+          
+          with open('AdventureIsland.xcodeproj/project.pbxproj', 'r') as f:
+            content = f.read()
+          
+          # Find all PBXBuildPhase blocks (sections starting with a 24-char hex ID in parentheses)
+          # Pattern: (ID) = { ... isa = PBXBuildPhase; ... }
+          block_pattern = r'(\t[0-9A-F]{24} \) = \{[\s\S]*?\n\t\};)'
+          
+          def should_remove_block(block):
+            # Check if this is a build phase with CreateDirectory output for .app
+            if 'isa = PBXBuildPhase;' in block:
+              if 'name = CreateDirectory;' in block:
+                # Check if output files contain .app
+                output_match = re.search(r'outputFiles = \([\s\S]*?\);', block)
+                if output_match and '.app' in output_match.group():
+                  return True
+            return False
+          
+          # Split content into blocks and process
+          result_blocks = []
+          for match in re.finditer(block_pattern, content):
+            block = match.group(0)
+            if should_remove_block(block):
+              print(f"Removing block: {block[:80]}...")
+              continue
+            result_blocks.append(block)
+          
+          # Reconstruct
+          new_content = re.sub(block_pattern, lambda m: result_blocks.pop(0) if result_blocks and should_remove_block(m.group(0)) == False else '', content)
+          
+          # Simpler approach: just remove any line or block with CreateDirectory + .app
+          lines = content.split('\n')
+          new_lines = []
+          skip_block = False
+          block_lines = []
+          block_start = None
+          
+          for i, line in enumerate(lines):
+            if re.match(r'\t[0-9A-F]{24} \) = \{', line):
+              block_start = line
+              block_lines = [line]
+              skip_block = False
+            elif block_lines:
+              block_lines.append(line)
+              if line.strip() == '};':
+                # End of block - check if should skip
+                block_text = '\n'.join(block_lines)
+                if 'isa = PBXBuildPhase;' in block_text and 'name = CreateDirectory;' in block_text and '.app' in block_text:
+                  print(f"SKIP block with CreateDirectory + .app")
+                  skip_block = True
+                if not skip_block:
+                  new_lines.extend(block_lines)
+                block_lines = []
+                block_start = None
+            else:
+              new_lines.append(line)
+          
+          with open('AdventureIsland.xcodeproj/project.pbxproj', 'w') as f:
+            f.write('\n'.join(new_lines))
+          
+          print("Done fixing pbxproj")
+          
+          # Verify
+          with open('AdventureIsland.xcodeproj/project.pbxproj', 'r') as f:
+            verify = f.read()
+          create_count = verify.count('CreateDirectory')
+          print(f"CreateDirectory entries remaining: {create_count}")
+          
+          PYEOF
 
       - name: Build iOS project
         run: |
@@ -41,18 +108,11 @@ jobs:
           xcodebuild -project AdventureIsland.xcodeproj \
             -scheme AdventureIsland \
             -configuration Debug \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination 'platform=iOS Simulator,name=iPad (10th generation),OS=17.4' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            build 2>&1 | tee build.log
-
-      - name: Upload build log
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: build.log
-          retention-days: 1
+            build
 
       - name: Find built app
         id: find-app
@@ -62,12 +122,16 @@ jobs:
           echo "Found app at: $APP_PATH"
 
       - name: Export IPA
-        if: success() && env.APP_PATH != ''
+        if: success()
         run: |
-          mkdir -p output
-          cd "${{ env.APP_PATH }}"
-          zip -r ../output/AdventureIsland.ipa AdventureIsland.app
-          echo "IPA created"
+          if [ -n "${{ env.APP_PATH }}" ]; then
+            mkdir -p output
+            cd "${{ env.APP_PATH }}"
+            zip -r ../output/AdventureIsland.ipa AdventureIsland.app
+            echo "IPA created"
+          else
+            echo "Build may have failed"
+          fi
 
       - name: Upload IPA artifact
         if: success()
