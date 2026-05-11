@@ -18,23 +18,10 @@ jobs:
       - name: Check Xcode version
         run: |
           xcodebuild -version
-          xcodegen -version || echo "xcodegen not in PATH"
+          xcodegen -version
 
-      - name: Install xcodegen
-        run: |
-          if ! which xcodegen > /dev/null 2>&1; then
-            brew install xcodegen
-          fi
-
-      - name: Generate Xcode project
-        run: |
-          cd AdventureIsland
-          ls -la
-        working-directory: ./code
-
-      - name: Generate project with xcodegen
+      - name: Generate Xcode project with xcodegen
         run: xcodegen generate
-        working-directory: ./code
 
       - name: Build iOS project
         run: |
@@ -46,44 +33,26 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             build
-        working-directory: ./code
 
       - name: Find built app
         run: |
-          find ~/Library/Developer/Xcode/DerivedData -name "AdventureIsland.app" -type d 2>/dev/null | head -3
-        if: success()
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "AdventureIsland.app" -type d 2>/dev/null | head -1)
+          echo "APP_PATH: $APP_PATH"
+          echo "app_path=$APP_PATH" >> $GITHUB_ENV
 
-      - name: Create export options
-        run: |
-          cat > exportOptions.plist << 'EOF'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key>
-            <string>ad-hoc</string>
-            <key>provisioningProfiles</key>
-            <dict/>
-          </dict>
-          </plist>
-          EOF
-        working-directory: ./code
+      - name: Create output directory
+        run: mkdir -p output
 
       - name: Export IPA
         run: |
-          # Get the built app path
-          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "AdventureIsland.app" -type d 2>/dev/null | head -1)
-          echo "APP_PATH: $APP_PATH"
-
-          if [ -n "$APP_PATH" ]; then
-            mkdir -p output
-            cd "$APP_PATH/.."
+          if [ -n "${{ env.app_path }}" ]; then
+            cd "${{ env.app_path }}/.."
             zip -r ../output/AdventureIsland.ipa AdventureIsland.app
-            echo "IPA created at: $(pwd)/../output/AdventureIsland.ipa"
+            echo "IPA created successfully"
           else
             echo "No app found - build may have failed"
+            exit 1
           fi
-        if: success()
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
@@ -99,4 +68,3 @@ jobs:
           echo "## Build Result" >> $GITHUB_STEP_SUMMARY
           echo "- status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
           echo "- runner: macOS 14" >> $GITHUB_STEP_SUMMARY
-          echo "- xcodebuild: available" >> $GITHUB_STEP_SUMMARY
