@@ -204,7 +204,7 @@ class Enemy: SKNode {
             // 受伤闪烁
             let flash = SKAction.sequence([
                 SKAction.colorize(with: .white, colorBlendFactor: 1.0, duration: 0.05),
-                SKAction.colorize(withColorFilter: nil, duration: 0.05)
+                SKAction.colorize(colorBlendFactor: 0, duration: 0.05)
             ])
             run(flash)
         }

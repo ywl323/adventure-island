@@ -39,6 +39,9 @@ class GameScene: SKScene {
     private var enemies: [Enemy] = []
     private var items: [Item] = []
 
+    // MARK: - 世界边界
+    private var worldBounds: CGRect!
+
     // MARK: - 初始化
 
     init(size: CGSize, levelData: LevelData) {

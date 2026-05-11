@@ -39,6 +39,9 @@ class BossScene: SKScene {
     // MARK: - 背景
     private var backgroundLayer: SKNode!
 
+    // MARK: - 世界边界
+    private var worldBounds: CGRect!
+
     init(size: CGSize, levelData: LevelData) {
         self.levelData = levelData
         super.init(size: size)
@@ -457,7 +460,7 @@ class BossNode: SKNode {
         // 受伤闪烁效果
         let flash = SKAction.sequence([
             SKAction.colorize(with: .white, colorBlendFactor: 1.0, duration: 0.1),
-            SKAction.colorize(withColorFilter: nil, duration: 0.1)
+            SKAction.colorize(colorBlendFactor: 0, duration: 0.1)
         ])
         run(flash)
     }

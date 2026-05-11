@@ -173,6 +173,14 @@ struct LevelData {
     let enemies: [EnemySpawnData]
     let items: [ItemSpawnData]
 
+    static func createDefault() -> LevelData {
+        return LevelData(
+            levelNumber: 1, name: "Level 1", width: 3000, timeLimit: 60,
+            backgroundMusic: "", terrainType: "grass", difficulty: 1,
+            specialFeature: "none", enemies: [], items: []
+        )
+    }
+
     static func empty() -> LevelData {
         return LevelData(
             levelNumber: 0, name: "", width: 3000, timeLimit: 60,
