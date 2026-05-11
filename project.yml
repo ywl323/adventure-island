@@ -5,6 +5,11 @@ options:
     iOS: "15.0"
   compatibilityVersion: "Xcode 13.0"
 
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "2"
+
 targets:
   AdventureIsland:
     type: application
@@ -12,7 +17,8 @@ targets:
     deploymentTarget:
       iOS: "15.0"
     sources:
-      - AdventureIsland
+      - path: AdventureIsland
+        type: group
     info:
       path: AdventureIsland/Info.plist
       properties:
