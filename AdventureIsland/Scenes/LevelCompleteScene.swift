@@ -20,7 +20,7 @@ class LevelCompleteScene: SKScene {
     }
 
     override func didMove(to view: SKView) {
-        backgroundColor = SKColor(red: 0.1, green: 0.3, green: 0.1, alpha: 1.0)
+        backgroundColor = SKColor(red: 0.1, green: 0.3, blue: 0.1, alpha: 1.0)
         setupTitle()
         setupLevelInfo()
         setupScore()
