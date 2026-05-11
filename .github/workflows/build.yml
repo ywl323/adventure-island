@@ -15,27 +15,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install xcodegen (1.10.3001)
-        run: npm install -g xcodegen@1.10.3001
+      - name: Install xcodegen
+        run: brew install xcodegen
 
       - name: Check tools
         run: |
           xcodebuild -version
-          xcodegen --version 2>/dev/null || echo "xcodegen installed"
+          xcodegen --version
 
       - name: Generate Xcode project
-        run: xcodegen
+        run: xcodegen generate
+
+      - name: Patch project for Xcode 15.4 compatibility
+        run: |
+          # Fix TARGETED_DEVICE_FAMILY to iPad only (2)
+          sed -i '' 's/TARGETED_DEVICE_FAMILY = "";/TARGETED_DEVICE_FAMILY = 2;/g' AdventureIsland.xcodeproj/project.pbxproj
+          # Fix IPHONEOS_DEPLOYMENT_TARGET if missing
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = "";/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' AdventureIsland.xcodeproj/project.pbxproj
+          echo "Patched project file"
+          grep -c "TARGETED_DEVICE_FAMILY = 2" AdventureIsland.xcodeproj/project.pbxproj || echo "patch failed"
 
       - name: List project files
         run: ls -la
-
-      - name: List available simulators
-        run: xcrun simctl list devices available | grep -i "ipad\|iPhone" | head -10
 
       - name: Build iOS project
         run: |
