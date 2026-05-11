@@ -24,9 +24,7 @@ jobs:
         run: npm install -g xcodegen@2.2.0
 
       - name: Check tools
-        run: |
-          xcodebuild -version
-          xcodegen --version
+        run: xcodebuild -version
 
       - name: Generate Xcode project
         run: xcodegen generate
