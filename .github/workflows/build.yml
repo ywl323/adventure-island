@@ -29,6 +29,9 @@ jobs:
           export PATH="$(npm global bin):$PATH"
           echo "xcodegen installed"
 
+      - name: List available simulators
+        run: xcrun simctl list devices available | grep -E "iPad|iPhone" | head -10
+
       - name: Generate Xcode project
         run: |
           export PATH="$(npm global bin):$PATH"
@@ -43,7 +46,7 @@ jobs:
           xcodebuild -project AdventureIsland.xcodeproj \
             -scheme AdventureIsland \
             -configuration Debug \
-            -destination 'platform=iOS Simulator,name=iPad Pro (11-inch) (4th generation)' \
+            -destination 'platform=iOS Simulator,name=iPad (10th generation),OS=17.4' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
