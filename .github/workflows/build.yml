@@ -26,26 +26,16 @@ jobs:
       - name: Check tools
         run: |
           xcodebuild -version
-          node -p "require('xcodegen').version"
+          export PATH="$(npm global bin):$PATH"
+          xcodegen --version
 
       - name: Generate Xcode project
-        run: xcodegen generate
+        run: |
+          export PATH="$(npm global bin):$PATH"
+          xcodegen generate
 
       - name: List project files
-        run: |
-          ls -la
-          echo "=== project.pbxproj header ==="
-          head -20 AdventureIsland.xcodeproj/project.pbxproj
-
-      - name: Patch project format version to Xcode 15.4 compatible
-        run: |
-          PLIST=AdventureIsland.xcodeproj/project.pbxproj
-          # Change project format version from 77 to 54 (Xcode 15 compatible)
-          sed -i '' 's/objectFormat = xcode16/objectFormat = xcode15/g' "$PLIST"
-          # Also try patching root version comment
-          sed -i '' 's/Xcode Internal Components/Xcode 15.4 Compatible/g' "$PLIST"
-          echo "=== After patch ==="
-          head -5 "$PLIST"
+        run: ls -la
 
       - name: Build iOS project
         run: |

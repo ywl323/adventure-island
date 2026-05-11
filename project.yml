@@ -3,6 +3,7 @@ options:
   bundleIdPrefix: com.dev
   deploymentTarget:
     iOS: "15.0"
+  compatibilityVersion: "Xcode 13.0"
   generateEmptyDirectories: true
   groupSortPosition: top
 
