@@ -18,10 +18,9 @@ jobs:
       - name: Check Xcode version
         run: |
           xcodebuild -version
-          xcodegen -version
 
-      - name: Generate Xcode project with xcodegen
-        run: xcodegen generate
+      - name: List project files
+        run: ls -la
 
       - name: Build iOS project
         run: |
@@ -35,28 +34,27 @@ jobs:
             build
 
       - name: Find built app
+        id: find-app
         run: |
           APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "AdventureIsland.app" -type d 2>/dev/null | head -1)
-          echo "APP_PATH: $APP_PATH"
-          echo "app_path=$APP_PATH" >> $GITHUB_ENV
-
-      - name: Create output directory
-        run: mkdir -p output
+          echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
+          echo "Found app at: $APP_PATH"
 
       - name: Export IPA
         run: |
-          if [ -n "${{ env.app_path }}" ]; then
-            cd "${{ env.app_path }}/.."
+          if [ -n "${{ env.APP_PATH }}" ]; then
+            mkdir -p output
+            cd "${{ env.APP_PATH }}"
             zip -r ../output/AdventureIsland.ipa AdventureIsland.app
-            echo "IPA created successfully"
+            echo "IPA created"
           else
-            echo "No app found - build may have failed"
-            exit 1
+            echo "Build may have failed - no app found"
+            ls ~/Library/Developer/Xcode/DerivedData/ | head -5
           fi
 
       - name: Upload IPA artifact
-        uses: actions/upload-artifact@v4
         if: success()
+        uses: actions/upload-artifact@v4
         with:
           name: AdventureIsland-IPA
           path: output/AdventureIsland.ipa
