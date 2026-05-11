@@ -15,9 +15,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check Xcode version
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Check tools
         run: |
           xcodebuild -version
+          xcodegen -version
+
+      - name: Generate Xcode project
+        run: xcodegen generate
 
       - name: List project files
         run: ls -la
@@ -48,7 +55,7 @@ jobs:
             zip -r ../output/AdventureIsland.ipa AdventureIsland.app
             echo "IPA created"
           else
-            echo "Build may have failed - no app found"
+            echo "Build may have failed"
             ls ~/Library/Developer/Xcode/DerivedData/ | head -5
           fi
 
