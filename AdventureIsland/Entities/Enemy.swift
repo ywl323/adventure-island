@@ -133,7 +133,7 @@ class Enemy: SKNode {
             color = SKColor(red: 0.4, green: 0.4, blue: 0.5, alpha: 1.0)
         case "guardian_statue":
             size = CGSize(width: 60, height: 70)
-            color = SKColor(gray: 0.6, alpha: 1.0)
+            color = SKColor(white: 0.6, alpha: 1.0)
         case "curse_ghost":
             size = CGSize(width: 45, height: 55)
             color = SKColor(red: 0.3, green: 0.0, blue: 0.4, alpha: 0.8)
@@ -204,7 +204,7 @@ class Enemy: SKNode {
             // 受伤闪烁
             let flash = SKAction.sequence([
                 SKAction.colorize(with: .white, colorBlendFactor: 1.0, duration: 0.05),
-                SKAction.colorize(colorBlendFactor: 0, duration: 0.05)
+                SKAction.colorize(with: .white, colorBlendFactor: 0, duration: 0.05)
             ])
             run(flash)
         }

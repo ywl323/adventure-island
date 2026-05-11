@@ -114,7 +114,7 @@ class BossScene: SKScene {
             // 最终BOSS：4根石柱
             for i in 0..<4 {
                 let pillar = SKShapeNode(rect: CGRect(x: 600 + CGFloat(i) * 500, y: 50, width: 90, height: 150))
-                pillar.fillColor = SKColor(gray: 0.5, alpha: 1.0)
+                pillar.fillColor = SKColor(white: 0.5, alpha: 1.0)
                 pillar.strokeColor = .clear
                 pillar.physicsBody = SKPhysicsBody(edgeLoopFrom: CGRect(x: 0, y: 0, width: 90, height: 150))
                 pillar.physicsBody?.categoryBitMask = PhysicsCategories.ground
@@ -123,7 +123,7 @@ class BossScene: SKScene {
         } else {
             // 普通BOSS：中央掩体
             let centerPlatform = SKShapeNode(rect: CGRect(x: 1350, y: 50, width: 150, height: 80))
-            centerPlatform.fillColor = SKColor(gray: 0.4, alpha: 1.0)
+            centerPlatform.fillColor = SKColor(white: 0.4, alpha: 1.0)
             centerPlatform.strokeColor = .clear
             centerPlatform.physicsBody = SKPhysicsBody(edgeLoopFrom: CGRect(x: 0, y: 0, width: 150, height: 80))
             centerPlatform.physicsBody?.categoryBitMask = PhysicsCategories.ground
@@ -460,7 +460,7 @@ class BossNode: SKNode {
         // 受伤闪烁效果
         let flash = SKAction.sequence([
             SKAction.colorize(with: .white, colorBlendFactor: 1.0, duration: 0.1),
-            SKAction.colorize(colorBlendFactor: 0, duration: 0.1)
+            SKAction.colorize(with: .white, colorBlendFactor: 0, duration: 0.1)
         ])
         run(flash)
     }
