@@ -4,6 +4,7 @@ options:
   deploymentTarget:
     iOS: "15.0"
   xcodeVersion: "15.0"
+  compatibilityVersion: "Xcode 14.0"
   generateEmptyDirectories: true
   groupSortPosition: top
 
