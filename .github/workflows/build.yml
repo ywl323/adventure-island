@@ -16,7 +16,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install xcodegen
-        run: brew install xcodegen
+        run: |
+          brew install xcodegen@2.41.0 || brew install xcodegen@2 || brew install xcodegen
+          xcodegen --version
 
       - name: Check tools
         run: xcodebuild -version
