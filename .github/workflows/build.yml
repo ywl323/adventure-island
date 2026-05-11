@@ -42,7 +42,7 @@ jobs:
           xcodebuild -project AdventureIsland.xcodeproj \
             -scheme AdventureIsland \
             -configuration Debug \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination 'platform=iOS Simulator,name=iPad (10th generation),OS=17.4' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
