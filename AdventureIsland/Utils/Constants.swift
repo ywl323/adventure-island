@@ -7,8 +7,8 @@ struct Constants {
     static let targetFPS: Int = 60
 
     // MARK: - 物理参数
-    static let gravity: CGFloat = 980.0          // 重力加速度
-    static let jumpForce: CGFloat = 500.0        // 跳跃力度
+    static let gravity: CGFloat = 1200.0         // 重力加速度
+    static let jumpForce: CGFloat = 420.0        // 跳跃力度
     static let playerSpeed: CGFloat = 300.0      // 玩家移动速度
 
     // MARK: - 屏幕尺寸
