@@ -387,7 +387,7 @@ class BossScene: SKScene {
     private func gameOver() {
         isGameOver = true
         let gameOverScene = GameOverScene(size: size, score: score)
-        gameOverScene.scaleMode = scaleMode
+        gameOverScene.scaleMode = .resizeFill
         let transition = SKTransition.flipHorizontal(withDuration: 0.5)
         view?.presentScene(gameOverScene, transition: transition)
     }
@@ -401,7 +401,7 @@ class BossScene: SKScene {
             score: score,
             timeRemaining: gameTime
         )
-        levelCompleteScene.scaleMode = scaleMode
+        levelCompleteScene.scaleMode = .resizeFill
         let transition = SKTransition.flipHorizontal(withDuration: 0.5)
         view?.presentScene(levelCompleteScene, transition: transition)
     }
