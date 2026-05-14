@@ -114,14 +114,14 @@ class LevelCompleteScene: SKScene {
     private func presentGameScene(levelNum: Int) {
         let levelData = LevelManager.shared.generateLevelData(levelNum)
         let gameScene = GameScene(size: size, levelData: levelData)
-        gameScene.scaleMode = .aspectFill
+        gameScene.scaleMode = .resizeFill
         let transition = SKTransition.flipHorizontal(withDuration: 0.5)
         view?.presentScene(gameScene, transition: transition)
     }
 
     private func presentMenuScene() {
         let menuScene = MenuScene(size: size)
-        menuScene.scaleMode = .aspectFill
+        menuScene.scaleMode = .resizeFill
         let transition = SKTransition.flipHorizontal(withDuration: 0.5)
         view?.presentScene(menuScene, transition: transition)
     }
@@ -138,7 +138,7 @@ class LevelCompleteScene: SKScene {
                 let levelData = LevelManager.shared.generateLevelData(nextLevel)
                 if levelData.terrainType == "boss" {
                     let bossScene = BossScene(size: size, levelData: levelData)
-                    bossScene.scaleMode = .aspectFill
+                    bossScene.scaleMode = .resizeFill
                     let transition = SKTransition.flipHorizontal(withDuration: 0.5)
                     view?.presentScene(bossScene, transition: transition)
                 } else {

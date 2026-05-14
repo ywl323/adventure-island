@@ -188,7 +188,7 @@ class MenuScene: SKScene {
             gameScene = GameScene(size: size, levelData: levelData)
         }
 
-        gameScene.scaleMode = .aspectFill
+        gameScene.scaleMode = .resizeFill
         let transition = SKTransition.flipHorizontal(withDuration: 0.5)
         view?.presentScene(gameScene, transition: transition)
     }

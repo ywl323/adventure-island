@@ -82,14 +82,14 @@ class GameOverScene: SKScene {
             // 从第一关重新开始
             let levelData = LevelManager.shared.generateLevelData(1)
             let gameScene = GameScene(size: size, levelData: levelData)
-            gameScene.scaleMode = .aspectFill
+            gameScene.scaleMode = .resizeFill
             let transition = SKTransition.flipHorizontal(withDuration: 0.5)
             view?.presentScene(gameScene, transition: transition)
         }
 
         if node.name == "menuButton" {
             let menuScene = MenuScene(size: size)
-            menuScene.scaleMode = .aspectFill
+            menuScene.scaleMode = .resizeFill
             let transition = SKTransition.flipHorizontal(withDuration: 0.5)
             view?.presentScene(menuScene, transition: transition)
         }
