@@ -40,20 +40,35 @@ class Player: SKNode {
     private func setupPlayer() {
         name = "player"
 
-        // 尝试从 asset catalog 加载 PNG
-        let texture = SKTexture(imageNamed: "01_player_master_higgins")
+        // 方法1：直接用 SKSpriteNode(imageNamed:) 从 asset catalog 加载
+        sprite = SKSpriteNode(imageNamed: "01_player_master_higgins")
 
-        // 如果纹理加载成功（尺寸有效），使用它；否则用彩色方块代替
-        if texture.size().width > 0 && texture.size().height > 0 {
-            // 根据纹理实际尺寸的1/10来设置显示大小（因为原图是像素级的）
-            let texSize = texture.size()
-            let displaySize = CGSize(width: texSize.width, height: texSize.height)
-            sprite = SKSpriteNode(texture: texture, size: displaySize)
-            print("✅ Player texture loaded: \(texSize)")
+        // 检查纹理是否有效
+        if sprite.texture == nil || sprite.texture!.size().width == 0 {
+            print("⚠️ Player: '01_player_master_higgins' NOT found in asset catalog, trying alternative names...")
+
+            // 方法2：尝试不同命名格式
+            let possibleNames = [
+                "01_player_master_higgins",
+                "player",
+                "adventure_island_logo1"
+            ]
+
+            for name in possibleNames {
+                sprite = SKSpriteNode(imageNamed: name)
+                if sprite.texture != nil && sprite.texture!.size().width > 0 {
+                    print("✅ Player: found texture '\(name)' (\(sprite.texture!.size()))")
+                    break
+                }
+            }
+
+            // 最终回退：如果都找不到，用彩色方块
+            if sprite.texture == nil || sprite.texture!.size().width == 0 {
+                print("❌ Player: No valid texture found. Using placeholder.")
+                sprite = SKSpriteNode(color: .cyan, size: CGSize(width: 40, height: 48))
+            }
         } else {
-            // Fallback：用彩色方块代替，方便调试
-            print("⚠️ Player texture NOT found, using placeholder")
-            sprite = SKSpriteNode(color: .cyan, size: CGSize(width: 32, height: 40))
+            print("✅ Player: loaded '01_player_master_higgins' texture size: \(sprite.texture!.size())")
         }
 
         sprite.position = .zero
@@ -146,7 +161,6 @@ class Player: SKNode {
     // MARK: - 更新逻辑
 
     func update() {
-        // 保持玩家在地面以上（简单碰撞处理）
         if position.y < 100 && isGrounded {
             position.y = 100
         }

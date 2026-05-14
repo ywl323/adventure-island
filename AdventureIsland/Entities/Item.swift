@@ -61,8 +61,20 @@ class Item: SKNode {
 
     private func setupAppearance() {
         let imageName = Item.typeToImage[itemType] ?? "10_item_coin"
+        print("🟡 Item[\(itemType)]: loading '\(imageName)'")
+
         let texture = SKTexture(imageNamed: imageName)
-        sprite = SKSpriteNode(texture: texture, size: CGSize(width: 35, height: 35))
+        print("   texture size: \(texture.size())")
+
+        if texture.size().width == 0 {
+            print("❌ Item[\(itemType)]: texture '\(imageName)' FAILED to load")
+            sprite = SKSpriteNode(color: .yellow, size: CGSize(width: 35, height: 35))
+        } else {
+            let displaySize = CGSize(width: 35, height: 35)
+            sprite = SKSpriteNode(texture: texture, size: displaySize)
+            print("✅ Item[\(itemType)]: loaded texture '\(imageName)'")
+        }
+
         sprite.position = .zero
         addChild(sprite)
 

@@ -100,8 +100,22 @@ class Enemy: SKNode {
 
     private func setupAppearance() {
         let imageName = Enemy.typeToImage[enemyType] ?? "02_enemy_dinosaur"
+        print("🔴 Enemy[\(enemyType)]: loading '\(imageName)'")
+
+        // 尝试加载纹理
         let texture = SKTexture(imageNamed: imageName)
-        sprite = SKSpriteNode(texture: texture, size: CGSize(width: 50, height: 50))
+        print("   texture size: \(texture.size())")
+
+        if texture.size().width == 0 {
+            print("❌ Enemy[\(enemyType)]: texture '\(imageName)' FAILED to load")
+            sprite = SKSpriteNode(color: .red, size: spriteSize)
+        } else {
+            // 用纹理实际尺寸或指定尺寸
+            let displaySize = CGSize(width: 50, height: 50)
+            sprite = SKSpriteNode(texture: texture, size: displaySize)
+            print("✅ Enemy[\(enemyType)]: loaded texture '\(imageName)'")
+        }
+
         sprite.position = .zero
         addChild(sprite)
 
@@ -111,6 +125,7 @@ class Enemy: SKNode {
         physicsBody?.contactTestBitMask = PhysicsCategories.player
         physicsBody?.collisionBitMask = PhysicsCategories.ground
         physicsBody?.allowsRotation = false
+
         let flyingTypes = ["bat", "volcanic_bat", "storm_vulture", "sky_knight", "guardian_angel", "thunder_orb"]
         physicsBody?.affectedByGravity = !flyingTypes.contains(enemyType)
     }
