@@ -1,6 +1,6 @@
 import SpriteKit
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
 
     // MARK: - 节点属性
     private var player: Player!
@@ -77,6 +77,7 @@ class GameScene: SKScene {
     private func setupPhysics() {
         worldBounds = CGRect(x: 0, y: 0, width: levelData.width, height: size.height)
         physicsWorld.gravity = CGVector(dx: 0, dy: -Constants.gravity)
+        physicsWorld.contactDelegate = self
     }
 
     private func setupCamera() {
@@ -117,6 +118,16 @@ class GameScene: SKScene {
         background.position = CGPoint(x: size.width / 2, y: size.height / 2)
         background.zPosition = -100
         backgroundLayer.addChild(background)
+
+        // 添加地面（物理边界）
+        let ground = SKShapeNode(rect: CGRect(x: 0, y: 0, width: levelData.width, height: 50))
+        ground.fillColor = getGroundColor()
+        ground.strokeColor = .clear
+        ground.zPosition = -50
+        ground.physicsBody = SKPhysicsBody(edgeFrom: CGPoint(x: 0, y: 0), to: CGPoint(x: levelData.width, y: 0))
+        ground.physicsBody?.categoryBitMask = PhysicsCategories.ground
+        ground.physicsBody?.contactTestBitMask = PhysicsCategories.player
+        backgroundLayer.addChild(ground)
 
         addBackgroundDecorations()
     }
@@ -573,6 +584,22 @@ class GameScene: SKScene {
             player.position.y = playerStartY
             player.stop()
         }
+    }
+
+    // MARK: - SKPhysicsContactDelegate
+
+    func didBegin(_ contact: SKPhysicsContact) {
+        let maskA = contact.bodyA.categoryBitMask
+        let maskB = contact.bodyB.categoryBitMask
+
+        if maskA == PhysicsCategories.player && maskB == PhysicsCategories.ground {
+            player?.didContact(with: PhysicsCategories.ground)
+        } else if maskB == PhysicsCategories.player && maskA == PhysicsCategories.ground {
+            player?.didContact(with: PhysicsCategories.ground)
+        }
+    }
+
+    func didEnd(_ contact: SKPhysicsContact) {
     }
 
     // MARK: - 游戏逻辑
