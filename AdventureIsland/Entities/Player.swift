@@ -71,7 +71,7 @@ class Player: SKNode {
             print("✅ Player: loaded '01_player_master_higgins' texture size: \(sprite.texture!.size())")
         }
 
-        sprite.setScale(2.0)
+        sprite.setScale(0.15)
         sprite.position = .zero
         sprite.anchorPoint = CGPoint(x: 0.5, y: 0.0) // 底部中心为锚点
         addChild(sprite)
