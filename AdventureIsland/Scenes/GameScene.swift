@@ -132,6 +132,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addBackgroundDecorations()
     }
 
+    private func getGroundColor() -> SKColor {
+        switch levelData.terrainType {
+        case "grass":
+            return SKColor(red: 0.3, green: 0.55, blue: 0.25, alpha: 1.0)
+        case "water":
+            return SKColor(red: 0.15, green: 0.35, blue: 0.5, alpha: 1.0)
+        case "underground", "ruins":
+            return SKColor(red: 0.3, green: 0.25, blue: 0.2, alpha: 1.0)
+        case "volcano":
+            return SKColor(red: 0.35, green: 0.15, blue: 0.08, alpha: 1.0)
+        case "sky":
+            return SKColor(red: 0.55, green: 0.45, blue: 0.35, alpha: 1.0)
+        case "cliff":
+            return SKColor(red: 0.45, green: 0.4, blue: 0.35, alpha: 1.0)
+        default:
+            return SKColor(red: 0.3, green: 0.55, blue: 0.25, alpha: 1.0)
+        }
+    }
+
     private func addBackgroundDecorations() {
         switch levelData.terrainType {
         case "grass":
