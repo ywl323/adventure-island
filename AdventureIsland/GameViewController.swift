@@ -11,24 +11,19 @@ class GameViewController: UIViewController {
     }
 
     private func setupSKView() {
-        // 使用屏幕准确像素尺寸
-        let screenBounds = UIScreen.main.bounds
-        let scale = UIScreen.main.scale
-
-        // 横屏时 screenBounds.width > height
-        // 使用原始bounds作为逻辑像素尺寸（避免乘以scale导致过大）
-        skView = SKView(frame: CGRect(x: 0, y: 0, width: screenBounds.width, height: screenBounds.height))
+        // 使用屏幕 bounds 作为逻辑像素尺寸
+        skView = SKView(frame: view.bounds)
         skView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         skView.ignoresSiblingOrder = true
         skView.showsFPS = true
         skView.showsNodeCount = true
         skView.preferredFramesPerSecond = 60
-        skView.backgroundColor = .black
+        skView.backgroundColor = .clear  // 透明背景，让view Controller的黑色透出来
 
+        view.backgroundColor = .black
         view.addSubview(skView)
 
-        print("📱 GameViewController: screenBounds=\(screenBounds), scale=\(scale)")
-        print("📱 GameViewController: skView frame=\(skView.frame)")
+        print("📱 GameViewController: screen=\(UIScreen.main.bounds), scale=\(UIScreen.main.scale)")
     }
 
     override func viewDidLayoutSubviews() {
@@ -40,13 +35,11 @@ class GameViewController: UIViewController {
     }
 
     private func loadMenuScene() {
-        // 使用 skView 的实际 frame 作为 scene size（逻辑像素）
         let sceneSize = skView.bounds.size
-        print("🔧 GameViewController: loading MenuScene with sceneSize=\(sceneSize)")
-        print("🔧 GameViewController: skView bounds=\(skView.bounds), frame=\(skView.frame)")
+        print("🔧 GameViewController: sceneSize=\(sceneSize)")
 
         let menuScene = MenuScene(size: sceneSize)
-        menuScene.scaleMode = .resizeFill  // scene 完全填充屏幕
+        menuScene.scaleMode = .aspectFit  // 完整显示，不裁剪，两侧可能有黑边
         skView.presentScene(menuScene)
     }
 
@@ -56,10 +49,6 @@ class GameViewController: UIViewController {
 
     override var prefersStatusBarHidden: Bool {
         return true
-    }
-
-    override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge {
-        return []
     }
 
     override var shouldAutorotate: Bool {
