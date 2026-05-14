@@ -54,7 +54,12 @@ class GameOverScene: SKScene {
         let node = self.atPoint(location)
 
         if node.name == "retryButton" {
-            let gameScene = GameScene(size: size, levelData: LevelData.createDefault())
+            let levelData = LevelData(
+                levelNumber: 1, name: "Level 1", width: 3000, timeLimit: 60,
+                backgroundMusic: "", terrainType: "grass", difficulty: 1,
+                specialFeature: "none", enemies: [], items: []
+            )
+            let gameScene = GameScene(size: size, levelData: levelData)
             gameScene.scaleMode = scaleMode
             let transition = SKTransition.flipHorizontal(withDuration: 0.5)
             view?.presentScene(gameScene, transition: transition)

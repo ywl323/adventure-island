@@ -20,10 +20,29 @@ class GameViewController: UIViewController {
         // 设置目标帧率 60 FPS
         skView.preferredFramesPerSecond = 60
 
+        // 关键修复：设置 SKView 的 backgroundColor 为黑色
+        skView.backgroundColor = .black
+
         view.addSubview(skView)
 
-        // 加载主菜单场景
-        let menuScene = MenuScene(size: skView.bounds.size)
+        // 延迟加载场景到 viewDidLayoutSubviews，确保 bounds 正确
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        // 只在首次布局时加载场景
+        if skView.scene == nil {
+            loadMenuScene()
+        }
+    }
+
+    private func loadMenuScene() {
+        // 使用 skView 的实际 bounds 大小创建场景
+        let sceneSize = skView.bounds.size
+        print("🔧 GameViewController: loading MenuScene with size \(sceneSize)")
+
+        let menuScene = MenuScene(size: sceneSize)
         menuScene.scaleMode = .aspectFill
         skView.presentScene(menuScene)
     }

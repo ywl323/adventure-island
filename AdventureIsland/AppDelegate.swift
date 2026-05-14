@@ -4,19 +4,14 @@ import SpriteKit
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    var window: UIWindow?
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
-        // 创建窗口
-        window = UIWindow(frame: UIScreen.main.bounds)
-
-        // 配置 GameViewController
-        let gameViewController = GameViewController()
-        window?.rootViewController = gameViewController
-        window?.makeKeyAndVisible()
-
+        // iOS 13+ 使用 SceneDelegate 管理窗口，AppDelegate 不需要创建 window
         return true
+    }
+
+    // MARK: - UISceneSession lifecycle (required for iOS 13+)
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

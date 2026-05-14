@@ -75,6 +75,7 @@ class GameScene: SKScene {
 
     private func setupCamera() {
         cameraNode = SKCameraNode()
+        // Y 固定在 size.height/2，使屏幕底部对准 scene y = 90
         cameraNode.position = CGPoint(x: size.width / 2, y: size.height / 2)
         addChild(cameraNode)
         camera = cameraNode
@@ -304,37 +305,83 @@ class GameScene: SKScene {
     }
 
     private func setupControlArea() {
-        // 左按钮
-        leftButton = SKShapeNode(circleOfRadius: 40)
-        leftButton.fillColor = SKColor(white: 1.0, alpha: 0.3)
-        leftButton.strokeColor = .white
-        leftButton.position = CGPoint(x: 80, y: 80)
+        // 按钮大小和位置（camera-relative 坐标，对应屏幕左下/右下角）
+        let buttonRadius: CGFloat = 50
+        // 屏幕底部 y = 90 → camera-relative y = -size.height/2 + 90
+        let buttonY: CGFloat = -size.height / 2 + 90
+        let buttonSpacing: CGFloat = 110  // 按钮间距
+
+        // ===== 左下角：方向键 ◀ ▶ =====
+        // 屏幕左边缘 x = 90 → camera-relative x = -size.width/2 + 90
+        let leftBaseX: CGFloat = -size.width / 2 + 90  // ◀ 按钮中心 X
+
+        // ◀ 左方向按钮
+        leftButton = SKShapeNode(circleOfRadius: buttonRadius)
+        leftButton.fillColor = SKColor(white: 0.2, alpha: 0.85)
+        leftButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
+        leftButton.lineWidth = 3
+        leftButton.position = CGPoint(x: leftBaseX, y: buttonY)
         leftButton.name = "leftButton"
         cameraNode.addChild(leftButton)
 
-        // 右按钮
-        rightButton = SKShapeNode(circleOfRadius: 40)
-        rightButton.fillColor = SKColor(white: 1.0, alpha: 0.3)
-        rightButton.strokeColor = .white
-        rightButton.position = CGPoint(x: 180, y: 80)
+        let leftArrow = SKLabelNode(text: "◀")
+        leftArrow.fontName = "Helvetica-Bold"
+        leftArrow.fontSize = 36
+        leftArrow.fontColor = .white
+        leftArrow.position = CGPoint(x: 0, y: -10)
+        leftButton.addChild(leftArrow)
+
+        // ▶ 右方向按钮（紧贴 ◀ 右边）
+        rightButton = SKShapeNode(circleOfRadius: buttonRadius)
+        rightButton.fillColor = SKColor(white: 0.2, alpha: 0.85)
+        rightButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
+        rightButton.lineWidth = 3
+        rightButton.position = CGPoint(x: leftBaseX + buttonSpacing, y: buttonY)
         rightButton.name = "rightButton"
         cameraNode.addChild(rightButton)
 
-        // 跳跃按钮
-        jumpButton = SKShapeNode(circleOfRadius: 40)
-        jumpButton.fillColor = SKColor(white: 1.0, alpha: 0.3)
-        jumpButton.strokeColor = .white
-        jumpButton.position = CGPoint(x: size.width - 180, y: 80)
+        let rightArrow = SKLabelNode(text: "▶")
+        rightArrow.fontName = "Helvetica-Bold"
+        rightArrow.fontSize = 36
+        rightArrow.fontColor = .white
+        rightArrow.position = CGPoint(x: 0, y: -10)
+        rightButton.addChild(rightArrow)
+
+        // ===== 右下角：跳跃 ▲ + 攻击 ATK =====
+        // 屏幕右边缘 x = size.width - 90 → camera-relative x = size.width/2 - 90
+        let rightBaseX: CGFloat = size.width / 2 - 90  // ATK 按钮中心 X
+
+        // ▲ 跳跃按钮（靠内侧，靠近中心）
+        jumpButton = SKShapeNode(circleOfRadius: buttonRadius)
+        jumpButton.fillColor = SKColor(red: 0.3, green: 0.6, blue: 1.0, alpha: 0.85)
+        jumpButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
+        jumpButton.lineWidth = 3
+        jumpButton.position = CGPoint(x: rightBaseX - buttonSpacing, y: buttonY)
         jumpButton.name = "jumpButton"
         cameraNode.addChild(jumpButton)
 
-        // 攻击按钮
-        attackButton = SKShapeNode(circleOfRadius: 40)
-        attackButton.fillColor = SKColor(white: 1.0, alpha: 0.3)
-        attackButton.strokeColor = .white
-        attackButton.position = CGPoint(x: size.width - 80, y: 80)
+        let jumpLabel = SKLabelNode(text: "▲")
+        jumpLabel.fontName = "Helvetica-Bold"
+        jumpLabel.fontSize = 32
+        jumpLabel.fontColor = .white
+        jumpLabel.position = CGPoint(x: 0, y: -8)
+        jumpButton.addChild(jumpLabel)
+
+        // ATK 攻击按钮（靠外侧）
+        attackButton = SKShapeNode(circleOfRadius: buttonRadius)
+        attackButton.fillColor = SKColor(red: 1.0, green: 0.25, blue: 0.25, alpha: 0.85)
+        attackButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
+        attackButton.lineWidth = 3
+        attackButton.position = CGPoint(x: rightBaseX, y: buttonY)
         attackButton.name = "attackButton"
         cameraNode.addChild(attackButton)
+
+        let attackLabel = SKLabelNode(text: "ATK")
+        attackLabel.fontName = "Helvetica-Bold"
+        attackLabel.fontSize = 22
+        attackLabel.fontColor = .white
+        attackLabel.position = CGPoint(x: 0, y: -6)
+        attackButton.addChild(attackLabel)
     }
 
     private func startGameTimer() {

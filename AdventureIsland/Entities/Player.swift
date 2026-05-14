@@ -1,6 +1,6 @@
 import SpriteKit
 
-class Player: SKSpriteNode {
+class Player: SKNode {
 
     // MARK: - 属性
     private var moveSpeed: CGFloat = Constants.playerSpeed
@@ -8,14 +8,16 @@ class Player: SKSpriteNode {
     private var isAttacking: Bool = false
     private var health: Int = 3
 
-    // 动画状态
-    private var currentAnimation: SKAction?
+    // 精灵节点
+    private var sprite: SKSpriteNode!
+
+    // 物理体尺寸（用于碰撞）
+    private let physicsRadius: CGFloat = 20
 
     // MARK: - 初始化
 
-    init() {
-        let texture = SKTexture(imageNamed: "player")
-        super.init(texture: texture, color: .clear, size: texture.size())
+    override init() {
+        super.init()
         setupPhysics()
         setupPlayer()
     }
@@ -25,8 +27,7 @@ class Player: SKSpriteNode {
     }
 
     private func setupPhysics() {
-        // 使用圆形物理体作为玩家碰撞体
-        physicsBody = SKPhysicsBody(circleOfRadius: size.width / 2)
+        physicsBody = SKPhysicsBody(circleOfRadius: physicsRadius)
         physicsBody?.isDynamic = true
         physicsBody?.allowsRotation = false
         physicsBody?.categoryBitMask = PhysicsCategories.player
@@ -38,8 +39,12 @@ class Player: SKSpriteNode {
 
     private func setupPlayer() {
         name = "player"
-        // 默认站姿
-        runAnimation(.idle)
+
+        // 从 asset catalog 加载 PNG（使用完整资源路径）
+        let texture = SKTexture(imageNamed: "01_player_master_higgins")
+        sprite = SKSpriteNode(texture: texture, size: CGSize(width: 40, height: 50))
+        sprite.position = .zero
+        addChild(sprite)
     }
 
     // MARK: - 移动逻辑
@@ -47,24 +52,15 @@ class Player: SKSpriteNode {
     func moveLeft() {
         physicsBody?.velocity.dx = -moveSpeed
         xScale = -1
-        if isGrounded && !isAttacking {
-            runAnimation(.walk)
-        }
     }
 
     func moveRight() {
         physicsBody?.velocity.dx = moveSpeed
         xScale = 1
-        if isGrounded && !isAttacking {
-            runAnimation(.walk)
-        }
     }
 
     func stop() {
-        if isGrounded && !isAttacking {
-            physicsBody?.velocity.dx = 0
-            runAnimation(.idle)
-        }
+        physicsBody?.velocity.dx = 0
     }
 
     // MARK: - 跳跃物理
@@ -73,7 +69,6 @@ class Player: SKSpriteNode {
         guard isGrounded else { return }
         physicsBody?.velocity = CGVector(dx: physicsBody?.velocity.dx ?? 0, dy: Constants.jumpForce)
         isGrounded = false
-        runAnimation(.jump)
     }
 
     // MARK: - 攻击动作
@@ -81,29 +76,37 @@ class Player: SKSpriteNode {
     func attack() {
         guard !isAttacking else { return }
         isAttacking = true
-        runAnimation(.attack)
 
-        // 攻击持续时间后恢复
-        let wait = SKAction.wait(forDuration: 0.3)
+        let originalColor = sprite.color
+        let originalColorBlend = sprite.colorBlendFactor
+        let flash = SKAction.sequence([
+            SKAction.run { [weak self] in
+                self?.sprite.color = .red
+                self?.sprite.colorBlendFactor = 0.5
+            },
+            SKAction.wait(forDuration: 0.1),
+            SKAction.run { [weak self] in
+                self?.sprite.color = originalColor
+                self?.sprite.colorBlendFactor = originalColorBlend
+            },
+            SKAction.wait(forDuration: 0.2)
+        ])
+        sprite.run(flash)
+
         let finish = SKAction.run { [weak self] in
             self?.isAttacking = false
-            self?.runAnimation(.idle)
         }
-        run(SKAction.sequence([wait, finish]))
+        run(SKAction.sequence([SKAction.wait(forDuration: 0.3), finish]))
     }
 
     // MARK: - 死亡逻辑
 
     func die() {
-        // 死亡动画
-        runAnimation(.die)
-
-        // 延迟重置位置或游戏结束
-        let wait = SKAction.wait(forDuration: 1.0)
+        let fadeOut = SKAction.fadeOut(withDuration: 0.5)
         let reset = SKAction.run { [weak self] in
             self?.reset()
         }
-        run(SKAction.sequence([wait, reset]))
+        run(SKAction.sequence([fadeOut, reset]))
     }
 
     private func reset() {
@@ -111,29 +114,13 @@ class Player: SKSpriteNode {
         isAttacking = false
         position = CGPoint(x: 200, y: 200)
         physicsBody?.velocity = .zero
-        runAnimation(.idle)
-    }
-
-    // MARK: - 动画播放
-
-    private enum PlayerAnimation {
-        case idle
-        case walk
-        case jump
-        case attack
-        case die
-    }
-
-    private func runAnimation(_ animation: PlayerAnimation) {
-        // TODO: 实现具体动画帧
-        // 此处为框架占位，后续添加具体资源后实现
+        alpha = 1.0
     }
 
     // MARK: - 更新逻辑
 
     func update() {
-        // 检测是否在地面上
-        // isGrounded = 检查地面碰撞状态
+        // 后续可扩展
     }
 
     // MARK: - 碰撞回调

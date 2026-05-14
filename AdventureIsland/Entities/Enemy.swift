@@ -8,10 +8,48 @@ class Enemy: SKNode {
     private var moveSpeed: CGFloat = 100
     private var damage: Int = 1
     private var scoreValue: Int = 100
-    private var body: SKShapeNode!
+    private var sprite: SKSpriteNode!
 
     // 移动方向
     private var direction: CGFloat = 1
+
+    // PNG 文件名映射
+    private static let typeToImage: [String: String] = [
+        "dinosaur": "02_enemy_dinosaur",
+        "raptor": "06_boss_raptor",
+        "snail": "03_enemy_snail",
+        "bee": "04_enemy_bee",
+        "piranha": "05_enemy_piranha",
+        "frog": "07_boss_frog",
+        "lizard": "02_enemy_dinosaur",
+        "snake": "02_enemy_dinosaur",
+        "bat": "29_enemy_bat",
+        "volcanic_bat": "29_enemy_bat",
+        "skeleton": "31_enemy_skeleton",
+        "fire_skeleton": "31_enemy_skeleton",
+        "scorpion": "30_enemy_scorpion",
+        "seagull": "04_enemy_bee",
+        "fire_lizard": "08_boss_lava_dragon",
+        "fire_beetle": "28_enemy_skull_fire",
+        "magma_worm": "28_enemy_skull_fire",
+        "magma_sprite": "28_enemy_skull_fire",
+        "magma_ghost": "28_enemy_skull_fire",
+        "magma_golem": "28_enemy_skull_fire",
+        "storm_vulture": "29_enemy_bat",
+        "lightning_lizard": "02_enemy_dinosaur",
+        "guardian_statue": "09_boss_dark_dragon",
+        "curse_ghost": "28_enemy_skull_fire",
+        "ancient_beetle": "28_enemy_skull_fire",
+        "sky_knight": "09_boss_dark_dragon",
+        "guardian_angel": "07_boss_frog",
+        "thunder_orb": "32_projectile_fireball",
+        "worm": "28_enemy_skull_fire",
+        "lava_dragon": "08_boss_lava_dragon",
+        "dark_dragon": "09_boss_dark_dragon"
+    ]
+
+    // 精灵尺寸
+    private var spriteSize: CGSize = CGSize(width: 50, height: 50)
 
     // MARK: - 初始化
 
@@ -30,157 +68,51 @@ class Enemy: SKNode {
     private func configureByType() {
         switch enemyType {
         case "dinosaur", "snail", "seagull":
-            health = 1
-            moveSpeed = 80
-            damage = 1
-            scoreValue = 100
+            health = 1; moveSpeed = 80; damage = 1; scoreValue = 100
         case "bee", "lizard", "snake", "skeleton":
-            health = 1
-            moveSpeed = 120
-            damage = 1
-            scoreValue = 150
+            health = 1; moveSpeed = 120; damage = 1; scoreValue = 150
         case "bat", "scorpion":
-            health = 2
-            moveSpeed = 100
-            damage = 1
-            scoreValue = 200
+            health = 2; moveSpeed = 100; damage = 1; scoreValue = 200
         case "fire_lizard", "fire_skeleton", "volcanic_bat", "magma_sprite":
-            health = 2
-            moveSpeed = 140
-            damage = 2
-            scoreValue = 250
+            health = 2; moveSpeed = 140; damage = 2; scoreValue = 250
         case "storm_vulture", "lightning_lizard":
-            health = 2
-            moveSpeed = 160
-            damage = 2
-            scoreValue = 300
+            health = 2; moveSpeed = 160; damage = 2; scoreValue = 300
         case "guardian_statue", "curse_ghost":
-            health = 3
-            moveSpeed = 60
-            damage = 2
-            scoreValue = 400
+            health = 3; moveSpeed = 60; damage = 2; scoreValue = 400
         case "sky_knight", "guardian_angel":
-            health = 3
-            moveSpeed = 180
-            damage = 2
-            scoreValue = 350
+            health = 3; moveSpeed = 180; damage = 2; scoreValue = 350
         case "worm", "fire_beetle", "magma_ghost", "magma_golem":
-            health = 3
-            moveSpeed = 100
-            damage = 2
-            scoreValue = 300
+            health = 3; moveSpeed = 100; damage = 2; scoreValue = 300
         case "thunder_orb":
-            health = 2
-            moveSpeed = 200
-            damage = 2
-            scoreValue = 350
+            health = 2; moveSpeed = 200; damage = 2; scoreValue = 350
         case "piranha":
-            health = 1
-            moveSpeed = 150
-            damage = 1
-            scoreValue = 150
+            health = 1; moveSpeed = 150; damage = 1; scoreValue = 150
+        case "raptor":
+            health = 2; moveSpeed = 120; damage = 2; scoreValue = 300
+        case "frog":
+            health = 2; moveSpeed = 80; damage = 1; scoreValue = 200
+        case "lava_dragon", "dark_dragon":
+            health = 3; moveSpeed = 100; damage = 2; scoreValue = 500
         default:
-            health = 1
-            moveSpeed = 100
-            damage = 1
-            scoreValue = 100
+            health = 1; moveSpeed = 100; damage = 1; scoreValue = 100
         }
     }
 
     private func setupAppearance() {
-        let size: CGSize
-        let color: SKColor
+        let imageName = Enemy.typeToImage[enemyType] ?? "02_enemy_dinosaur"
+        let texture = SKTexture(imageNamed: imageName)
+        sprite = SKSpriteNode(texture: texture, size: CGSize(width: 50, height: 50))
+        sprite.position = .zero
+        addChild(sprite)
 
-        switch enemyType {
-        case "dinosaur", "raptor":
-            size = CGSize(width: 60, height: 50)
-            color = SKColor(red: 0.3, green: 0.7, blue: 0.3, alpha: 1.0)
-        case "snail":
-            size = CGSize(width: 40, height: 30)
-            color = SKColor(red: 0.6, green: 0.5, blue: 0.3, alpha: 1.0)
-        case "seagull":
-            size = CGSize(width: 50, height: 35)
-            color = SKColor(white: 0.9, alpha: 1.0)
-        case "bee":
-            size = CGSize(width: 30, height: 25)
-            color = SKColor(red: 0.9, green: 0.8, blue: 0.2, alpha: 1.0)
-        case "bat", "volcanic_bat":
-            size = CGSize(width: 45, height: 30)
-            color = SKColor(red: 0.3, green: 0.2, blue: 0.4, alpha: 1.0)
-        case "skeleton", "fire_skeleton":
-            size = CGSize(width: 45, height: 55)
-            color = SKColor(white: 0.85, alpha: 1.0)
-        case "snake", "lizard", "fire_lizard":
-            size = CGSize(width: 55, height: 30)
-            color = SKColor(red: 0.4, green: 0.6, blue: 0.3, alpha: 1.0)
-        case "scorpion":
-            size = CGSize(width: 50, height: 35)
-            color = SKColor(red: 0.5, green: 0.3, blue: 0.2, alpha: 1.0)
-        case "worm", "magma_worm", "magma_sprite", "magma_golem":
-            size = CGSize(width: 50, height: 50)
-            color = SKColor(red: 0.9, green: 0.4, blue: 0.1, alpha: 1.0)
-        case "fire_beetle":
-            size = CGSize(width: 40, height: 30)
-            color = SKColor(red: 0.7, green: 0.2, blue: 0.1, alpha: 1.0)
-        case "magma_ghost":
-            size = CGSize(width: 45, height: 55)
-            color = SKColor(red: 1.0, green: 0.3, blue: 0.0, alpha: 0.7)
-        case "piranha":
-            size = CGSize(width: 40, height: 35)
-            color = SKColor(red: 0.8, green: 0.3, blue: 0.2, alpha: 1.0)
-        case "storm_vulture", "lightning_lizard":
-            size = CGSize(width: 55, height: 40)
-            color = SKColor(red: 0.4, green: 0.4, blue: 0.5, alpha: 1.0)
-        case "guardian_statue":
-            size = CGSize(width: 60, height: 70)
-            color = SKColor(white: 0.6, alpha: 1.0)
-        case "curse_ghost":
-            size = CGSize(width: 45, height: 55)
-            color = SKColor(red: 0.3, green: 0.0, blue: 0.4, alpha: 0.8)
-        case "ancient_beetle":
-            size = CGSize(width: 40, height: 30)
-            color = SKColor(red: 0.4, green: 0.35, blue: 0.3, alpha: 1.0)
-        case "sky_knight":
-            size = CGSize(width: 50, height: 50)
-            color = SKColor(red: 0.7, green: 0.7, blue: 0.9, alpha: 1.0)
-        case "thunder_orb":
-            size = CGSize(width: 40, height: 40)
-            color = SKColor(red: 0.9, green: 0.9, blue: 0.3, alpha: 1.0)
-        case "guardian_angel":
-            size = CGSize(width: 65, height: 65)
-            color = SKColor(red: 0.9, green: 0.85, blue: 0.7, alpha: 1.0)
-        default:
-            size = CGSize(width: 50, height: 45)
-            color = SKColor(red: 0.5, green: 0.3, blue: 0.2, alpha: 1.0)
-        }
-
-        body = SKShapeNode(rectOf: size, cornerRadius: 8)
-        body.fillColor = color
-        body.strokeColor = .white
-        body.lineWidth = 2
-        addChild(body)
-
-        // 添加眼睛
-        let eye1 = SKShapeNode(circleOfRadius: 5)
-        eye1.fillColor = .red
-        eye1.strokeColor = .white
-        eye1.position = CGPoint(x: -12, y: size.height / 4)
-        addChild(eye1)
-
-        let eye2 = SKShapeNode(circleOfRadius: 5)
-        eye2.fillColor = .red
-        eye2.strokeColor = .white
-        eye2.position = CGPoint(x: 12, y: size.height / 4)
-        addChild(eye2)
-
-        // 设置物理体
-        physicsBody = SKPhysicsBody(rectangleOf: size)
+        physicsBody = SKPhysicsBody(rectangleOf: spriteSize)
         physicsBody?.isDynamic = true
         physicsBody?.categoryBitMask = PhysicsCategories.enemy
         physicsBody?.contactTestBitMask = PhysicsCategories.player
         physicsBody?.collisionBitMask = PhysicsCategories.ground
         physicsBody?.allowsRotation = false
-        physicsBody?.affectedByGravity = (enemyType != "bat" && !enemyType.contains("bat") && !enemyType.contains("vulture"))
+        let flyingTypes = ["bat", "volcanic_bat", "storm_vulture", "sky_knight", "guardian_angel", "thunder_orb"]
+        physicsBody?.affectedByGravity = !flyingTypes.contains(enemyType)
     }
 
     private func startPatrolling() {
@@ -201,7 +133,6 @@ class Enemy: SKNode {
         if health <= 0 {
             die()
         } else {
-            // 受伤闪烁
             let flash = SKAction.sequence([
                 SKAction.colorize(with: .white, colorBlendFactor: 1.0, duration: 0.05),
                 SKAction.colorize(with: .white, colorBlendFactor: 0, duration: 0.05)
@@ -211,7 +142,6 @@ class Enemy: SKNode {
     }
 
     func die() {
-        // 死亡动画
         let fadeOut = SKAction.fadeOut(withDuration: 0.3)
         let scaleDown = SKAction.scale(to: 0.5, duration: 0.3)
         let remove = SKAction.removeFromParent()
