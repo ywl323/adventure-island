@@ -20,7 +20,20 @@ class LevelCompleteScene: SKScene {
     }
 
     override func didMove(to view: SKView) {
-        backgroundColor = SKColor(red: 0.1, green: 0.3, blue: 0.1, alpha: 1.0)
+        backgroundColor = SKColor(red: 0.05, green: 0.2, blue: 0.05, alpha: 1.0)
+
+        // 背景装饰星星
+        for _ in 0..<40 {
+            let star = SKShapeNode(circleOfRadius: CGFloat.random(in: 1...4))
+            star.fillColor = SKColor(white: CGFloat.random(in: 0.3...0.9), alpha: 1.0)
+            star.position = CGPoint(
+                x: CGFloat.random(in: 0...size.width),
+                y: CGFloat.random(in: 0...size.height)
+            )
+            star.alpha = CGFloat.random(in: 0.2...0.9)
+            addChild(star)
+        }
+
         setupTitle()
         setupLevelInfo()
         setupScore()
@@ -36,7 +49,6 @@ class LevelCompleteScene: SKScene {
         titleLabel.position = CGPoint(x: size.width / 2, y: size.height * 0.8)
         addChild(titleLabel)
 
-        // Star effect
         let starLabel = SKLabelNode(text: "★ ★ ★")
         starLabel.fontName = "Helvetica-Bold"
         starLabel.fontSize = 40
@@ -74,7 +86,6 @@ class LevelCompleteScene: SKScene {
     }
 
     private func setupButtons() {
-        // Next Level Button
         let nextButton = SKLabelNode(text: "NEXT LEVEL →")
         nextButton.fontName = "Helvetica-Bold"
         nextButton.fontSize = 36
@@ -83,7 +94,6 @@ class LevelCompleteScene: SKScene {
         nextButton.position = CGPoint(x: size.width / 2, y: size.height * 0.22)
         addChild(nextButton)
 
-        // Retry Button (left)
         let retryButton = SKLabelNode(text: "↺ RETRY")
         retryButton.fontName = "Helvetica-Bold"
         retryButton.fontSize = 28
@@ -92,7 +102,6 @@ class LevelCompleteScene: SKScene {
         retryButton.position = CGPoint(x: size.width * 0.25, y: size.height * 0.22)
         addChild(retryButton)
 
-        // Menu Button (right)
         let menuButton = SKLabelNode(text: "☰ MENU")
         menuButton.fontName = "Helvetica-Bold"
         menuButton.fontSize = 28
@@ -100,6 +109,21 @@ class LevelCompleteScene: SKScene {
         menuButton.name = "menuButton"
         menuButton.position = CGPoint(x: size.width * 0.75, y: size.height * 0.22)
         addChild(menuButton)
+    }
+
+    private func presentGameScene(levelNum: Int) {
+        let levelData = LevelManager.shared.generateLevelData(levelNum)
+        let gameScene = GameScene(size: size, levelData: levelData)
+        gameScene.scaleMode = .aspectFill
+        let transition = SKTransition.flipHorizontal(withDuration: 0.5)
+        view?.presentScene(gameScene, transition: transition)
+    }
+
+    private func presentMenuScene() {
+        let menuScene = MenuScene(size: size)
+        menuScene.scaleMode = .aspectFill
+        let transition = SKTransition.flipHorizontal(withDuration: 0.5)
+        view?.presentScene(menuScene, transition: transition)
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -114,35 +138,21 @@ class LevelCompleteScene: SKScene {
                 let levelData = LevelManager.shared.generateLevelData(nextLevel)
                 if levelData.terrainType == "boss" {
                     let bossScene = BossScene(size: size, levelData: levelData)
-                    bossScene.scaleMode = scaleMode
+                    bossScene.scaleMode = .aspectFill
                     let transition = SKTransition.flipHorizontal(withDuration: 0.5)
                     view?.presentScene(bossScene, transition: transition)
                 } else {
-                    let gameScene = GameScene(size: size, levelData: levelData)
-                    gameScene.scaleMode = scaleMode
-                    let transition = SKTransition.flipHorizontal(withDuration: 0.5)
-                    view?.presentScene(gameScene, transition: transition)
+                    presentGameScene(levelNum: nextLevel)
                 }
             } else {
-                // Game complete - return to menu
-                let menuScene = MenuScene(size: size)
-                menuScene.scaleMode = scaleMode
-                let transition = SKTransition.flipHorizontal(withDuration: 0.5)
-                view?.presentScene(menuScene, transition: transition)
+                presentMenuScene()
             }
 
         case "retryButton":
-            let levelData = LevelManager.shared.generateLevelData(levelNumber)
-            let gameScene = GameScene(size: size, levelData: levelData)
-            gameScene.scaleMode = scaleMode
-            let transition = SKTransition.flipHorizontal(withDuration: 0.5)
-            view?.presentScene(gameScene, transition: transition)
+            presentGameScene(levelNum: levelNumber)
 
         case "menuButton":
-            let menuScene = MenuScene(size: size)
-            menuScene.scaleMode = scaleMode
-            let transition = SKTransition.flipHorizontal(withDuration: 0.5)
-            view?.presentScene(menuScene, transition: transition)
+            presentMenuScene()
 
         default:
             break
