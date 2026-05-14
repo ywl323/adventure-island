@@ -12,7 +12,6 @@ class GameViewController: UIViewController {
     }
 
     private func setupSKView() {
-        // view.bounds 在 viewDidLoad 时可能还是小尺寸，等 viewDidLayoutSubviews 再正式设置
         skView = SKView(frame: view.bounds)
         skView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         skView.ignoresSiblingOrder = true
@@ -20,18 +19,14 @@ class GameViewController: UIViewController {
         skView.showsNodeCount = true
         skView.preferredFramesPerSecond = 60
         skView.backgroundColor = .black
-
         view.addSubview(skView)
-
-        print("📱 GameViewController viewDidLoad: view.bounds=\(view.bounds)")
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        // 每次布局都确保 skView 填满整个 view
+        // 强制 skView 填满整个父 view
         skView.frame = view.bounds
-        print("🔧 viewDidLayoutSubviews: view.bounds=\(view.bounds), skView.frame=\(skView.frame)")
 
         if skView.scene == nil {
             loadMenuScene()
@@ -40,7 +35,7 @@ class GameViewController: UIViewController {
 
     private func loadMenuScene() {
         let sceneSize = skView.bounds.size
-        print("🔧 loadMenuScene: sceneSize=\(sceneSize)")
+        print("📱 MenuScene size: \(sceneSize)")
 
         let menuScene = MenuScene(size: sceneSize)
         menuScene.scaleMode = .resizeFill
