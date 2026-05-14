@@ -75,7 +75,7 @@ class GameScene: SKScene {
 
     private func setupCamera() {
         cameraNode = SKCameraNode()
-        // Y 固定在 size.height/2，使屏幕底部对准 scene y = 90
+        // 相机固定在屏幕中心
         cameraNode.position = CGPoint(x: size.width / 2, y: size.height / 2)
         addChild(cameraNode)
         camera = cameraNode
@@ -89,21 +89,21 @@ class GameScene: SKScene {
         let bgColor: SKColor
         switch levelData.terrainType {
         case "grass":
-            bgColor = SKColor(red: 0.5, green: 0.7, blue: 1.0, alpha: 1.0) // 蓝天
+            bgColor = SKColor(red: 0.5, green: 0.7, blue: 1.0, alpha: 1.0)
         case "water":
-            bgColor = SKColor(red: 0.2, green: 0.5, blue: 0.8, alpha: 1.0) // 水蓝
+            bgColor = SKColor(red: 0.2, green: 0.5, blue: 0.8, alpha: 1.0)
         case "underground":
-            bgColor = SKColor(red: 0.2, green: 0.2, blue: 0.3, alpha: 1.0) // 地下深色
+            bgColor = SKColor(red: 0.2, green: 0.2, blue: 0.3, alpha: 1.0)
         case "volcano":
-            bgColor = SKColor(red: 0.6, green: 0.2, blue: 0.1, alpha: 1.0) // 火山红
+            bgColor = SKColor(red: 0.6, green: 0.2, blue: 0.1, alpha: 1.0)
         case "sky":
-            bgColor = SKColor(red: 0.4, green: 0.5, blue: 0.8, alpha: 1.0) // 天空蓝
+            bgColor = SKColor(red: 0.4, green: 0.5, blue: 0.8, alpha: 1.0)
         case "cliff":
-            bgColor = SKColor(red: 0.5, green: 0.6, blue: 0.7, alpha: 1.0) // 悬崖灰
+            bgColor = SKColor(red: 0.5, green: 0.6, blue: 0.7, alpha: 1.0)
         case "ruins":
-            bgColor = SKColor(red: 0.3, green: 0.35, blue: 0.3, alpha: 1.0) // 遗迹绿
+            bgColor = SKColor(red: 0.3, green: 0.35, blue: 0.3, alpha: 1.0)
         case "boss":
-            bgColor = SKColor(red: 0.4, green: 0.2, blue: 0.3, alpha: 1.0) // BOSS房
+            bgColor = SKColor(red: 0.4, green: 0.2, blue: 0.3, alpha: 1.0)
         default:
             bgColor = SKColor(red: 0.5, green: 0.7, blue: 1.0, alpha: 1.0)
         }
@@ -147,10 +147,8 @@ class GameScene: SKScene {
     }
 
     private func addBackgroundDecorations() {
-        // 根据地形类型添加不同装饰
         switch levelData.terrainType {
         case "grass":
-            // 添加云朵
             for i in 0..<10 {
                 let cloud = SKShapeNode(circleOfRadius: CGFloat.random(in: 30...60))
                 cloud.fillColor = SKColor(white: 1.0, alpha: 0.7)
@@ -161,7 +159,6 @@ class GameScene: SKScene {
                 cloud.zPosition = -80
                 backgroundLayer.addChild(cloud)
             }
-            // 添加树
             for i in 0..<Int(levelData.width / 300) {
                 let tree = createTree()
                 tree.position = CGPoint(x: CGFloat(i) * 300 + 100, y: 50)
@@ -169,7 +166,6 @@ class GameScene: SKScene {
             }
 
         case "underground", "ruins":
-            // 添加火把
             for i in 0..<Int(levelData.width / 400) {
                 let torch = createTorch()
                 torch.position = CGPoint(x: CGFloat(i) * 400 + 200, y: 150)
@@ -177,7 +173,6 @@ class GameScene: SKScene {
             }
 
         case "volcano":
-            // 添加岩浆池
             for i in 0..<Int(levelData.width / 500) {
                 let lava = SKShapeNode(ellipseOf: CGSize(width: 200, height: 30))
                 lava.fillColor = SKColor(red: 1.0, green: 0.3, blue: 0.0, alpha: 0.8)
@@ -193,39 +188,29 @@ class GameScene: SKScene {
 
     private func createTree() -> SKNode {
         let tree = SKNode()
-
-        // 树干
         let trunk = SKShapeNode(rect: CGRect(x: -10, y: 0, width: 20, height: 60))
         trunk.fillColor = SKColor(red: 0.5, green: 0.3, blue: 0.1, alpha: 1.0)
         trunk.strokeColor = .clear
         tree.addChild(trunk)
-
-        // 树冠
         let foliage = SKShapeNode(circleOfRadius: 40)
         foliage.fillColor = SKColor(red: 0.2, green: 0.6, blue: 0.2, alpha: 1.0)
         foliage.strokeColor = .clear
         foliage.position = CGPoint(x: 0, y: 80)
         tree.addChild(foliage)
-
         return tree
     }
 
     private func createTorch() -> SKNode {
         let torch = SKNode()
-
-        // 支架
         let holder = SKShapeNode(rect: CGRect(x: -5, y: 0, width: 10, height: 40))
         holder.fillColor = SKColor(red: 0.3, green: 0.2, blue: 0.1, alpha: 1.0)
         holder.strokeColor = .clear
         torch.addChild(holder)
-
-        // 火焰
         let flame = SKShapeNode(circleOfRadius: 12)
         flame.fillColor = SKColor(red: 1.0, green: 0.6, blue: 0.0, alpha: 1.0)
         flame.strokeColor = .clear
         flame.position = CGPoint(x: 0, y: 50)
         torch.addChild(flame)
-
         return torch
     }
 
@@ -305,82 +290,83 @@ class GameScene: SKScene {
     }
 
     private func setupControlArea() {
-        // 按钮大小和位置（camera-relative 坐标，对应屏幕左下/右下角）
-        let buttonRadius: CGFloat = 50
-        // 屏幕底部 y = 90 → camera-relative y = -size.height/2 + 90
-        let buttonY: CGFloat = -size.height / 2 + 90
-        let buttonSpacing: CGFloat = 110  // 按钮间距
+        // 按钮半径改为 28（之前是50），缩小60%
+        let buttonRadius: CGFloat = 28
 
-        // ===== 左下角：方向键 ◀ ▶ =====
-        // 屏幕左边缘 x = 90 → camera-relative x = -size.width/2 + 90
-        let leftBaseX: CGFloat = -size.width / 2 + 90  // ◀ 按钮中心 X
+        // 屏幕内边距
+        let edgePadding: CGFloat = 30
 
+        // 相机中心在 (size.width/2, size.height/2)
+        // 屏幕左下角camera坐标: (-size.width/2 + edgePadding, -size.height/2 + edgePadding)
+        // 屏幕右下角camera坐标: (size.width/2 - edgePadding, -size.height/2 + edgePadding)
+        let buttonY = -size.height / 2 + edgePadding + buttonRadius
+        let leftCenterX = -size.width / 2 + edgePadding + buttonRadius
+        let rightCenterX = size.width / 2 - edgePadding - buttonRadius
+
+        // ===== 左下角：◀ ▶ =====
         // ◀ 左方向按钮
         leftButton = SKShapeNode(circleOfRadius: buttonRadius)
-        leftButton.fillColor = SKColor(white: 0.2, alpha: 0.85)
-        leftButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
-        leftButton.lineWidth = 3
-        leftButton.position = CGPoint(x: leftBaseX, y: buttonY)
+        leftButton.fillColor = SKColor(white: 0.15, alpha: 0.8)
+        leftButton.strokeColor = SKColor(white: 0.5, alpha: 0.8)
+        leftButton.lineWidth = 2
+        leftButton.position = CGPoint(x: leftCenterX, y: buttonY)
         leftButton.name = "leftButton"
         cameraNode.addChild(leftButton)
 
         let leftArrow = SKLabelNode(text: "◀")
         leftArrow.fontName = "Helvetica-Bold"
-        leftArrow.fontSize = 36
+        leftArrow.fontSize = 26
         leftArrow.fontColor = .white
-        leftArrow.position = CGPoint(x: 0, y: -10)
+        leftArrow.position = CGPoint(x: 0, y: -7)
         leftButton.addChild(leftArrow)
 
         // ▶ 右方向按钮（紧贴 ◀ 右边）
         rightButton = SKShapeNode(circleOfRadius: buttonRadius)
-        rightButton.fillColor = SKColor(white: 0.2, alpha: 0.85)
-        rightButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
-        rightButton.lineWidth = 3
-        rightButton.position = CGPoint(x: leftBaseX + buttonSpacing, y: buttonY)
+        rightButton.fillColor = SKColor(white: 0.15, alpha: 0.8)
+        rightButton.strokeColor = SKColor(white: 0.5, alpha: 0.8)
+        rightButton.lineWidth = 2
+        rightButton.position = CGPoint(x: leftCenterX + buttonRadius * 2 + 8, y: buttonY)
         rightButton.name = "rightButton"
         cameraNode.addChild(rightButton)
 
         let rightArrow = SKLabelNode(text: "▶")
         rightArrow.fontName = "Helvetica-Bold"
-        rightArrow.fontSize = 36
+        rightArrow.fontSize = 26
         rightArrow.fontColor = .white
-        rightArrow.position = CGPoint(x: 0, y: -10)
+        rightArrow.position = CGPoint(x: 0, y: -7)
         rightButton.addChild(rightArrow)
 
-        // ===== 右下角：跳跃 ▲ + 攻击 ATK =====
-        // 屏幕右边缘 x = size.width - 90 → camera-relative x = size.width/2 - 90
-        let rightBaseX: CGFloat = size.width / 2 - 90  // ATK 按钮中心 X
-
-        // ▲ 跳跃按钮（靠内侧，靠近中心）
+        // ===== 右下角：▲ + ATK =====
+        // ▲ 跳跃按钮（靠内侧）
         jumpButton = SKShapeNode(circleOfRadius: buttonRadius)
-        jumpButton.fillColor = SKColor(red: 0.3, green: 0.6, blue: 1.0, alpha: 0.85)
-        jumpButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
-        jumpButton.lineWidth = 3
-        jumpButton.position = CGPoint(x: rightBaseX - buttonSpacing, y: buttonY)
+        jumpButton.fillColor = SKColor(red: 0.25, green: 0.5, blue: 1.0, alpha: 0.8)
+        jumpButton.strokeColor = SKColor(white: 0.5, alpha: 0.8)
+        jumpButton.lineWidth = 2
+        jumpButton.position = CGPoint(x: rightCenterX - buttonRadius * 2 - 8, y: buttonY)
         jumpButton.name = "jumpButton"
         cameraNode.addChild(jumpButton)
 
         let jumpLabel = SKLabelNode(text: "▲")
         jumpLabel.fontName = "Helvetica-Bold"
-        jumpLabel.fontSize = 32
+        jumpLabel.fontSize = 24
         jumpLabel.fontColor = .white
-        jumpLabel.position = CGPoint(x: 0, y: -8)
+        jumpLabel.position = CGPoint(x: 0, y: -6)
         jumpButton.addChild(jumpLabel)
 
         // ATK 攻击按钮（靠外侧）
         attackButton = SKShapeNode(circleOfRadius: buttonRadius)
-        attackButton.fillColor = SKColor(red: 1.0, green: 0.25, blue: 0.25, alpha: 0.85)
-        attackButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
-        attackButton.lineWidth = 3
-        attackButton.position = CGPoint(x: rightBaseX, y: buttonY)
+        attackButton.fillColor = SKColor(red: 1.0, green: 0.2, blue: 0.2, alpha: 0.8)
+        attackButton.strokeColor = SKColor(white: 0.5, alpha: 0.8)
+        attackButton.lineWidth = 2
+        attackButton.position = CGPoint(x: rightCenterX, y: buttonY)
         attackButton.name = "attackButton"
         cameraNode.addChild(attackButton)
 
         let attackLabel = SKLabelNode(text: "ATK")
         attackLabel.fontName = "Helvetica-Bold"
-        attackLabel.fontSize = 22
+        attackLabel.fontSize = 16
         attackLabel.fontColor = .white
-        attackLabel.position = CGPoint(x: 0, y: -6)
+        attackLabel.position = CGPoint(x: 0, y: -4)
         attackButton.addChild(attackLabel)
     }
 
@@ -451,7 +437,7 @@ class GameScene: SKScene {
             isAttackPressed = false
         }
 
-        // 摄像机跟随玩家
+        // 摄像机跟随玩家（水平滚动）
         let targetX = max(min(player.position.x, levelData.width - size.width / 2), size.width / 2)
         cameraNode.position.x = targetX
 

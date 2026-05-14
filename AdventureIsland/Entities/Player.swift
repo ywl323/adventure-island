@@ -40,10 +40,24 @@ class Player: SKNode {
     private func setupPlayer() {
         name = "player"
 
-        // 从 asset catalog 加载 PNG（使用完整资源路径）
+        // 尝试从 asset catalog 加载 PNG
         let texture = SKTexture(imageNamed: "01_player_master_higgins")
-        sprite = SKSpriteNode(texture: texture, size: CGSize(width: 40, height: 50))
+
+        // 如果纹理加载成功（尺寸有效），使用它；否则用彩色方块代替
+        if texture.size().width > 0 && texture.size().height > 0 {
+            // 根据纹理实际尺寸的1/10来设置显示大小（因为原图是像素级的）
+            let texSize = texture.size()
+            let displaySize = CGSize(width: texSize.width, height: texSize.height)
+            sprite = SKSpriteNode(texture: texture, size: displaySize)
+            print("✅ Player texture loaded: \(texSize)")
+        } else {
+            // Fallback：用彩色方块代替，方便调试
+            print("⚠️ Player texture NOT found, using placeholder")
+            sprite = SKSpriteNode(color: .cyan, size: CGSize(width: 32, height: 40))
+        }
+
         sprite.position = .zero
+        sprite.anchorPoint = CGPoint(x: 0.5, y: 0.0) // 底部中心为锚点
         addChild(sprite)
     }
 
@@ -51,12 +65,12 @@ class Player: SKNode {
 
     func moveLeft() {
         physicsBody?.velocity.dx = -moveSpeed
-        xScale = -1
+        xScale = -abs(xScale)
     }
 
     func moveRight() {
         physicsBody?.velocity.dx = moveSpeed
-        xScale = 1
+        xScale = abs(xScale)
     }
 
     func stop() {
@@ -99,6 +113,18 @@ class Player: SKNode {
         run(SKAction.sequence([SKAction.wait(forDuration: 0.3), finish]))
     }
 
+    // MARK: - 受伤闪烁
+
+    func takeDamage() {
+        let blink = SKAction.sequence([
+            SKAction.fadeOut(withDuration: 0.1),
+            SKAction.fadeIn(withDuration: 0.1),
+            SKAction.fadeOut(withDuration: 0.1),
+            SKAction.fadeIn(withDuration: 0.1)
+        ])
+        sprite.run(blink)
+    }
+
     // MARK: - 死亡逻辑
 
     func die() {
@@ -120,7 +146,10 @@ class Player: SKNode {
     // MARK: - 更新逻辑
 
     func update() {
-        // 后续可扩展
+        // 保持玩家在地面以上（简单碰撞处理）
+        if position.y < 100 && isGrounded {
+            position.y = 100
+        }
     }
 
     // MARK: - 碰撞回调
