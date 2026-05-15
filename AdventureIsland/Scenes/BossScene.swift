@@ -1,6 +1,6 @@
 import SpriteKit
 
-class BossScene: SKScene {
+class BossScene: SKScene, SKPhysicsContactDelegate {
 
     // MARK: - 节点属性
     private var player: Player!
@@ -26,6 +26,10 @@ class BossScene: SKScene {
     private var gameTime: Int = 120
     private var isGameOver: Bool = false
     private var isVictory: Bool = false
+
+    // 受伤/攻击冷却
+    private var damageCooldown: Bool = false
+    private var attackHitCooldown: Bool = false
 
     // MARK: - 关卡数据
     private var levelData: LevelData
@@ -68,6 +72,7 @@ class BossScene: SKScene {
     private func setupPhysics() {
         worldBounds = CGRect(x: 0, y: 0, width: 3000, height: size.height)
         physicsWorld.gravity = CGVector(dx: 0, dy: -Constants.gravity)
+        physicsWorld.contactDelegate = self
     }
 
     private func setupCamera() {
@@ -413,104 +418,60 @@ class BossScene: SKScene {
     }
 }
 
-// MARK: - BOSS节点
-class BossNode: SKNode {
-    var hp: Int = 3
-    var maxHP: Int = 3
-    var isDefeated: Bool = false
+// MARK: - End of BossScene
 
-    private var bossType: String
-    private var body: SKShapeNode!
+// MARK: - SKPhysicsContactDelegate 扩展
 
-    init(type: String) {
-        self.bossType = type
-        super.init()
+extension BossScene {
 
-        // 根据BOSS类型设置HP
-        switch type {
-        case "boss_raptor":
-            maxHP = 3
-            hp = 3
-        case "boss_frog":
-            maxHP = 4
-            hp = 4
-        case "boss_lava":
-            maxHP = 5
-            hp = 5
-        case "boss_dark":
-            maxHP = 6
-            hp = 6
-        default:
-            maxHP = 3
-            hp = 3
+    func didBegin(_ contact: SKPhysicsContact) {
+        let maskA = contact.bodyA.categoryBitMask
+        let maskB = contact.bodyB.categoryBitMask
+
+        if maskA == PhysicsCategories.player && maskB == PhysicsCategories.ground {
+            player?.didContact(with: PhysicsCategories.ground)
+        } else if maskB == PhysicsCategories.player && maskA == PhysicsCategories.ground {
+            player?.didContact(with: PhysicsCategories.ground)
+        } else if maskA == PhysicsCategories.player && maskB == PhysicsCategories.enemy {
+            didCollideWithEnemy()
+        } else if maskB == PhysicsCategories.player && maskA == PhysicsCategories.enemy {
+            didCollideWithEnemy()
         }
-
-        setupBossAppearance()
     }
 
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    func didEnd(_ contact: SKPhysicsContact) {
+        let maskA = contact.bodyA.categoryBitMask
+        let maskB = contact.bodyB.categoryBitMask
 
-    private func setupBossAppearance() {
-        let size: CGSize
-        let color: SKColor
-
-        switch bossType {
-        case "boss_raptor":
-            size = CGSize(width: 120, height: 100)
-            color = SKColor(red: 0.8, green: 0.2, blue: 0.2, alpha: 1.0) // 红色恐龙
-        case "boss_frog":
-            size = CGSize(width: 140, height: 100)
-            color = SKColor(red: 0.2, green: 0.6, blue: 0.2, alpha: 1.0) // 绿色青蛙
-        case "boss_lava":
-            size = CGSize(width: 160, height: 120)
-            color = SKColor(red: 1.0, green: 0.3, blue: 0.0, alpha: 1.0) // 熔岩龙
-        case "boss_dark":
-            size = CGSize(width: 200, height: 150)
-            color = SKColor(red: 0.2, green: 0.0, blue: 0.3, alpha: 1.0) // 黑暗龙神
-        default:
-            size = CGSize(width: 100, height: 80)
-            color = SKColor.gray
+        if maskA == PhysicsCategories.player && maskB == PhysicsCategories.ground {
+            player?.didEndContact(with: PhysicsCategories.ground)
+        } else if maskB == PhysicsCategories.player && maskA == PhysicsCategories.ground {
+            player?.didEndContact(with: PhysicsCategories.ground)
         }
-
-        body = SKShapeNode(rectOf: size, cornerRadius: 10)
-        body.fillColor = color
-        body.strokeColor = .white
-        body.lineWidth = 3
-        addChild(body)
-
-        // 添加眼睛
-        let eye1 = SKShapeNode(circleOfRadius: 10)
-        eye1.fillColor = .red
-        eye1.strokeColor = .white
-        eye1.position = CGPoint(x: -25, y: 20)
-        addChild(eye1)
-
-        let eye2 = SKShapeNode(circleOfRadius: 10)
-        eye2.fillColor = .red
-        eye2.strokeColor = .white
-        eye2.position = CGPoint(x: 25, y: 20)
-        addChild(eye2)
     }
 
-    func takeDamage() {
-        hp -= 1
-        if hp <= 0 {
-            isDefeated = true
+    private func didCollideWithEnemy() {
+        guard !damageCooldown && !isGameOver && !isVictory else { return }
+        damageCooldown = true
+        takeDamage()
+        player.takeDamage()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            self?.damageCooldown = false
         }
-
-        // 受伤闪烁效果
-        let flash = SKAction.sequence([
-            SKAction.colorize(with: .white, colorBlendFactor: 1.0, duration: 0.1),
-            SKAction.colorize(with: .white, colorBlendFactor: 0, duration: 0.1)
-        ])
-        run(flash)
     }
 
-    func update(playerPosition: CGPoint) {
-        // 简单的BOSS AI - 向玩家移动
-        let direction = playerPosition.x > position.x ? 1 : -1
-        position.x += CGFloat(direction) * 1.5
+    private func takeDamage() {
+        health -= 1
+        healthLabel.text = "Health: \(health)"
+        if health <= 0 {
+            gameOver()
+        }
+    }
+
+    private func gameOver() {
+        isGameOver = true
+        let scene = GameOverScene(size: size, score: score)
+        scene.scaleMode = .resizeFill
+        view?.presentScene(scene, transition: SKTransition.flipHorizontal(withDuration: 0.5))
     }
 }

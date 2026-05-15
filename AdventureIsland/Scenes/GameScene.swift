@@ -25,8 +25,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var isGameOver: Bool = false
     private var levelData: LevelData
 
+    // MARK: - 属性
+    private var score: Int = 0
+    private var health: Int = 3
+    private var gameTime: Int = 60
+    private var isGameOver: Bool = false
+    private var levelData: LevelData
+
     // 受伤冷却（防止一帧内多次受伤）
     private var damageCooldown: Bool = false
+
+    // 攻击冷却（防止一秒内多次攻击判定）
+    private var attackHitCooldown: Bool = false
 
     // 触摸状态
     private var isLeftPressed: Bool = false
@@ -593,8 +603,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             isJumpPressed = false
         }
 
-        if isAttackPressed {
+        if isAttackPressed && !attackHitCooldown {
             player.attack()
+            // 触发攻击判定（延迟一小段时间让动画开始）
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                self?.checkAttackHits()
+            }
             isAttackPressed = false
         }
 
@@ -631,6 +645,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else if maskB == PhysicsCategories.player && maskA == PhysicsCategories.enemy {
             if let enemyNode = contact.bodyA.node, enemyNode is Enemy {
                 didCollideWithEnemy()
+            }
+        } else if maskA == PhysicsCategories.player && maskB == PhysicsCategories.item {
+            if let itemNode = contact.bodyB.node as? Item {
+                collectItem(itemNode)
+            }
+        } else if maskB == PhysicsCategories.player && maskA == PhysicsCategories.item {
+            if let itemNode = contact.bodyA.node as? Item {
+                collectItem(itemNode)
             }
         }
     }
@@ -692,5 +714,52 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
             self?.damageCooldown = false
         }
+    }
+
+    private func collectItem(_ item: Item) {
+        // 心脏道具恢复生命
+        if item.isHealthItem() {
+            health = min(health + 1, 3)
+            healthLabel.text = "❤️ \(health)"
+        } else {
+            addScore(item.getValue())
+        }
+        item.collect()
+    }
+
+    // MARK: - 攻击判定（每帧检查玩家攻击是否命中敌人）
+
+    private func checkAttackHits() {
+        guard attackHitCooldown == false else { return }
+        attackHitCooldown = true
+
+        let attackRange: CGFloat = 60
+        let playerX = player.position.x
+        let playerY = player.position.y
+        let attackDirection: CGFloat = player.xScale > 0 ? 1 : -1
+
+        var hitEnemy = false
+
+        for enemy in enemies {
+            let dx = enemy.position.x - playerX
+            let dy = enemy.position.y - playerY
+            let distance = sqrt(dx * dx + dy * dy)
+
+            // 在攻击范围内且方向正确（同侧）
+            if distance <= attackRange && sign(dx) == attackDirection {
+                enemy.takeDamage(1)
+                hitEnemy = true
+                addScore(enemy.getScoreValue())
+            }
+        }
+
+        // 攻击冷却防止连续判定
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+            self?.attackHitCooldown = false
+        }
+    }
+
+    private func sign(_ x: CGFloat) -> CGFloat {
+        return x >= 0 ? 1 : -1
     }
 }
