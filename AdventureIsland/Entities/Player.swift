@@ -7,6 +7,7 @@ class Player: SKNode {
     private var isGrounded: Bool = false
     private var isAttacking: Bool = false
     private var health: Int = 3
+    private var lastVelocityY: CGFloat = 0
 
     // 精灵节点
     private var sprite: SKSpriteNode!
@@ -40,14 +41,12 @@ class Player: SKNode {
     private func setupPlayer() {
         name = "player"
 
-        // 方法1：直接用 SKSpriteNode(imageNamed:) 从 asset catalog 加载
+        // 尝试从 asset catalog 加载纹理
         sprite = SKSpriteNode(imageNamed: "01_player_master_higgins")
 
-        // 检查纹理是否有效
         if sprite.texture == nil || sprite.texture!.size().width == 0 {
-            print("⚠️ Player: '01_player_master_higgins' NOT found in asset catalog, trying alternative names...")
+            print("⚠️ Player: '01_player_master_higgins' NOT found in asset catalog")
 
-            // 方法2：尝试不同命名格式
             let possibleNames = [
                 "01_player_master_higgins",
                 "player",
@@ -62,9 +61,8 @@ class Player: SKNode {
                 }
             }
 
-            // 最终回退：如果都找不到，用彩色方块
             if sprite.texture == nil || sprite.texture!.size().width == 0 {
-                print("❌ Player: No valid texture found. Using placeholder.")
+                print("❌ Player: No valid texture found — USAGE ERROR: missing '01_player_master_higgins' in Assets.xcassets")
                 sprite = SKSpriteNode(color: .cyan, size: CGSize(width: 40, height: 48))
             }
         } else {
@@ -73,7 +71,7 @@ class Player: SKNode {
 
         sprite.setScale(0.15)
         sprite.position = .zero
-        sprite.anchorPoint = CGPoint(x: 0.5, y: 0.0) // 底部中心为锚点
+        sprite.anchorPoint = CGPoint(x: 0.5, y: 0.0)
         addChild(sprite)
     }
 
@@ -159,9 +157,19 @@ class Player: SKNode {
         alpha = 1.0
     }
 
-    // MARK: - 更新逻辑
+    // MARK: - 每帧更新
 
     func update() {
+        // 用速度方向变化判断落地：刚从下落（vy <= -50）转为非下落，说明着地
+        let vy = physicsBody?.velocity.dy ?? 0
+        if vy > -50 && lastVelocityY <= -50 {
+            isGrounded = true
+        } else if vy < -50 {
+            isGrounded = false
+        }
+        lastVelocityY = vy
+
+        // 防止掉出屏幕底部
         if position.y < 100 && isGrounded {
             position.y = 100
         }
@@ -171,7 +179,30 @@ class Player: SKNode {
 
     func didContact(with category: UInt32) {
         if category == PhysicsCategories.ground {
-            isGrounded = true
+            let vy = physicsBody?.velocity.dy ?? 0
+            if vy <= 0 {
+                isGrounded = true
+            }
         }
+    }
+
+    func didEndContact(with category: UInt32) {
+        if category == PhysicsCategories.ground {
+            isGrounded = false
+        }
+    }
+
+    // MARK: - 状态查询
+
+    func isAlive() -> Bool {
+        return health > 0
+    }
+
+    func getHealth() -> Int {
+        return health
+    }
+
+    func resetHealth() {
+        health = 3
     }
 }

@@ -13,6 +13,10 @@ class Enemy: SKNode {
     // 移动方向
     private var direction: CGFloat = 1
 
+    // 巡逻边界（世界坐标）
+    private var patrolMinX: CGFloat = 0
+    private var patrolMaxX: CGFloat = 0
+
     // PNG 文件名映射
     private static let typeToImage: [String: String] = [
         "dinosaur": "02_enemy_dinosaur",
@@ -131,14 +135,32 @@ class Enemy: SKNode {
     }
 
     private func startPatrolling() {
+        // 随机等待 1.5~3 秒后开始巡逻
         let wait = SKAction.wait(forDuration: TimeInterval.random(in: 1.5...3.0))
         let move = SKAction.run { [weak self] in
             guard let self = self else { return }
+
+            // 在边界处反转方向
+            if self.patrolMaxX > self.patrolMinX {
+                if self.position.x >= self.patrolMaxX {
+                    self.direction = -1
+                } else if self.position.x <= self.patrolMinX {
+                    self.direction = 1
+                }
+            }
+
             self.direction *= -1
             let moveAction = SKAction.moveBy(x: self.direction * self.moveSpeed * 0.5, y: 0, duration: 0.5)
             self.run(moveAction)
         }
         run(SKAction.repeatForever(SKAction.sequence([wait, move])))
+    }
+
+    // MARK: - 巡逻边界设置
+
+    func setPatrolBounds(minX: CGFloat, maxX: CGFloat) {
+        patrolMinX = minX
+        patrolMaxX = maxX
     }
 
     // MARK: - 受伤/死亡

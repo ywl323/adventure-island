@@ -25,6 +25,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var isGameOver: Bool = false
     private var levelData: LevelData
 
+    // 受伤冷却（防止一帧内多次受伤）
+    private var damageCooldown: Bool = false
+
     // 触摸状态
     private var isLeftPressed: Bool = false
     private var isRightPressed: Bool = false
@@ -303,6 +306,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for enemyData in levelData.enemies {
             let enemy = Enemy(type: enemyData.type)
             enemy.position = CGPoint(x: enemyData.x, y: enemyData.y)
+            // 设置巡逻边界：前后各 200 像素范围
+            enemy.setPatrolBounds(
+                minX: max(0, enemyData.x - 200),
+                maxX: min(levelData.width, enemyData.x + 200)
+            )
             addChild(enemy)
             enemies.append(enemy)
         }
@@ -615,10 +623,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             player?.didContact(with: PhysicsCategories.ground)
         } else if maskB == PhysicsCategories.player && maskA == PhysicsCategories.ground {
             player?.didContact(with: PhysicsCategories.ground)
+        } else if maskA == PhysicsCategories.player && maskB == PhysicsCategories.enemy {
+            // Player touches enemy — trigger damage
+            if let enemyNode = contact.bodyB.node, enemyNode is Enemy {
+                didCollideWithEnemy()
+            }
+        } else if maskB == PhysicsCategories.player && maskA == PhysicsCategories.enemy {
+            if let enemyNode = contact.bodyA.node, enemyNode is Enemy {
+                didCollideWithEnemy()
+            }
         }
     }
 
     func didEnd(_ contact: SKPhysicsContact) {
+        let maskA = contact.bodyA.categoryBitMask
+        let maskB = contact.bodyB.categoryBitMask
+
+        if maskA == PhysicsCategories.player && maskB == PhysicsCategories.ground {
+            player?.didEndContact(with: PhysicsCategories.ground)
+        } else if maskB == PhysicsCategories.player && maskA == PhysicsCategories.ground {
+            player?.didEndContact(with: PhysicsCategories.ground)
+        }
     }
 
     // MARK: - 游戏逻辑
@@ -659,6 +684,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     func didCollideWithEnemy() {
+        guard !damageCooldown && !isGameOver else { return }
+        damageCooldown = true
         takeDamage()
+        player.takeDamage()
+        // 1.5秒冷却期内不能再受伤
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            self?.damageCooldown = false
+        }
     }
 }
