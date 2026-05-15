@@ -65,6 +65,7 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         setupHUD()
         setupControlArea()
         startGameTimer()
+        setupAudio()
     }
 
     // MARK: - 设置
@@ -193,6 +194,22 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         timeLabel.position = CGPoint(x: 80, y: size.height - 140)
         timeLabel.horizontalAlignmentMode = .left
         cameraNode.addChild(timeLabel)
+
+        // 暂停按钮
+        let pauseBtn = SKShapeNode(circleOfRadius: 22)
+        pauseBtn.fillColor = SKColor(white: 0.1, alpha: 0.7)
+        pauseBtn.strokeColor = SKColor(white: 0.8, alpha: 0.8)
+        pauseBtn.lineWidth = 2
+        pauseBtn.name = "pauseButton"
+        pauseBtn.position = CGPoint(x: size.width - 45, y: size.height - 45)
+        cameraNode.addChild(pauseBtn)
+
+        let pauseIcon = SKLabelNode(text: "⏸")
+        pauseIcon.fontSize = 20
+        pauseIcon.fontColor = .white
+        pauseIcon.name = "pauseButton"
+        pauseIcon.position = CGPoint(x: 0, y: -7)
+        pauseBtn.addChild(pauseIcon)
     }
 
     private func setupControlArea() {
@@ -285,22 +302,124 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         run(SKAction.repeatForever(SKAction.sequence([wait, update])))
     }
 
+    private func setupAudio() {
+        AudioManager.shared.loadBGM("bgm_boss")
+        AudioManager.shared.playBGM()
+        AudioManager.shared.preloadSounds(["se_jump", "se_attack", "se_coin", "se_hurt", "se_death"])
+    }
+
+    // MARK: - 暂停功能
+
+    private var isPaused: Bool = false
+    private var pauseNode: SKNode!
+
+    private func togglePause() {
+        if pauseNode != nil {
+            pauseNode.removeFromParent()
+            pauseNode = nil
+        } else {
+            showPauseMenu()
+        }
+    }
+
+    private func showPauseMenu() {
+        pauseNode = SKNode()
+        pauseNode.name = "pauseOverlay"
+        pauseNode.position = .zero
+        addChild(pauseNode)
+
+        let overlay = SKShapeNode(rect: CGRect(x: -size.width/2, y: -size.height/2, width: size.width, height: size.height))
+        overlay.fillColor = SKColor(white: 0, alpha: 0.6)
+        overlay.strokeColor = .clear
+        pauseNode.addChild(overlay)
+
+        let title = SKLabelNode(text: "⏸ PAUSED")
+        title.fontName = "Helvetica-Bold"
+        title.fontSize = 48
+        title.fontColor = .white
+        title.position = CGPoint(x: 0, y: 60)
+        pauseNode.addChild(title)
+
+        let resumeBg = SKShapeNode(rect: CGRect(x: -100, y: -10, width: 200, height: 50), cornerRadius: 10)
+        resumeBg.fillColor = SKColor(red: 0.2, green: 0.6, blue: 0.2, alpha: 0.9)
+        resumeBg.strokeColor = .white
+        resumeBg.lineWidth = 2
+        resumeBg.name = "resumeButton"
+        pauseNode.addChild(resumeBg)
+
+        let resumeLabel = SKLabelNode(text: "▶ RESUME")
+        resumeLabel.fontName = "Helvetica-Bold"
+        resumeLabel.fontSize = 24
+        resumeLabel.fontColor = .white
+        resumeLabel.name = "resumeButton"
+        resumeLabel.position = CGPoint(x: 0, y: 5)
+        pauseNode.addChild(resumeLabel)
+
+        let menuBg = SKShapeNode(rect: CGRect(x: -100, y: -70, width: 200, height: 45), cornerRadius: 8)
+        menuBg.fillColor = SKColor(white: 0.2, alpha: 0.8)
+        menuBg.name = "menuButton"
+        pauseNode.addChild(menuBg)
+
+        let menuLabel = SKLabelNode(text: "☰ MENU")
+        menuLabel.fontName = "Helvetica-Bold"
+        menuLabel.fontSize = 22
+        menuLabel.fontColor = .white
+        menuLabel.name = "menuButton"
+        menuLabel.position = CGPoint(x: 0, y: -5)
+        pauseNode.addChild(menuLabel)
+    }
+
+    private func returnToMenu() {
+        AudioManager.shared.stopBGM()
+        let menuScene = MenuScene(size: size)
+        menuScene.scaleMode = .resizeFill
+        view?.presentScene(menuScene, transition: SKTransition.flipHorizontal(withDuration: 0.5))
+    }
+
     // MARK: - 触摸处理
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first, !isGameOver && !isVictory else { return }
-        let location = touch.location(in: cameraNode)
-        let node = self.cameraNode.atPoint(location)
+        // 暂停菜单激活时
+        if pauseNode != nil {
+            for touch in touches {
+                let location = touch.location(in: pauseNode!)
+                let node = pauseNode!.atPoint(location)
+                switch node.name {
+                case "resumeButton":
+                    pauseNode.removeFromParent()
+                    pauseNode = nil
+                case "menuButton":
+                    returnToMenu()
+                default:
+                    break
+                }
+            }
+            return
+        }
 
-        switch node.name {
-        case "leftButton":
-            isLeftPressed = true
-        case "rightButton":
-            isRightPressed = true
-        case "jumpButton":
-            isJumpPressed = true
-        case "attackButton":
-            isAttackPressed = true
+        guard !isGameOver && !isVictory else { return }
+
+        for touch in touches {
+            let location = touch.location(in: cameraNode)
+
+            // 暂停按钮
+            let pauseBtnFrame = CGRect(x: size.width - 67, y: size.height - 67, width: 44, height: 44)
+            if pauseBtnFrame.contains(location) {
+                togglePause()
+                return
+            }
+
+            let node = self.cameraNode.atPoint(location)
+
+            switch node.name {
+            case "leftButton":
+                isLeftPressed = true
+            case "rightButton":
+                isRightPressed = true
+            case "jumpButton":
+                isJumpPressed = true
+            case "attackButton":
+                isAttackPressed = true
         default:
             break
         }
@@ -316,6 +435,7 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - 更新逻辑
 
     override func update(_ currentTime: TimeInterval) {
+        if pauseNode != nil { return }
         guard !isGameOver && !isVictory else { return }
 
         // 玩家移动

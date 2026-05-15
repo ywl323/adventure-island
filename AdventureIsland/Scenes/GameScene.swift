@@ -25,13 +25,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var isGameOver: Bool = false
     private var levelData: LevelData
 
-    // MARK: - 属性
-    private var score: Int = 0
-    private var health: Int = 3
-    private var gameTime: Int = 60
-    private var isGameOver: Bool = false
-    private var levelData: LevelData
-
     // 受伤冷却（防止一帧内多次受伤）
     private var damageCooldown: Bool = false
 
@@ -58,6 +51,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // 触摸 tracking
     private var activeTouches: [UITouch: String] = [:]
 
+    // MARK: - 暂停
+    private var isPaused: Bool = false
+    private var pauseNode: SKNode!
+
+    // 已计分的敌人（防止重复加分）
+    private var scoredEnemies: Set<ObjectIdentifier> = []
+
     // 玩家初始Y
     private let playerStartY: CGFloat = 150
 
@@ -83,6 +83,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupHUD()
         setupControlArea()
         startGameTimer()
+        setupAudio()
     }
 
     // MARK: - 设置
@@ -367,6 +368,110 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         timeLabel.position = CGPoint(x: -size.width / 2 + 80, y: size.height / 2 - 120)
         timeLabel.horizontalAlignmentMode = .left
         cameraNode.addChild(timeLabel)
+
+        // 暂停按钮（右上角）
+        let pauseBtn = SKShapeNode(circleOfRadius: 22)
+        pauseBtn.fillColor = SKColor(white: 0.1, alpha: 0.7)
+        pauseBtn.strokeColor = SKColor(white: 0.8, alpha: 0.8)
+        pauseBtn.lineWidth = 2
+        pauseBtn.name = "pauseButton"
+        pauseBtn.position = CGPoint(x: size.width / 2 - 45, y: size.height / 2 - 45)
+        cameraNode.addChild(pauseBtn)
+
+        let pauseIcon = SKLabelNode(text: "⏸")
+        pauseIcon.fontSize = 20
+        pauseIcon.fontColor = .white
+        pauseIcon.name = "pauseButton"
+        pauseIcon.position = CGPoint(x: 0, y: -7)
+        pauseBtn.addChild(pauseIcon)
+    }
+
+    private func setupAudio() {
+        // 背景音乐
+        AudioManager.shared.loadBGM("bgm_adventure")
+        AudioManager.shared.playBGM()
+
+        // 预加载音效
+        AudioManager.shared.preloadSounds(["se_jump", "se_attack", "se_coin", "se_hurt", "se_death"])
+    }
+
+    // MARK: - 暂停功能
+
+    private func showPauseMenu() {
+        isPaused = true
+
+        pauseNode = SKNode()
+        pauseNode.name = "pauseOverlay"
+        pauseNode.position = .zero
+        addChild(pauseNode)
+
+        // 半透明背景
+        let overlay = SKShapeNode(rect: CGRect(x: -size.width/2, y: -size.height/2, width: size.width, height: size.height))
+        overlay.fillColor = SKColor(white: 0, alpha: 0.6)
+        overlay.strokeColor = .clear
+        pauseNode.addChild(overlay)
+
+        // 标题
+        let title = SKLabelNode(text: "⏸ PAUSED")
+        title.fontName = "Helvetica-Bold"
+        title.fontSize = 48
+        title.fontColor = .white
+        title.position = CGPoint(x: 0, y: 60)
+        pauseNode.addChild(title)
+
+        // 继续按钮
+        let resumeBg = SKShapeNode(rect: CGRect(x: -100, y: -10, width: 200, height: 50), cornerRadius: 10)
+        resumeBg.fillColor = SKColor(red: 0.2, green: 0.6, blue: 0.2, alpha: 0.9)
+        resumeBg.strokeColor = .white
+        resumeBg.lineWidth = 2
+        resumeBg.name = "resumeButton"
+        pauseNode.addChild(resumeBg)
+
+        let resumeLabel = SKLabelNode(text: "▶ RESUME")
+        resumeLabel.fontName = "Helvetica-Bold"
+        resumeLabel.fontSize = 24
+        resumeLabel.fontColor = .white
+        resumeLabel.name = "resumeButton"
+        resumeLabel.position = CGPoint(x: 0, y: 5)
+        pauseNode.addChild(resumeLabel)
+
+        // 返回菜单按钮
+        let menuBg = SKShapeNode(rect: CGRect(x: -100, y: -70, width: 200, height: 45), cornerRadius: 8)
+        menuBg.fillColor = SKColor(white: 0.2, alpha: 0.8)
+        menuBg.strokeColor = SKColor(white: 0.4, alpha: 0.6)
+        menuBg.lineWidth = 1.5
+        menuBg.name = "menuButton"
+        pauseNode.addChild(menuBg)
+
+        let menuLabel = SKLabelNode(text: "☰ MENU")
+        menuLabel.fontName = "Helvetica-Bold"
+        menuLabel.fontSize = 22
+        menuLabel.fontColor = .white
+        menuLabel.name = "menuButton"
+        menuLabel.position = CGPoint(x: 0, y: -5)
+        pauseNode.addChild(menuLabel)
+
+        isPaused = false
+    }
+
+    private func resumeGame() {
+        pauseNode?.removeFromParent()
+        pauseNode = nil
+    }
+
+    private func returnToMenu() {
+        AudioManager.shared.stopBGM()
+        let menuScene = MenuScene(size: size)
+        menuScene.scaleMode = .resizeFill
+        view?.presentScene(menuScene, transition: SKTransition.flipHorizontal(withDuration: 0.5))
+    }
+
+    private func togglePause() {
+        if pauseNode != nil {
+            resumeGame()
+        } else {
+            showPauseMenu()
+        }
     }
 
     private func setupControlArea() {
@@ -496,10 +601,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - 触摸处理
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // 暂停菜单激活时，触摸只用于菜单按钮
+        if pauseNode != nil {
+            for touch in touches {
+                let location = touch.location(in: pauseNode!)
+                let node = pauseNode!.atPoint(location)
+                switch node.name {
+                case "resumeButton":
+                    resumeGame()
+                case "menuButton":
+                    returnToMenu()
+                default:
+                    break
+                }
+            }
+            return
+        }
+
         guard !isGameOver else { return }
 
         for touch in touches {
             let location = touch.location(in: cameraNode)
+
+            // 暂停按钮
+            let pauseBtnFrame = CGRect(x: size.width/2 - 45 - 22, y: size.height/2 - 45 - 22, width: 44, height: 44)
+            if pauseBtnFrame.contains(location) {
+                togglePause()
+                return
+            }
 
             // 左按钮命中区域（cameraNode 坐标系）
             let leftBtnFrame = CGRect(
@@ -588,6 +717,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - 更新逻辑
 
     override func update(_ currentTime: TimeInterval) {
+        // 暂停时停止更新
+        if pauseNode != nil { return }
         guard !isGameOver else { return }
 
         if isLeftPressed {
@@ -673,6 +804,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func addScore(_ points: Int) {
         score += points
         scoreLabel.text = "Score: \(score)"
+        GameData.shared.updateHighScore(score)
     }
 
     func takeDamage() {
@@ -723,6 +855,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             healthLabel.text = "❤️ \(health)"
         } else {
             addScore(item.getValue())
+            AudioManager.shared.playSE("se_coin")
         }
         item.collect()
     }

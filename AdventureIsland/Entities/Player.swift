@@ -1,4 +1,5 @@
 import SpriteKit
+import AVFoundation
 
 class Player: SKNode {
 
@@ -97,6 +98,7 @@ class Player: SKNode {
         guard isGrounded else { return }
         physicsBody?.velocity = CGVector(dx: physicsBody?.velocity.dx ?? 0, dy: Constants.jumpForce)
         isGrounded = false
+        AudioManager.shared.playSE("se_jump")
     }
 
     // MARK: - 攻击动作
@@ -125,6 +127,8 @@ class Player: SKNode {
             self?.isAttacking = false
         }
         run(SKAction.sequence([SKAction.wait(forDuration: 0.3), finish]))
+
+        AudioManager.shared.playSE("se_attack")
     }
 
     // MARK: - 受伤闪烁
