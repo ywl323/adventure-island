@@ -8,40 +8,53 @@
 
 /* Begin PBXBuildFile section */
 		04A253F89262D65CBC1371B7 /* GameOverScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 133D38D77922DFDC3097CCEF /* GameOverScene.swift */; };
+		0DC6149B07101749B0C59B6F /* bg_world1.png in Resources */ = {isa = PBXBuildFile; fileRef = 337F2C079EF089F4BF7A093F /* bg_world1.png */; };
 		23CB9CA42EEF093DD61EC489 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC81D827180658FABBBF5458 /* SceneDelegate.swift */; };
 		26753B9F939732EC85199E29 /* LevelCompleteScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5CE0CC4E664A27B3555FB8 /* LevelCompleteScene.swift */; };
 		2B9FFDE159963F05089F4CC1 /* Enemy.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD52AC9A09C5747022F5114C /* Enemy.swift */; };
 		2F127BA8216314407FC7766B /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CCEEFE2695EF94A80D94F0C /* Player.swift */; };
 		37A7722F39CBA593F02206DC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7D585D655646ACA998A0B2FD /* Assets.xcassets */; };
+		3FC1C19544074E51EA374F25 /* bg_world4.png in Resources */ = {isa = PBXBuildFile; fileRef = 7DEB55B5ACD011EC7900C569 /* bg_world4.png */; };
+		55875FAC0E8914485EACE2BC /* GameData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D085265DE221395DEBB6271 /* GameData.swift */; };
 		5C12340B736F37A6C32BCD55 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434C544BB5A11E78BDA2BE8E /* Item.swift */; };
+		699E970750C751CA4D6A0EBD /* BossNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF89C17334C1C89731F8F7 /* BossNode.swift */; };
 		7755F95C769567421F3032F9 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7241F254CF72349D6B0546F /* Constants.swift */; };
+		7B6BC8A4D83C05F3BE365927 /* bg_world3.png in Resources */ = {isa = PBXBuildFile; fileRef = 878D33C5D3928AE9C6018265 /* bg_world3.png */; };
 		7F3F29BBC778902255F407B3 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7524D0EDB92340877D90AFBF /* GameScene.swift */; };
 		9226703B5D66B60853852019 /* PhysicsCategories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B737D5FAE8E8842D919C005 /* PhysicsCategories.swift */; };
+		95FEEAEAE1B23FC843F65D10 /* bg_world2.png in Resources */ = {isa = PBXBuildFile; fileRef = EA3032C7E3CACB236181FAFC /* bg_world2.png */; };
 		97C3747199AE8D92165E54FD /* GameManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58005AB6165E6660FF0E6F23 /* GameManager.swift */; };
 		B3BF9DD81A0FE2934183BA5A /* BossScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBEEF9E1D2337A662CEFD09F /* BossScene.swift */; };
 		B6288E4457C873A17E3FBB9C /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 740BF22D68A97BE70F35995C /* GameViewController.swift */; };
+		B6CA78C3DCCA2D0648D4E9D6 /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1E83A8286C444B9A1532765D /* README.txt */; };
 		BC572FC02D815323847E16E6 /* LevelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97ECE724DF394E1D529B454C /* LevelManager.swift */; };
+		BEC6CC76AEBC9FEE086BE956 /* Info.sync-conflict-20260513-214428-F5R4U7F.plist in Resources */ = {isa = PBXBuildFile; fileRef = 744C6C9BD48DA1AB3994899D /* Info.sync-conflict-20260513-214428-F5R4U7F.plist */; };
 		C41FB1DB23E2EBFA00D62D2D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874D9320153A8E6B1EDDCFAC /* AppDelegate.swift */; };
 		CE2108D5403A47EF8B917463 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE7BC57310159DE61A9EFEB7 /* LaunchScreen.storyboard */; };
 		DC601CAE678FCF500EF59AC5 /* MenuScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45130AED623F68F8C0BF06D1 /* MenuScene.swift */; };
 		DDDDBB578AB7B86F6E3D1806 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B005AF41C91909BFCD37845 /* AudioManager.swift */; };
-		G4D1A2E5F6B7C8D9E0F1A2B4 /* GameData.swift in Sources */ = {isa = PBXBuildFile; fileRef = G4D1A2E5F6B7C8D9E0F1A2B3 /* GameData.swift */; };
-		B0S5N0D3E4F6A7B8C9D0E1F3 /* BossNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0S5N0D3E4F6A7B8C9D0E1F2 /* BossNode.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		133D38D77922DFDC3097CCEF /* GameOverScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOverScene.swift; sourceTree = "<group>"; };
+		1D085265DE221395DEBB6271 /* GameData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameData.swift; sourceTree = "<group>"; };
+		1E83A8286C444B9A1532765D /* README.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+		1EBF89C17334C1C89731F8F7 /* BossNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BossNode.swift; sourceTree = "<group>"; };
 		2B005AF41C91909BFCD37845 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
+		337F2C079EF089F4BF7A093F /* bg_world1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg_world1.png; sourceTree = "<group>"; };
 		434C544BB5A11E78BDA2BE8E /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		45130AED623F68F8C0BF06D1 /* MenuScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuScene.swift; sourceTree = "<group>"; };
 		58005AB6165E6660FF0E6F23 /* GameManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameManager.swift; sourceTree = "<group>"; };
 		5B737D5FAE8E8842D919C005 /* PhysicsCategories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicsCategories.swift; sourceTree = "<group>"; };
 		740BF22D68A97BE70F35995C /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
+		744C6C9BD48DA1AB3994899D /* Info.sync-conflict-20260513-214428-F5R4U7F.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Info.sync-conflict-20260513-214428-F5R4U7F.plist"; sourceTree = "<group>"; };
 		7524D0EDB92340877D90AFBF /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
 		7CCEEFE2695EF94A80D94F0C /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		7D585D655646ACA998A0B2FD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		851E9AB7A1A66FE9E6DBEF16 /* AdventureIsland.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AdventureIsland.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7DEB55B5ACD011EC7900C569 /* bg_world4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg_world4.png; sourceTree = "<group>"; };
+		851E9AB7A1A66FE9E6DBEF16 /* AdventureIsland.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AdventureIsland.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		874D9320153A8E6B1EDDCFAC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		878D33C5D3928AE9C6018265 /* bg_world3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg_world3.png; sourceTree = "<group>"; };
 		97ECE724DF394E1D529B454C /* LevelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelManager.swift; sourceTree = "<group>"; };
 		A116CB57202E1A1486C68A91 /* AdventureIsland.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AdventureIsland.entitlements; sourceTree = "<group>"; };
 		A7241F254CF72349D6B0546F /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -50,6 +63,7 @@
 		CE7BC57310159DE61A9EFEB7 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		DBEEF9E1D2337A662CEFD09F /* BossScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BossScene.swift; sourceTree = "<group>"; };
 		E8CCF666BE10315C41CE240E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		EA3032C7E3CACB236181FAFC /* bg_world2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg_world2.png; sourceTree = "<group>"; };
 		EA5CE0CC4E664A27B3555FB8 /* LevelCompleteScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelCompleteScene.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -65,10 +79,10 @@
 		7E9092B745F0B04B15B60A59 /* Entities */ = {
 			isa = PBXGroup;
 			children = (
+				1EBF89C17334C1C89731F8F7 /* BossNode.swift */,
 				BD52AC9A09C5747022F5114C /* Enemy.swift */,
 				434C544BB5A11E78BDA2BE8E /* Item.swift */,
 				7CCEEFE2695EF94A80D94F0C /* Player.swift */,
-				B0S5N0D3E4F6A7B8C9D0E1F2 /* BossNode.swift */,
 			);
 			path = Entities;
 			sourceTree = "<group>";
@@ -82,10 +96,20 @@
 			path = Utils;
 			sourceTree = "<group>";
 		};
+		927488A2AD367CC288BE2A59 /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				1E83A8286C444B9A1532765D /* README.txt */,
+			);
+			path = Sounds;
+			sourceTree = "<group>";
+		};
 		AC6A4D5DDCBCF2CC92539199 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
 				7D585D655646ACA998A0B2FD /* Assets.xcassets */,
+				F4585EF3B30456F9EA076937 /* Backgrounds */,
+				927488A2AD367CC288BE2A59 /* Sounds */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -105,6 +129,7 @@
 				874D9320153A8E6B1EDDCFAC /* AppDelegate.swift */,
 				740BF22D68A97BE70F35995C /* GameViewController.swift */,
 				E8CCF666BE10315C41CE240E /* Info.plist */,
+				744C6C9BD48DA1AB3994899D /* Info.sync-conflict-20260513-214428-F5R4U7F.plist */,
 				CE7BC57310159DE61A9EFEB7 /* LaunchScreen.storyboard */,
 				AC81D827180658FABBBF5458 /* SceneDelegate.swift */,
 				7E9092B745F0B04B15B60A59 /* Entities */,
@@ -128,13 +153,24 @@
 			path = Scenes;
 			sourceTree = "<group>";
 		};
+		F4585EF3B30456F9EA076937 /* Backgrounds */ = {
+			isa = PBXGroup;
+			children = (
+				337F2C079EF089F4BF7A093F /* bg_world1.png */,
+				EA3032C7E3CACB236181FAFC /* bg_world2.png */,
+				878D33C5D3928AE9C6018265 /* bg_world3.png */,
+				7DEB55B5ACD011EC7900C569 /* bg_world4.png */,
+			);
+			path = Backgrounds;
+			sourceTree = "<group>";
+		};
 		F957EA83EDED5E73D3BADD7A /* Managers */ = {
 			isa = PBXGroup;
 			children = (
 				2B005AF41C91909BFCD37845 /* AudioManager.swift */,
+				1D085265DE221395DEBB6271 /* GameData.swift */,
 				58005AB6165E6660FF0E6F23 /* GameManager.swift */,
 				97ECE724DF394E1D529B454C /* LevelManager.swift */,
-				G4D1A2E5F6B7C8D9E0F1A2B3 /* GameData.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -167,7 +203,9 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2650;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = A64013D3BB9A7E68893D4247 /* Build configuration list for PBXProject "AdventureIsland" */;
 			developmentRegion = en;
@@ -194,7 +232,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				37A7722F39CBA593F02206DC /* Assets.xcassets in Resources */,
+				BEC6CC76AEBC9FEE086BE956 /* Info.sync-conflict-20260513-214428-F5R4U7F.plist in Resources */,
 				CE2108D5403A47EF8B917463 /* LaunchScreen.storyboard in Resources */,
+				B6CA78C3DCCA2D0648D4E9D6 /* README.txt in Resources */,
+				0DC6149B07101749B0C59B6F /* bg_world1.png in Resources */,
+				95FEEAEAE1B23FC843F65D10 /* bg_world2.png in Resources */,
+				7B6BC8A4D83C05F3BE365927 /* bg_world3.png in Resources */,
+				3FC1C19544074E51EA374F25 /* bg_world4.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -207,9 +251,11 @@
 			files = (
 				C41FB1DB23E2EBFA00D62D2D /* AppDelegate.swift in Sources */,
 				DDDDBB578AB7B86F6E3D1806 /* AudioManager.swift in Sources */,
+				699E970750C751CA4D6A0EBD /* BossNode.swift in Sources */,
 				B3BF9DD81A0FE2934183BA5A /* BossScene.swift in Sources */,
 				7755F95C769567421F3032F9 /* Constants.swift in Sources */,
 				2B9FFDE159963F05089F4CC1 /* Enemy.swift in Sources */,
+				55875FAC0E8914485EACE2BC /* GameData.swift in Sources */,
 				97C3747199AE8D92165E54FD /* GameManager.swift in Sources */,
 				04A253F89262D65CBC1371B7 /* GameOverScene.swift in Sources */,
 				7F3F29BBC778902255F407B3 /* GameScene.swift in Sources */,
@@ -221,8 +267,6 @@
 				9226703B5D66B60853852019 /* PhysicsCategories.swift in Sources */,
 				2F127BA8216314407FC7766B /* Player.swift in Sources */,
 				23CB9CA42EEF093DD61EC489 /* SceneDelegate.swift in Sources */,
-				G4D1A2E5F6B7C8D9E0F1A2B4 /* GameData.swift in Sources */,
-				B0S5N0D3E4F6A7B8C9D0E1F3 /* BossNode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,10 +311,8 @@
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = MX4VRP95JB;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -285,7 +327,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.dev.AdventureIsland;
 				PRODUCT_NAME = AdventureIsland;
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -300,7 +341,6 @@
 				CODE_SIGN_ENTITLEMENTS = AdventureIsland/AdventureIsland.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = AdventureIsland/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -348,10 +388,8 @@
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = MX4VRP95JB;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -373,7 +411,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.dev.AdventureIsland;
 				PRODUCT_NAME = AdventureIsland;
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -388,7 +425,6 @@
 				CODE_SIGN_ENTITLEMENTS = AdventureIsland/AdventureIsland.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = AdventureIsland/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
