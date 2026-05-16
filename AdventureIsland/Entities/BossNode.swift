@@ -89,6 +89,30 @@ class BossNode: SKNode {
         physicsBody?.allowsRotation = false
     }
 
+    // MARK: - Boss AI
+
+    private func startBossAI() {
+        let idle = SKAction.sequence([
+            SKAction.wait(forDuration: 2.0),
+            SKAction.run { [weak self] in self?.bossMove() }
+        ])
+        run(SKAction.repeatForever(idle))
+    }
+
+    private func bossMove() {
+        guard !isHurt else { return }
+        let rangeMin: CGFloat = 1000
+        let rangeMax: CGFloat = 2500
+        let randomX = CGFloat.random(in: rangeMin...rangeMax)
+        let duration = TimeInterval.random(in: 1.0...2.0)
+        let move = SKAction.moveTo(x: randomX, duration: duration)
+        let flip = SKAction.run { [weak self] in
+            guard let self = self else { return }
+            self.xScale = randomX > self.position.x ? abs(self.xScale) : -abs(self.xScale)
+        }
+        run(SKAction.sequence([flip, move]))
+    }
+
     // MARK: - 更新（每帧由 BossScene 调用）
 
     func update(playerPosition: CGPoint) {
