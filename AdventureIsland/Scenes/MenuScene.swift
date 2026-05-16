@@ -6,6 +6,8 @@ class MenuScene: SKScene {
     private var startButton: SKLabelNode!
     private var worldLabel: SKLabelNode!
     private var currentWorldIndex: Int = 0
+    // 当前选中的关卡索引（0-3），用于关卡选择
+    private var selectedLevelIndex: Int = 0
 
     // 左右箭头按钮节点
     private var leftArrowNode: SKNode!
@@ -178,24 +180,34 @@ class MenuScene: SKScene {
 
         let world = LevelManager.shared.worlds[currentWorldIndex]
         let startLevel = world.startLevel
+        let highestUnlocked = GameData.shared.highestUnlockedLevel
 
         let dotY = size.height * 0.46
         let dotSpacing: CGFloat = 44
         let startX = size.width / 2 - dotSpacing * 1.5
 
         for i in 0..<4 {
+            let levelNum = startLevel + i
+            let isUnlocked = levelNum <= highestUnlocked
+            let isSelected = (i == selectedLevelIndex)
+
             let dot = SKShapeNode(circleOfRadius: 14)
-            dot.fillColor = i == 0 ? .yellow : SKColor(white: 0.4, alpha: 1.0)
-            dot.strokeColor = .white
+            if isUnlocked {
+                dot.fillColor = isSelected ? .yellow : SKColor(green: 0.7, blue: 0.3, alpha: 1.0)
+                dot.strokeColor = .white
+            } else {
+                dot.fillColor = SKColor(white: 0.2, alpha: 0.8)
+                dot.strokeColor = SKColor(white: 0.4, alpha: 0.5)
+            }
             dot.lineWidth = 1.5
             dot.name = "levelDot\(i)"
             dot.position = CGPoint(x: startX + CGFloat(i) * dotSpacing, y: dotY)
             addChild(dot)
 
-            let numLabel = SKLabelNode(text: "\(startLevel + i)")
+            let numLabel = SKLabelNode(text: isUnlocked ? "\(levelNum)" : "🔒")
             numLabel.fontName = "Helvetica-Bold"
-            numLabel.fontSize = 14
-            numLabel.fontColor = i == 0 ? .black : SKColor(white: 0.8, alpha: 1.0)
+            numLabel.fontSize = isUnlocked ? 14 : 11
+            numLabel.fontColor = isUnlocked ? (isSelected ? .black : SKColor(white: 0.9, alpha: 1.0)) : SKColor(white: 0.5, alpha: 1.0)
             numLabel.name = "levelNum\(i)"
             numLabel.position = CGPoint(x: startX + CGFloat(i) * dotSpacing, y: dotY - 5)
             numLabel.verticalAlignmentMode = .center
@@ -230,13 +242,17 @@ class MenuScene: SKScene {
         let node = self.atPoint(location)
 
         if node.name == "startButton" {
-            startGame()
+            startSelectedLevel()
+        } else if node.name?.starts(with: "levelDot") == true {
+            handleLevelDotTap(at: node.name!)
         } else if node.name == "leftArrow" || (node.parent != nil && node.parent?.name == "leftArrow") {
             currentWorldIndex = (currentWorldIndex - 1 + LevelManager.shared.worlds.count) % LevelManager.shared.worlds.count
+            selectedLevelIndex = 0
             updateWorldLabel()
             updateLevelIndicators()
         } else if node.name == "rightArrow" || (node.parent != nil && node.parent?.name == "rightArrow") {
             currentWorldIndex = (currentWorldIndex + 1) % LevelManager.shared.worlds.count
+            selectedLevelIndex = 0
             updateWorldLabel()
             updateLevelIndicators()
         }
@@ -246,10 +262,42 @@ class MenuScene: SKScene {
         worldLabel?.text = getCurrentWorldText()
     }
 
-    private func startGame() {
+    // MARK: - Level Selection
+
+    private func handleLevelDotTap(at dotName: String) {
+        guard let indexStr = dotName.replacingOccurrences(of: "levelDot", with: "") as String?,
+              let index = Int(indexStr) else { return }
+
         let world = LevelManager.shared.worlds[currentWorldIndex]
-        let firstLevel = world.startLevel
-        let levelData = LevelManager.shared.generateLevelData(firstLevel)
+        let levelNum = world.startLevel + index
+        let highestUnlocked = GameData.shared.highestUnlockedLevel
+
+        if levelNum <= highestUnlocked {
+            selectedLevelIndex = index
+            updateLevelIndicators()
+        } else {
+            // Show locked feedback
+            let label = SKLabelNode(text: "🔒 Complete Level \(highestUnlocked) first!")
+            label.fontName = "Helvetica-Bold"
+            label.fontSize = 20
+            label.fontColor = .red
+            label.position = CGPoint(x: size.width / 2, y: size.height * 0.22)
+            label.alpha = 0
+            label.zPosition = 100
+            addChild(label)
+
+            let fade = SKAction.fadeAlpha(to: 1.0, duration: 0.3)
+            let wait = SKAction.wait(withDuration: 1.5)
+            let fadeOut = SKAction.fadeAlpha(to: 0.0, duration: 0.3)
+            let remove = SKAction.removeFromParent()
+            label.run(SKAction.sequence([fade, wait, fadeOut, remove]))
+        }
+    }
+
+    private func startSelectedLevel() {
+        let world = LevelManager.shared.worlds[currentWorldIndex]
+        let levelNum = world.startLevel + selectedLevelIndex
+        let levelData = LevelManager.shared.generateLevelData(levelNum)
 
         let gameScene: SKScene
         if levelData.terrainType == "boss" {
@@ -261,6 +309,11 @@ class MenuScene: SKScene {
         gameScene.scaleMode = .resizeFill
         let transition = SKTransition.flipHorizontal(withDuration: 0.5)
         view?.presentScene(gameScene, transition: transition)
+    }
+
+    // Backward compatibility alias
+    private func startGame() {
+        startSelectedLevel()
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {}

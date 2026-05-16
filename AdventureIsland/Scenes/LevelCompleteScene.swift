@@ -13,10 +13,28 @@ class LevelCompleteScene: SKScene {
         self.levelName = levelName
         self.score = score
         self.timeRemaining = timeRemaining
+
+        // Save progress automatically
+        saveProgress()
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Save Progress
+
+    private func saveProgress() {
+        // Mark this level as completed
+        GameData.shared.markLevelCompleted(levelNumber)
+
+        // Update high score
+        GameData.shared.updateHighScore(score)
+
+        // Unlock next level
+        GameData.shared.unlockNextLevel(after: levelNumber)
+
+        print("💾 Progress saved: Level \(levelNumber), Score: \(score)")
     }
 
     override func didMove(to view: SKView) {
