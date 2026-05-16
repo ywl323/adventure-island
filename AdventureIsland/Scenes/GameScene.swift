@@ -1,4 +1,5 @@
 import SpriteKit
+import UIKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
 
@@ -106,29 +107,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         backgroundLayer = SKNode()
         addChild(backgroundLayer)
 
-        let bgColor: SKColor
-        switch levelData.terrainType {
-        case "grass":
-            bgColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)
-        case "water":
-            bgColor = SKColor(red: 0.25, green: 0.55, blue: 0.85, alpha: 1.0)
-        case "underground":
-            bgColor = SKColor(red: 0.15, green: 0.15, blue: 0.25, alpha: 1.0)
-        case "volcano":
-            bgColor = SKColor(red: 0.5, green: 0.15, blue: 0.08, alpha: 1.0)
-        case "sky":
-            bgColor = SKColor(red: 0.4, green: 0.55, blue: 0.85, alpha: 1.0)
-        case "cliff":
-            bgColor = SKColor(red: 0.55, green: 0.65, blue: 0.75, alpha: 1.0)
-        case "ruins":
-            bgColor = SKColor(red: 0.25, green: 0.3, blue: 0.25, alpha: 1.0)
-        case "boss":
-            bgColor = SKColor(red: 0.3, green: 0.15, blue: 0.25, alpha: 1.0)
-        default:
-            bgColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)
+        // Try to load background image first, fall back to solid color
+        let bgImageName = getBackgroundImageName()
+        let background: SKSpriteNode
+        if let _ = UIImage(named: bgImageName) {
+            background = SKSpriteNode(imageNamed: bgImageName)
+            background.size = size
+        } else {
+            // Fall back to solid color background
+            let bgColor: SKColor
+            switch levelData.terrainType {
+            case "grass":    bgColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)
+            case "water":    bgColor = SKColor(red: 0.25, green: 0.55, blue: 0.85, alpha: 1.0)
+            case "underground": bgColor = SKColor(red: 0.15, green: 0.15, blue: 0.25, alpha: 1.0)
+            case "volcano":  bgColor = SKColor(red: 0.5, green: 0.15, blue: 0.08, alpha: 1.0)
+            case "sky":      bgColor = SKColor(red: 0.4, green: 0.55, blue: 0.85, alpha: 1.0)
+            case "cliff":    bgColor = SKColor(red: 0.55, green: 0.65, blue: 0.75, alpha: 1.0)
+            case "ruins":    bgColor = SKColor(red: 0.25, green: 0.3, blue: 0.25, alpha: 1.0)
+            case "boss":     bgColor = SKColor(red: 0.3, green: 0.15, blue: 0.25, alpha: 1.0)
+            default:        bgColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)
+            }
+            background = SKSpriteNode(color: bgColor, size: size)
         }
-
-        let background = SKSpriteNode(color: bgColor, size: size)
         background.position = CGPoint(x: size.width / 2, y: size.height / 2)
         background.zPosition = -100
         backgroundLayer.addChild(background)
@@ -144,6 +144,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         backgroundLayer.addChild(ground)
 
         addBackgroundDecorations()
+    }
+
+    private func getBackgroundImageName() -> String {
+        let world = (levelData.levelNumber - 1) / 4 + 1
+        return "bg_world\(world)"
     }
 
     private func getGroundColor() -> SKColor {
