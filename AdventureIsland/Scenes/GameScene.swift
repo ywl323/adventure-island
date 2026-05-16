@@ -876,7 +876,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let playerY = player.position.y
         let attackDirection: CGFloat = player.xScale > 0 ? 1 : -1
 
-        var hitEnemy = false
+        /* hitEnemy tracked for potential future use */
 
         for enemy in enemies {
             let dx = enemy.position.x - playerX
@@ -886,7 +886,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             // 在攻击范围内且方向正确（同侧）
             if distance <= attackRange && sign(dx) == attackDirection {
                 enemy.takeDamage(1)
-                hitEnemy = true
+                // hitEnemy = true (potential future use)
                 addScore(enemy.getScoreValue())
             }
         }
