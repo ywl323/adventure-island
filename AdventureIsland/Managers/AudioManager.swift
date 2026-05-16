@@ -70,9 +70,14 @@ class AudioManager {
             player.currentTime = 0
             player.play()
         } else {
-            // 尝试动态加载
             loadSE(name)
             sePlayers[name]?.play()
+        }
+    }
+
+    func preloadSounds(_ names: [String]) {
+        for name in names {
+            loadSE(name)
         }
     }
 

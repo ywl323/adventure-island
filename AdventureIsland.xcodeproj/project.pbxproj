@@ -25,6 +25,8 @@
 		CE2108D5403A47EF8B917463 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE7BC57310159DE61A9EFEB7 /* LaunchScreen.storyboard */; };
 		DC601CAE678FCF500EF59AC5 /* MenuScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45130AED623F68F8C0BF06D1 /* MenuScene.swift */; };
 		DDDDBB578AB7B86F6E3D1806 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B005AF41C91909BFCD37845 /* AudioManager.swift */; };
+		G4D1A2E5F6B7C8D9E0F1A2B4 /* GameData.swift in Sources */ = {isa = PBXBuildFile; fileRef = G4D1A2E5F6B7C8D9E0F1A2B3 /* GameData.swift */; };
+		B0S5N0D3E4F6A7B8C9D0E1F3 /* BossNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0S5N0D3E4F6A7B8C9D0E1F2 /* BossNode.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -66,6 +68,7 @@
 				BD52AC9A09C5747022F5114C /* Enemy.swift */,
 				434C544BB5A11E78BDA2BE8E /* Item.swift */,
 				7CCEEFE2695EF94A80D94F0C /* Player.swift */,
+				B0S5N0D3E4F6A7B8C9D0E1F2 /* BossNode.swift */,
 			);
 			path = Entities;
 			sourceTree = "<group>";
@@ -131,6 +134,7 @@
 				2B005AF41C91909BFCD37845 /* AudioManager.swift */,
 				58005AB6165E6660FF0E6F23 /* GameManager.swift */,
 				97ECE724DF394E1D529B454C /* LevelManager.swift */,
+				G4D1A2E5F6B7C8D9E0F1A2B3 /* GameData.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -217,6 +221,8 @@
 				9226703B5D66B60853852019 /* PhysicsCategories.swift in Sources */,
 				2F127BA8216314407FC7766B /* Player.swift in Sources */,
 				23CB9CA42EEF093DD61EC489 /* SceneDelegate.swift in Sources */,
+				G4D1A2E5F6B7C8D9E0F1A2B4 /* GameData.swift in Sources */,
+				B0S5N0D3E4F6A7B8C9D0E1F3 /* BossNode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

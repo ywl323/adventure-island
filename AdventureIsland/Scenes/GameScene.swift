@@ -53,7 +53,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var activeTouches: [UITouch: String] = [:]
 
     // MARK: - 暂停
-    private var isPaused: Bool = false
+    private var isPausedGame: Bool = false
     private var pauseNode: SKNode!
 
     // 已计分的敌人（防止重复加分）
@@ -403,7 +403,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - 暂停功能
 
     private func showPauseMenu() {
-        isPaused = true
+        isPausedGame = true
 
         pauseNode = SKNode()
         pauseNode.name = "pauseOverlay"
@@ -456,7 +456,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         menuLabel.position = CGPoint(x: 0, y: -5)
         pauseNode.addChild(menuLabel)
 
-        isPaused = false
+        isPausedGame = false
     }
 
     private func resumeGame() {

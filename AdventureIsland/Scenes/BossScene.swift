@@ -46,6 +46,10 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - 世界边界
     private var worldBounds: CGRect!
 
+    // MARK: - 暂停
+    private var isPausedGame: Bool = false
+    private var pauseNode: SKNode!
+
     init(size: CGSize, levelData: LevelData) {
         self.levelData = levelData
         super.init(size: size)
@@ -87,17 +91,16 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         backgroundLayer = SKNode()
         addChild(backgroundLayer)
 
-        // 根据地形设置背景
         let bgColor: SKColor
         switch levelData.specialFeature {
         case "boss_raptor":
-            bgColor = SKColor(red: 0.4, green: 0.7, blue: 0.3, alpha: 1.0) // 草地绿
+            bgColor = SKColor(red: 0.4, green: 0.7, blue: 0.3, alpha: 1.0)
         case "boss_frog":
-            bgColor = SKColor(red: 0.2, green: 0.5, blue: 0.3, alpha: 1.0) // 沼泽绿
+            bgColor = SKColor(red: 0.2, green: 0.5, blue: 0.3, alpha: 1.0)
         case "boss_lava":
-            bgColor = SKColor(red: 0.6, green: 0.2, blue: 0.1, alpha: 1.0) // 火山红
+            bgColor = SKColor(red: 0.6, green: 0.2, blue: 0.1, alpha: 1.0)
         case "boss_dark":
-            bgColor = SKColor(red: 0.15, green: 0.05, blue: 0.2, alpha: 1.0) // 深紫色星空
+            bgColor = SKColor(red: 0.15, green: 0.05, blue: 0.2, alpha: 1.0)
         default:
             bgColor = SKColor(red: 0.3, green: 0.5, blue: 0.8, alpha: 1.0)
         }
@@ -106,7 +109,6 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         background.position = CGPoint(x: size.width / 2, y: size.height / 2)
         backgroundLayer.addChild(background)
 
-        // 添加地面
         let ground = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 3000, height: 50))
         ground.fillColor = SKColor(red: 0.3, green: 0.6, blue: 0.3, alpha: 1.0)
         ground.strokeColor = .clear
@@ -115,9 +117,7 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         ground.physicsBody?.contactTestBitMask = PhysicsCategories.player
         backgroundLayer.addChild(ground)
 
-        // BOSS区域装饰 - 根据BOSS类型添加掩体
         if levelData.specialFeature == "boss_dark" {
-            // 最终BOSS：4根石柱
             for i in 0..<4 {
                 let pillar = SKShapeNode(rect: CGRect(x: 600 + CGFloat(i) * 500, y: 50, width: 90, height: 150))
                 pillar.fillColor = SKColor(white: 0.5, alpha: 1.0)
@@ -127,7 +127,6 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
                 backgroundLayer.addChild(pillar)
             }
         } else {
-            // 普通BOSS：中央掩体
             let centerPlatform = SKShapeNode(rect: CGRect(x: 1350, y: 50, width: 150, height: 80))
             centerPlatform.fillColor = SKColor(white: 0.4, alpha: 1.0)
             centerPlatform.strokeColor = .clear
@@ -150,7 +149,6 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
     }
 
     private func setupHUD() {
-        // 关卡名称
         levelNameLabel = SKLabelNode(text: "BOSS: \(levelData.name)")
         levelNameLabel.fontName = "Helvetica-Bold"
         levelNameLabel.fontSize = 28
@@ -159,7 +157,6 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         levelNameLabel.horizontalAlignmentMode = .center
         cameraNode.addChild(levelNameLabel)
 
-        // 分数
         scoreLabel = SKLabelNode(text: "Score: 0")
         scoreLabel.fontName = "Helvetica-Bold"
         scoreLabel.fontSize = 24
@@ -168,7 +165,6 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         scoreLabel.horizontalAlignmentMode = .left
         cameraNode.addChild(scoreLabel)
 
-        // 生命
         healthLabel = SKLabelNode(text: "Health: 3")
         healthLabel.fontName = "Helvetica-Bold"
         healthLabel.fontSize = 24
@@ -177,7 +173,6 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         healthLabel.horizontalAlignmentMode = .left
         cameraNode.addChild(healthLabel)
 
-        // BOSS生命
         bossHealthLabel = SKLabelNode(text: "BOSS: ♥♥♥")
         bossHealthLabel.fontName = "Helvetica-Bold"
         bossHealthLabel.fontSize = 24
@@ -186,7 +181,6 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         bossHealthLabel.horizontalAlignmentMode = .right
         cameraNode.addChild(bossHealthLabel)
 
-        // 时间
         timeLabel = SKLabelNode(text: "Time: \(gameTime)")
         timeLabel.fontName = "Helvetica-Bold"
         timeLabel.fontSize = 24
@@ -195,7 +189,6 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         timeLabel.horizontalAlignmentMode = .left
         cameraNode.addChild(timeLabel)
 
-        // 暂停按钮
         let pauseBtn = SKShapeNode(circleOfRadius: 22)
         pauseBtn.fillColor = SKColor(white: 0.1, alpha: 0.7)
         pauseBtn.strokeColor = SKColor(white: 0.8, alpha: 0.8)
@@ -213,15 +206,12 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
     }
 
     private func setupControlArea() {
-        // 按钮大小和位置
         let buttonRadius: CGFloat = 50
-        let buttonY: CGFloat = 90  // 紧贴屏幕底部
-        let buttonSpacing: CGFloat = 110  // 按钮间距
+        let buttonY: CGFloat = 90
+        let buttonSpacing: CGFloat = 110
 
-        // ===== 左下角：方向键 ◀ ▶ =====
-        let leftBaseX: CGFloat = 90  // ◀ 按钮中心 X
+        let leftBaseX: CGFloat = 90
 
-        // ◀ 左方向按钮
         leftButton = SKShapeNode(circleOfRadius: buttonRadius)
         leftButton.fillColor = SKColor(white: 0.2, alpha: 0.85)
         leftButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
@@ -237,7 +227,6 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         leftArrow.position = CGPoint(x: 0, y: -10)
         leftButton.addChild(leftArrow)
 
-        // ▶ 右方向按钮（紧贴 ◀ 右边）
         rightButton = SKShapeNode(circleOfRadius: buttonRadius)
         rightButton.fillColor = SKColor(white: 0.2, alpha: 0.85)
         rightButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
@@ -253,10 +242,8 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         rightArrow.position = CGPoint(x: 0, y: -10)
         rightButton.addChild(rightArrow)
 
-        // ===== 右下角：跳跃 ▲ + 攻击 ATK =====
-        let rightBaseX: CGFloat = size.width - 90  // ATK 按钮中心 X
+        let rightBaseX: CGFloat = size.width - 90
 
-        // ▲ 跳跃按钮（靠内侧，靠近中心）
         jumpButton = SKShapeNode(circleOfRadius: buttonRadius)
         jumpButton.fillColor = SKColor(red: 0.3, green: 0.6, blue: 1.0, alpha: 0.85)
         jumpButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
@@ -272,7 +259,6 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         jumpLabel.position = CGPoint(x: 0, y: -8)
         jumpButton.addChild(jumpLabel)
 
-        // ATK 攻击按钮（靠外侧）
         attackButton = SKShapeNode(circleOfRadius: buttonRadius)
         attackButton.fillColor = SKColor(red: 1.0, green: 0.25, blue: 0.25, alpha: 0.85)
         attackButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
@@ -305,13 +291,9 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
     private func setupAudio() {
         AudioManager.shared.loadBGM("bgm_boss")
         AudioManager.shared.playBGM()
-        AudioManager.shared.preloadSounds(["se_jump", "se_attack", "se_coin", "se_hurt", "se_death"])
     }
 
     // MARK: - 暂停功能
-
-    private var isPaused: Bool = false
-    private var pauseNode: SKNode!
 
     private func togglePause() {
         if pauseNode != nil {
@@ -340,37 +322,38 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         title.position = CGPoint(x: 0, y: 60)
         pauseNode.addChild(title)
 
-        let resumeBg = SKShapeNode(rect: CGRect(x: -100, y: -10, width: 200, height: 50), cornerRadius: 10)
-        resumeBg.fillColor = SKColor(red: 0.2, green: 0.6, blue: 0.2, alpha: 0.9)
-        resumeBg.strokeColor = .white
-        resumeBg.lineWidth = 2
-        resumeBg.name = "resumeButton"
-        pauseNode.addChild(resumeBg)
+        let resumeBtn = SKShapeNode(rect: CGRect(x: -120, y: -20, width: 240, height: 60), cornerRadius: 10)
+        resumeBtn.fillColor = SKColor(white: 0.2, alpha: 0.9)
+        resumeBtn.strokeColor = SKColor(white: 0.8, alpha: 0.9)
+        resumeBtn.lineWidth = 2
+        resumeBtn.name = "resumeButton"
+        pauseNode.addChild(resumeBtn)
 
-        let resumeLabel = SKLabelNode(text: "▶ RESUME")
+        let resumeLabel = SKLabelNode(text: "RESUME")
         resumeLabel.fontName = "Helvetica-Bold"
         resumeLabel.fontSize = 24
         resumeLabel.fontColor = .white
         resumeLabel.name = "resumeButton"
-        resumeLabel.position = CGPoint(x: 0, y: 5)
-        pauseNode.addChild(resumeLabel)
+        resumeLabel.position = CGPoint(x: 0, y: -6)
+        resumeBtn.addChild(resumeLabel)
 
-        let menuBg = SKShapeNode(rect: CGRect(x: -100, y: -70, width: 200, height: 45), cornerRadius: 8)
-        menuBg.fillColor = SKColor(white: 0.2, alpha: 0.8)
-        menuBg.name = "menuButton"
-        pauseNode.addChild(menuBg)
+        let menuBtn = SKShapeNode(rect: CGRect(x: -120, y: -100, width: 240, height: 60), cornerRadius: 10)
+        menuBtn.fillColor = SKColor(white: 0.15, alpha: 0.9)
+        menuBtn.strokeColor = SKColor(white: 0.5, alpha: 0.9)
+        menuBtn.lineWidth = 2
+        menuBtn.name = "menuButton"
+        pauseNode.addChild(menuBtn)
 
-        let menuLabel = SKLabelNode(text: "☰ MENU")
+        let menuLabel = SKLabelNode(text: "MENU")
         menuLabel.fontName = "Helvetica-Bold"
-        menuLabel.fontSize = 22
+        menuLabel.fontSize = 24
         menuLabel.fontColor = .white
         menuLabel.name = "menuButton"
-        menuLabel.position = CGPoint(x: 0, y: -5)
-        pauseNode.addChild(menuLabel)
+        menuLabel.position = CGPoint(x: 0, y: -6)
+        menuBtn.addChild(menuLabel)
     }
 
     private func returnToMenu() {
-        AudioManager.shared.stopBGM()
         let menuScene = MenuScene(size: size)
         menuScene.scaleMode = .resizeFill
         view?.presentScene(menuScene, transition: SKTransition.flipHorizontal(withDuration: 0.5))
@@ -379,7 +362,6 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - 触摸处理
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        // 暂停菜单激活时
         if pauseNode != nil {
             for touch in touches {
                 let location = touch.location(in: pauseNode!)
@@ -397,21 +379,12 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
             return
         }
 
-        guard !isGameOver && !isVictory else { return }
-
         for touch in touches {
-            let location = touch.location(in: cameraNode)
-
-            // 暂停按钮
-            let pauseBtnFrame = CGRect(x: size.width - 67, y: size.height - 67, width: 44, height: 44)
-            if pauseBtnFrame.contains(location) {
-                togglePause()
-                return
-            }
-
-            let node = self.cameraNode.atPoint(location)
-
+            let location = touch.location(in: cameraNode!)
+            let node = cameraNode!.atPoint(location)
             switch node.name {
+            case "pauseButton":
+                togglePause()
             case "leftButton":
                 isLeftPressed = true
             case "rightButton":
@@ -420,8 +393,9 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
                 isJumpPressed = true
             case "attackButton":
                 isAttackPressed = true
-        default:
-            break
+            default:
+                break
+            }
         }
     }
 
@@ -438,7 +412,6 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         if pauseNode != nil { return }
         guard !isGameOver && !isVictory else { return }
 
-        // 玩家移动
         if isLeftPressed {
             player.moveLeft()
         } else if isRightPressed {
@@ -447,26 +420,19 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
             player.stop()
         }
 
-        // 跳跃
         if isJumpPressed {
             player.jump()
             isJumpPressed = false
         }
 
-        // 攻击
         if isAttackPressed {
             player.attack()
             checkAttackHit()
             isAttackPressed = false
         }
 
-        // BOSS AI
         boss.update(playerPosition: player.position)
-
-        // 摄像机跟随
         cameraNode.position.x = (player.position.x + boss.position.x) / 2
-
-        // 更新玩家状态
         player.update()
     }
 
@@ -478,7 +444,6 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
             boss.takeDamage()
             addScore(100)
             updateBossHealthDisplay()
-
             if boss.isDefeated {
                 victory()
             }
@@ -496,14 +461,20 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
 
     // MARK: - 游戏逻辑
 
-    func addScore(_ points: Int) {
+    private func addScore(_ points: Int) {
         score += points
         scoreLabel.text = "Score: \(score)"
     }
 
-    func takeDamage() {
+    private func takeDamage() {
+        guard !damageCooldown && !isGameOver && !isVictory else { return }
+        damageCooldown = true
         health -= 1
         healthLabel.text = "Health: \(health)"
+        player.takeDamage()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            self?.damageCooldown = false
+        }
         if health <= 0 {
             gameOver()
         }
@@ -531,18 +502,7 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         view?.presentScene(levelCompleteScene, transition: transition)
     }
 
-    // MARK: - 碰撞检测
-
-    func didCollideWithEnemy() {
-        takeDamage()
-    }
-}
-
-// MARK: - End of BossScene
-
-// MARK: - SKPhysicsContactDelegate 扩展
-
-extension BossScene {
+    // MARK: - SKPhysicsContactDelegate
 
     func didBegin(_ contact: SKPhysicsContact) {
         let maskA = contact.bodyA.categoryBitMask
@@ -553,9 +513,9 @@ extension BossScene {
         } else if maskB == PhysicsCategories.player && maskA == PhysicsCategories.ground {
             player?.didContact(with: PhysicsCategories.ground)
         } else if maskA == PhysicsCategories.player && maskB == PhysicsCategories.enemy {
-            didCollideWithEnemy()
+            takeDamage()
         } else if maskB == PhysicsCategories.player && maskA == PhysicsCategories.enemy {
-            didCollideWithEnemy()
+            takeDamage()
         }
     }
 
@@ -568,30 +528,5 @@ extension BossScene {
         } else if maskB == PhysicsCategories.player && maskA == PhysicsCategories.ground {
             player?.didEndContact(with: PhysicsCategories.ground)
         }
-    }
-
-    private func didCollideWithEnemy() {
-        guard !damageCooldown && !isGameOver && !isVictory else { return }
-        damageCooldown = true
-        takeDamage()
-        player.takeDamage()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            self?.damageCooldown = false
-        }
-    }
-
-    private func takeDamage() {
-        health -= 1
-        healthLabel.text = "Health: \(health)"
-        if health <= 0 {
-            gameOver()
-        }
-    }
-
-    private func gameOver() {
-        isGameOver = true
-        let scene = GameOverScene(size: size, score: score)
-        scene.scaleMode = .resizeFill
-        view?.presentScene(scene, transition: SKTransition.flipHorizontal(withDuration: 0.5))
     }
 }
