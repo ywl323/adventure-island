@@ -193,7 +193,7 @@ class MenuScene: SKScene {
 
             let dot = SKShapeNode(circleOfRadius: 14)
             if isUnlocked {
-                dot.fillColor = isSelected ? .yellow : SKColor(green: 0.7, blue: 0.3, alpha: 1.0)
+                dot.fillColor = isSelected ? .yellow : SKColor(red: 0.2, green: 0.7, blue: 0.3, alpha: 1.0)
                 dot.strokeColor = .white
             } else {
                 dot.fillColor = SKColor(white: 0.2, alpha: 0.8)
@@ -287,7 +287,7 @@ class MenuScene: SKScene {
             addChild(label)
 
             let fade = SKAction.fadeAlpha(to: 1.0, duration: 0.3)
-            let wait = SKAction.wait(withDuration: 1.5)
+            let wait = SKAction.wait(forDuration: 1.5)
             let fadeOut = SKAction.fadeAlpha(to: 0.0, duration: 0.3)
             let remove = SKAction.removeFromParent()
             label.run(SKAction.sequence([fade, wait, fadeOut, remove]))
