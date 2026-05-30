@@ -47,10 +47,10 @@ struct LevelSeedStorage {
             var enemies: [EnemySpawnData] = []
             for i in 0..<enemyCount {
                 // 用 i 和 levelNumber 混合种子，避免每次循环用同一个 rand 产生相同值
-                let r1 = makeSeededRandom(seed: UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(i &* 31)))
                 let r2 = makeSeededRandom(seed: UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(i &* 17 &+ 1)))
                 let x = CGFloat(i + 1) * (width / CGFloat(enemyCount + 1))
-                let y = CGFloat(r2() % 200 + 100)  // 100~300 范围
+                let yRand = r2()
+                let y = CGFloat(yRand % 200 + 100)  // 100~300 范围
                 let type = terrainEnemyType(at: i, terrain: terrainType, rand: makeSeededRandom(seed: UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(i &* 7))))
                 enemies.append(EnemySpawnData(x: x, y: y, type: type))
             }
@@ -58,10 +58,10 @@ struct LevelSeedStorage {
             // 物品位置（确定性伪随机）
             var items: [ItemSpawnData] = []
             for i in 0..<itemCount {
-                let r1 = makeSeededRandom(seed: UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(i &* 13 &+ 1000)))
                 let r2 = makeSeededRandom(seed: UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(i &* 11 &+ 1001)))
                 let x = CGFloat(i + 1) * (width / CGFloat(itemCount + 1))
-                let y = CGFloat(r2() % 120 + 80)  // 80~200 范围
+                let yRand = r2()
+                let y = CGFloat(yRand % 120 + 80)  // 80~200 范围
                 let type = difficultyItemType(at: i, difficulty: config?.difficulty ?? 1, rand: makeSeededRandom(seed: UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(i &* 5 &+ 2000))))
                 items.append(ItemSpawnData(x: x, y: y, type: type))
             }
