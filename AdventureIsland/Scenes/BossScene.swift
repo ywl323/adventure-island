@@ -60,7 +60,7 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func didMove(to view: SKView) {
+    override func didMove(to view: SKView) { super.didMove(to: view); 
         gameTime = levelData.timeLimit
         setupPhysics()
         setupCamera()

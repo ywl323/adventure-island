@@ -13,7 +13,7 @@ class MenuScene: SKScene {
     private var leftArrowNode: SKNode!
     private var rightArrowNode: SKNode!
 
-    override func didMove(to view: SKView) {
+    override func didMove(to view: SKView) { super.didMove(to: view); 
         print("🔥 MenuScene.didMove called! size=\(size)")
         backgroundColor = SKColor(red: 0.1, green: 0.2, blue: 0.4, alpha: 1.0)
         print("   view.bounds: \(view.bounds)")

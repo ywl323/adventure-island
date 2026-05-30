@@ -41,7 +41,7 @@ class LevelCompleteScene: SKScene {
         print("💾 Progress saved: Level \(levelNumber), Score: \(score)")
     }
 
-    override func didMove(to view: SKView) {
+    override func didMove(to view: SKView) { super.didMove(to: view); 
         backgroundColor = SKColor(red: 0.05, green: 0.15, blue: 0.05, alpha: 1.0)
 
         setupBackground()

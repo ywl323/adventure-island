@@ -13,7 +13,7 @@ class GameOverScene: SKScene {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func didMove(to view: SKView) {
+    override func didMove(to view: SKView) { super.didMove(to: view); 
         backgroundColor = SKColor(red: 0.15, green: 0.1, blue: 0.1, alpha: 1.0)
 
         setupBackground()

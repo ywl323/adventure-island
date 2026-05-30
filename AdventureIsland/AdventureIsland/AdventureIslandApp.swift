@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-
+// 移除 @main - AppDelegate 是主入口，GameViewController 加载游戏
 struct AdventureIslandApp: App {
     var body: some Scene {
         WindowGroup {

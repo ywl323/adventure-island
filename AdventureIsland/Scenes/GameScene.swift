@@ -73,7 +73,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func didMove(to view: SKView) {
+    override func didMove(to view: SKView) { super.didMove(to: view); 
         print("🔥 GameScene.didMove called! size=\(size), level=\(levelData.levelNumber), terrain=\(levelData.terrainType)")
         gameTime = levelData.timeLimit
         print("   levelData.width=\(levelData.width), levelData.timeLimit=\(gameTime)")
@@ -88,6 +88,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupControlArea()
         startGameTimer()
         setupAudio()
+        print("🎨 GameScene setup complete. frame=\(frame), children=\(children.count)")
+    }
+
+    override func draw(_ currentContext: CGContext) {
+        print("🎨 GameScene.draw called! frame=\(frame)")
+        super.draw(currentContext)
     }
 
     // MARK: - 设置
@@ -160,6 +166,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         background.position = CGPoint(x: levelData.width / 2, y: size.height / 2)
         background.zPosition = -100
         backgroundLayer.addChild(background)
+
+        // Fallback: 确保永远有一个可见背景（调试用）
+        let fallbackBg = SKSpriteNode(color: SKColor(red: 0.3, green: 0.5, blue: 0.8, alpha: 1.0), size: CGSize(width: levelData.width, height: size.height))
+        fallbackBg.position = CGPoint(x: levelData.width / 2, y: size.height / 2)
+        fallbackBg.zPosition = -200
+        backgroundLayer.addChild(fallbackBg)
 
         // 背景层固定在世界坐标，不跟随相机移动
         // 相机向右移动时，背景保持不动，产生玩家向右前进的视觉效果

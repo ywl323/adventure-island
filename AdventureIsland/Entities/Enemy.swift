@@ -17,8 +17,6 @@ class Enemy: SKNode {
     private var patrolMinX: CGFloat = 0
     private var patrolMaxX: CGFloat = 0
 
-    // PNG 文件名映射（使用共享 EntityTypeMapping）
-
     // 精灵尺寸
     private var spriteSize: CGSize = CGSize(width: 50, height: 50)
 
@@ -29,7 +27,6 @@ class Enemy: SKNode {
         super.init()
         configureByType()
         setupAppearance()
-        // 注意：不在这里启动巡逻，由 GameScene 在 setPatrolBounds 后统一调用 startPatrolling()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -71,8 +68,6 @@ class Enemy: SKNode {
 
     private func setupAppearance() {
         let imageName = EntityTypeMapping.enemy[enemyType] ?? "02_enemy_dinosaur"
-
-        // 使用纹理缓存（游戏启动时已预加载）
         let texture = TextureCache.shared.texture(for: imageName)
         if texture.size().width == 0 {
             sprite = SKSpriteNode(color: .red, size: spriteSize)
@@ -80,18 +75,18 @@ class Enemy: SKNode {
             let displaySize = CGSize(width: 50, height: 50)
             sprite = SKSpriteNode(texture: texture, size: displaySize)
         }
-        }
-
         sprite.position = .zero
         addChild(sprite)
+        setupPhysics()
+    }
 
+    private func setupPhysics() {
         physicsBody = SKPhysicsBody(rectangleOf: spriteSize)
         physicsBody?.isDynamic = true
         physicsBody?.categoryBitMask = PhysicsCategories.enemy
         physicsBody?.contactTestBitMask = PhysicsCategories.player
         physicsBody?.collisionBitMask = PhysicsCategories.ground
         physicsBody?.allowsRotation = false
-
         let flyingTypes = ["bat", "volcanic_bat", "storm_vulture", "sky_knight", "guardian_angel", "thunder_orb"]
         physicsBody?.affectedByGravity = !flyingTypes.contains(enemyType)
     }
@@ -99,12 +94,9 @@ class Enemy: SKNode {
     /// 由 GameScene 在所有敌人创建完毕并设置巡逻边界后统一调用
     /// 避免在 init() 中过早启动，导致边界尚未设置就乱走
     func startPatrolling() {
-        // 随机等待 1.5~3 秒后开始巡逻
         let wait = SKAction.wait(forDuration: TimeInterval.random(in: 1.5...3.0))
         let move = SKAction.run { [weak self] in
             guard let self = self else { return }
-
-            // 到达右边界则向左，左边界则向右
             if self.patrolMaxX > self.patrolMinX {
                 if self.position.x >= self.patrolMaxX {
                     self.direction = -1
@@ -112,7 +104,6 @@ class Enemy: SKNode {
                     self.direction = 1
                 }
             }
-
             let moveDistance = self.direction * self.moveSpeed * 0.5
             let moveAction = SKAction.moveBy(x: moveDistance, y: 0, duration: 0.5)
             self.run(moveAction)
