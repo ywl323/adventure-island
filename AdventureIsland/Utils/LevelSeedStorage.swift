@@ -51,7 +51,8 @@ struct LevelSeedStorage {
                 let x = CGFloat(i + 1) * (width / CGFloat(enemyCount + 1))
                 let yRand = r2()
                 let y = CGFloat(yRand % 200 + 100)  // 100~300 范围
-                let type = terrainEnemyType(at: i, terrain: terrainType, rand: makeSeededRandom(seed: UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(i &* 7))))
+                let enemyRand = makeSeededRandom(seed: UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(i &* 7)))
+                let type = terrainEnemyType(at: i, terrain: terrainType, rand: enemyRand)
                 enemies.append(EnemySpawnData(x: x, y: y, type: type))
             }
 
@@ -62,7 +63,8 @@ struct LevelSeedStorage {
                 let x = CGFloat(i + 1) * (width / CGFloat(itemCount + 1))
                 let yRand = r2()
                 let y = CGFloat(yRand % 120 + 80)  // 80~200 范围
-                let type = difficultyItemType(at: i, difficulty: config?.difficulty ?? 1, rand: makeSeededRandom(seed: UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(i &* 5 &+ 2000))))
+                let itemRand = makeSeededRandom(seed: UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(i &* 5 &+ 2000)))
+                let type = difficultyItemType(at: i, difficulty: config?.difficulty ?? 1, rand: itemRand)
                 items.append(ItemSpawnData(x: x, y: y, type: type))
             }
 
