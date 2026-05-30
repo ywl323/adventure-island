@@ -14,6 +14,10 @@ class LevelCompleteScene: SKScene {
         self.score = score
         self.timeRemaining = timeRemaining
 
+        // 将时间加成加入总分
+        let timeBonus = timeRemaining * 10
+        self.score += timeBonus
+
         // Save progress automatically
         saveProgress()
     }
@@ -160,32 +164,58 @@ class LevelCompleteScene: SKScene {
     }
 
     private func setupButtons() {
-        let nextButton = SKLabelNode(text: "NEXT LEVEL →")
-        nextButton.fontName = "Helvetica-Bold"
-        nextButton.fontSize = min(size.width * 0.032, 32)
-        nextButton.fontColor = .white
-        nextButton.name = "nextButton"
-        nextButton.position = CGPoint(x: size.width / 2, y: size.height * 0.22)
-        nextButton.horizontalAlignmentMode = .center
-        addChild(nextButton)
+        // 使用带命中区域的父节点包裹 SKLabelNode，
+        // SKShapeNode 背景作为实际命中区域（比文字更大），文字只负责显示
 
-        let retryButton = SKLabelNode(text: "↺ RETRY")
-        retryButton.fontName = "Helvetica-Bold"
-        retryButton.fontSize = min(size.width * 0.024, 24)
-        retryButton.fontColor = SKColor(white: 0.5, alpha: 1.0)
-        retryButton.name = "retryButton"
-        retryButton.position = CGPoint(x: size.width * 0.2, y: size.height * 0.22)
-        retryButton.horizontalAlignmentMode = .center
-        addChild(retryButton)
+        let btnY = size.height * 0.22
 
-        let menuButton = SKLabelNode(text: "☰ MENU")
-        menuButton.fontName = "Helvetica-Bold"
-        menuButton.fontSize = min(size.width * 0.024, 24)
-        menuButton.fontColor = SKColor(white: 0.5, alpha: 1.0)
-        menuButton.name = "menuButton"
-        menuButton.position = CGPoint(x: size.width * 0.8, y: size.height * 0.22)
-        menuButton.horizontalAlignmentMode = .center
-        addChild(menuButton)
+        // NEXT LEVEL 按钮
+        let nextBg = SKShapeNode(rect: CGRect(x: -90, y: -20, width: 180, height: 40), cornerRadius: 8)
+        nextBg.fillColor = SKColor(white: 0.2, alpha: 0.6)
+        nextBg.strokeColor = SKColor(white: 0.4, alpha: 0.5)
+        nextBg.lineWidth = 1.5
+        nextBg.name = "nextButton"
+        nextBg.position = CGPoint(x: size.width / 2, y: btnY)
+        addChild(nextBg)
+
+        let nextLabel = SKLabelNode(text: "NEXT LEVEL →")
+        nextLabel.fontName = "Helvetica-Bold"
+        nextLabel.fontSize = min(size.width * 0.028, 28)
+        nextLabel.fontColor = .white
+        nextLabel.position = CGPoint(x: 0, y: -7)
+        nextBg.addChild(nextLabel)
+
+        // RETRY 按钮
+        let retryBg = SKShapeNode(rect: CGRect(x: -65, y: -18, width: 130, height: 36), cornerRadius: 6)
+        retryBg.fillColor = SKColor(white: 0.15, alpha: 0.5)
+        retryBg.strokeColor = SKColor(white: 0.3, alpha: 0.4)
+        retryBg.lineWidth = 1
+        retryBg.name = "retryButton"
+        retryBg.position = CGPoint(x: size.width * 0.2, y: btnY)
+        addChild(retryBg)
+
+        let retryLabel = SKLabelNode(text: "↺ RETRY")
+        retryLabel.fontName = "Helvetica-Bold"
+        retryLabel.fontSize = min(size.width * 0.022, 22)
+        retryLabel.fontColor = SKColor(white: 0.5, alpha: 1.0)
+        retryLabel.position = CGPoint(x: 0, y: -5)
+        retryBg.addChild(retryLabel)
+
+        // MENU 按钮
+        let menuBg = SKShapeNode(rect: CGRect(x: -65, y: -18, width: 130, height: 36), cornerRadius: 6)
+        menuBg.fillColor = SKColor(white: 0.15, alpha: 0.5)
+        menuBg.strokeColor = SKColor(white: 0.3, alpha: 0.4)
+        menuBg.lineWidth = 1
+        menuBg.name = "menuButton"
+        menuBg.position = CGPoint(x: size.width * 0.8, y: btnY)
+        addChild(menuBg)
+
+        let menuLabel = SKLabelNode(text: "☰ MENU")
+        menuLabel.fontName = "Helvetica-Bold"
+        menuLabel.fontSize = min(size.width * 0.022, 22)
+        menuLabel.fontColor = SKColor(white: 0.5, alpha: 1.0)
+        menuLabel.position = CGPoint(x: 0, y: -5)
+        menuBg.addChild(menuLabel)
     }
 
     private func presentGameScene(levelNum: Int) {

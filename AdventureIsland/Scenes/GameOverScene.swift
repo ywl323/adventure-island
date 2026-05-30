@@ -153,7 +153,7 @@ class GameOverScene: SKScene {
 
         switch node.name {
         case "retryButton":
-            presentGameScene(levelNum: 1)
+            presentGameScene(levelNum: GameManager.shared.currentLevel)
         case "menuButton":
             presentMenuScene()
         default:

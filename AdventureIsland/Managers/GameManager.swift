@@ -21,8 +21,10 @@ class GameManager {
     private(set) var score: Int = 0
     private(set) var lives: Int = 3
 
-    // MARK: - 关卡配置
-    private let maxLevel: Int = 10
+    // 从 LevelManager 动态获取总关卡数（当前 16 关）
+    private var maxLevel: Int {
+        return LevelManager.shared.levelConfigs.count
+    }
 
     // MARK: - 状态切换
 

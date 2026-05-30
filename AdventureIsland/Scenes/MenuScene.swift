@@ -14,7 +14,9 @@ class MenuScene: SKScene {
     private var rightArrowNode: SKNode!
 
     override func didMove(to view: SKView) {
+        print("🔥 MenuScene.didMove called! size=\(size)")
         backgroundColor = SKColor(red: 0.1, green: 0.2, blue: 0.4, alpha: 1.0)
+        print("   view.bounds: \(view.bounds)")
 
         // 背景渐变层
         let gradient = SKShapeNode(rect: CGRect(x: 0, y: 0, width: size.width, height: size.height))
@@ -139,10 +141,12 @@ class MenuScene: SKScene {
         leftBg.lineWidth = 2
         leftArrowNode.addChild(leftBg)
 
+        // 左箭头按钮（世界名左侧，y偏下）
+        // ◀ 箭头（指向左）
         let leftPath = CGMutablePath()
-        leftPath.move(to: CGPoint(x: 10, y: 0))
-        leftPath.addLine(to: CGPoint(x: -8, y: -12))
-        leftPath.addLine(to: CGPoint(x: -8, y: 12))
+        leftPath.move(to: CGPoint(x: -8, y: 0))
+        leftPath.addLine(to: CGPoint(x: 8, y: -10))
+        leftPath.addLine(to: CGPoint(x: 8, y: 10))
         leftPath.closeSubpath()
         let leftArrow = SKShapeNode(path: leftPath)
         leftArrow.fillColor = .white
@@ -150,7 +154,7 @@ class MenuScene: SKScene {
         leftArrowNode.addChild(leftArrow)
         addChild(leftArrowNode)
 
-        // 右箭头按钮（世界名右侧，y偏下）
+        // 右箭头按钮（世界名右侧）
         rightArrowNode = SKNode()
         rightArrowNode.name = "rightArrow"
         rightArrowNode.position = CGPoint(x: size.width * 0.82, y: size.height * 0.6)
@@ -159,11 +163,11 @@ class MenuScene: SKScene {
         rightBg.strokeColor = SKColor(white: 0.5, alpha: 0.8)
         rightBg.lineWidth = 2
         rightArrowNode.addChild(rightBg)
-
+        // ▶ 箭头（指向右）
         let rightPath = CGMutablePath()
-        rightPath.move(to: CGPoint(x: -10, y: 0))
-        rightPath.addLine(to: CGPoint(x: 8, y: -12))
-        rightPath.addLine(to: CGPoint(x: 8, y: 12))
+        rightPath.move(to: CGPoint(x: 8, y: 0))
+        rightPath.addLine(to: CGPoint(x: -8, y: -10))
+        rightPath.addLine(to: CGPoint(x: -8, y: 10))
         rightPath.closeSubpath()
         let rightArrow = SKShapeNode(path: rightPath)
         rightArrow.fillColor = .white
@@ -226,14 +230,23 @@ class MenuScene: SKScene {
     }
 
     private func setupStartButton() {
+        // 使用带命中背景的父节点，避免文字过小导致难以点击
+        let btnY = size.height * 0.28
+
+        let startBg = SKShapeNode(rect: CGRect(x: -110, y: -25, width: 220, height: 50), cornerRadius: 12)
+        startBg.fillColor = SKColor(red: 0.2, green: 0.55, blue: 0.2, alpha: 0.85)
+        startBg.strokeColor = SKColor(white: 0.4, alpha: 0.7)
+        startBg.lineWidth = 2
+        startBg.name = "startButton"
+        startBg.position = CGPoint(x: size.width / 2, y: btnY)
+        addChild(startBg)
+
         startButton = SKLabelNode(text: "▶ START")
         startButton.fontName = "Helvetica-Bold"
-        startButton.fontSize = min(size.width * 0.045, 44)
+        startButton.fontSize = min(size.width * 0.04, 40)
         startButton.fontColor = .white
-        startButton.name = "startButton"
-        startButton.position = CGPoint(x: size.width / 2, y: size.height * 0.28)
-        startButton.horizontalAlignmentMode = .center
-        addChild(startButton)
+        startButton.position = CGPoint(x: 0, y: -7)
+        startBg.addChild(startButton)
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -297,23 +310,22 @@ class MenuScene: SKScene {
     private func startSelectedLevel() {
         let world = LevelManager.shared.worlds[currentWorldIndex]
         let levelNum = world.startLevel + selectedLevelIndex
+        print("🎮 startSelectedLevel: level=\(levelNum), world=\(currentWorldIndex), index=\(selectedLevelIndex)")
         let levelData = LevelManager.shared.generateLevelData(levelNum)
+        print("📦 levelData: \(levelData.levelNumber), terrain=\(levelData.terrainType), width=\(levelData.width)")
 
         let gameScene: SKScene
         if levelData.terrainType == "boss" {
+            print("→ BossScene")
             gameScene = BossScene(size: size, levelData: levelData)
         } else {
+            print("→ GameScene")
             gameScene = GameScene(size: size, levelData: levelData)
         }
 
         gameScene.scaleMode = .resizeFill
         let transition = SKTransition.flipHorizontal(withDuration: 0.5)
         view?.presentScene(gameScene, transition: transition)
-    }
-
-    // Backward compatibility alias
-    private func startGame() {
-        startSelectedLevel()
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {}

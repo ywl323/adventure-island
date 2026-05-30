@@ -70,6 +70,11 @@ class AudioManager {
             player.currentTime = 0
             player.play()
         } else {
+            // 文件未找到时提前返回，避免 optional chain 静默失败
+            guard Bundle.main.url(forResource: name, withExtension: "mp3") != nil else {
+                print("AudioManager: SE 文件未找到 - \(name).mp3 (跳过播放)")
+                return
+            }
             loadSE(name)
             sePlayers[name]?.play()
         }

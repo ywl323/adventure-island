@@ -6,20 +6,25 @@ class Player: SKNode {
     // MARK: - 属性
     private var moveSpeed: CGFloat = Constants.playerSpeed
     private var isGrounded: Bool = false
+    private var hasEverFallen: Bool = false  // 玩家是否曾经下坠过（用于判断能否跳跃）
     private var isAttacking: Bool = false
     private var health: Int = 3
-    private var lastVelocityY: CGFloat = 0
+    private var canJump: Bool = true         // 跳跃冷却，防止连续触发
+    private var facingDirection: CGFloat = 1 // 1=右, -1=左，独立于xScale避免动画干扰
+
 
     // 精灵节点
     private var sprite: SKSpriteNode!
 
     // 物理体尺寸（用于碰撞）
-    private let physicsRadius: CGFloat = 20
+    private let physicsRadius: CGFloat = Constants.playerPhysicsRadius
 
     // MARK: - 初始化
 
     override init() {
         super.init()
+        // 初始设为 false：玩家尚未与物理世界交互，等待第一次 didEndContact
+        isGrounded = false
         setupPhysics()
         setupPlayer()
     }
@@ -33,7 +38,7 @@ class Player: SKNode {
         physicsBody?.isDynamic = true
         physicsBody?.allowsRotation = false
         physicsBody?.categoryBitMask = PhysicsCategories.player
-        physicsBody?.contactTestBitMask = PhysicsCategories.enemy | PhysicsCategories.ground | PhysicsCategories.item
+        physicsBody?.contactTestBitMask = PhysicsCategories.enemy | PhysicsCategories.ground | PhysicsCategories.item | PhysicsCategories.goal
         physicsBody?.collisionBitMask = PhysicsCategories.ground
         physicsBody?.mass = 1.0
         physicsBody?.friction = 0.5
@@ -42,35 +47,14 @@ class Player: SKNode {
     private func setupPlayer() {
         name = "player"
 
-        // 尝试从 asset catalog 加载纹理
-        sprite = SKSpriteNode(imageNamed: "01_player_master_higgins")
-
-        if sprite.texture == nil || sprite.texture!.size().width == 0 {
-            print("⚠️ Player: '01_player_master_higgins' NOT found in asset catalog")
-
-            let possibleNames = [
-                "01_player_master_higgins",
-                "player",
-                "adventure_island_logo1"
-            ]
-
-            for name in possibleNames {
-                sprite = SKSpriteNode(imageNamed: name)
-                if sprite.texture != nil && sprite.texture!.size().width > 0 {
-                    print("✅ Player: found texture '\(name)' (\(sprite.texture!.size()))")
-                    break
-                }
-            }
-
-            if sprite.texture == nil || sprite.texture!.size().width == 0 {
-                print("❌ Player: No valid texture found — USAGE ERROR: missing '01_player_master_higgins' in Assets.xcassets")
-                sprite = SKSpriteNode(color: .cyan, size: CGSize(width: 40, height: 48))
-            }
+        // 使用纹理缓存
+        let texture = TextureCache.shared.texture(for: "01_player_master_higgins")
+        if texture.size().width == 0 {
+            sprite = SKSpriteNode(color: .cyan, size: CGSize(width: 40, height: 48))
         } else {
-            print("✅ Player: loaded '01_player_master_higgins' texture size: \(sprite.texture!.size())")
+            sprite = SKSpriteNode(texture: texture, size: CGSize(width: 50, height: 60))
         }
-
-        sprite.setScale(0.15)
+        sprite.setScale(Constants.playerSpriteScale)
         sprite.position = .zero
         sprite.anchorPoint = CGPoint(x: 0.5, y: 0.0)
         addChild(sprite)
@@ -79,56 +63,101 @@ class Player: SKNode {
     // MARK: - 移动逻辑
 
     func moveLeft() {
-        physicsBody?.velocity.dx = -moveSpeed
+        let dy = physicsBody?.velocity.dy ?? 0
+        physicsBody?.velocity = CGVector(dx: -moveSpeed, dy: dy)
         xScale = -abs(xScale)
+        facingDirection = -1
     }
 
     func moveRight() {
-        physicsBody?.velocity.dx = moveSpeed
+        let dy = physicsBody?.velocity.dy ?? 0
+        physicsBody?.velocity = CGVector(dx: moveSpeed, dy: dy)
         xScale = abs(xScale)
+        facingDirection = 1
     }
 
     func stop() {
-        physicsBody?.velocity.dx = 0
+        let dy = physicsBody?.velocity.dy ?? 0
+        physicsBody?.velocity = CGVector(dx: 0, dy: dy)
     }
 
     // MARK: - 跳跃物理
 
     func jump() {
-        guard isGrounded else { return }
+        guard canJump else {
+            print("⏳ jump() denied: cooldown")
+            return
+        }
+        guard isGrounded else {
+            print("⏳ jump() denied: not grounded (isGrounded=false)")
+            return
+        }
+        print("✅ jump() executed! isGrounded=\(isGrounded)")
         physicsBody?.velocity = CGVector(dx: physicsBody?.velocity.dx ?? 0, dy: Constants.jumpForce)
-        isGrounded = false
         AudioManager.shared.playSE("se_jump")
+        canJump = false
+        // 离开地面时重置跳跃冷却，这样下次落地才能再跳
+        isGrounded = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.jumpCooldown) { [weak self] in
+            self?.canJump = true
+        }
     }
 
-    // MARK: - 攻击动作
+    // MARK: - 攻击动作（石斧投射物）
 
     func attack() {
         guard !isAttacking else { return }
         isAttacking = true
 
-        let originalColor = sprite.color
-        let originalColorBlend = sprite.colorBlendFactor
-        let flash = SKAction.sequence([
-            SKAction.run { [weak self] in
-                self?.sprite.color = .red
-                self?.sprite.colorBlendFactor = 0.5
-            },
-            SKAction.wait(forDuration: 0.1),
-            SKAction.run { [weak self] in
-                self?.sprite.color = originalColor
-                self?.sprite.colorBlendFactor = originalColorBlend
-            },
-            SKAction.wait(forDuration: 0.2)
+        // 生成石斧投射物
+        let axeNode: SKSpriteNode
+        if UIImage(named: "24_projectile_stone_axe") != nil {
+            axeNode = SKSpriteNode(imageNamed: "24_projectile_stone_axe")
+            axeNode.size = CGSize(width: 30, height: 30)
+        } else {
+            // Fallback：使用简单的斧形 ShapeNode
+            let axeShape = SKShapeNode()
+            let path = CGMutablePath()
+            path.move(to: CGPoint(x: 0, y: 8))
+            path.addLine(to: CGPoint(x: -10, y: -4))
+            path.addLine(to: CGPoint(x: 0, y: -2))
+            path.addLine(to: CGPoint(x: 10, y: -4))
+            path.closeSubpath()
+            axeShape.path = path
+            axeShape.fillColor = SKColor(red: 0.5, green: 0.45, blue: 0.4, alpha: 1.0)
+            axeShape.strokeColor = .clear
+            axeNode = SKSpriteNode(color: .clear, size: CGSize(width: 24, height: 18))
+            axeNode.addChild(axeShape)
+        }
+        let axe = axeNode
+        axe.name = "axe"
+        axe.zPosition = 10
+        axe.position = CGPoint(x: 0, y: 20)
+
+        // 根据角色朝向决定飞行方向（使用独立的facingDirection，避免被xScale动画干扰）
+        let direction: CGFloat = facingDirection
+        axe.xScale = abs(axe.xScale) * direction  // 确保朝向正确
+
+        // 投出轨迹（抛物线）
+        let duration: TimeInterval = Constants.attackDuration
+        let dx: CGFloat = direction * Constants.attackMoveDistance
+        let dy: CGFloat = Constants.attackMoveHeight  // 轻微上抛
+        let fly = SKAction.sequence([
+            SKAction.moveBy(x: dx, y: dy, duration: duration),
+            SKAction.removeFromParent()
         ])
-        sprite.run(flash)
+        let spin = SKAction.rotate(byAngle: direction * .pi * 4, duration: duration)
+        axe.run(SKAction.group([fly, spin]))
+
+        addChild(axe)
+
+        // 攻击音效
+        AudioManager.shared.playSE("se_attack")
 
         let finish = SKAction.run { [weak self] in
             self?.isAttacking = false
         }
-        run(SKAction.sequence([SKAction.wait(forDuration: 0.3), finish]))
-
-        AudioManager.shared.playSE("se_attack")
+        run(SKAction.sequence([SKAction.wait(forDuration: Constants.attackFinishDelay), finish]))
     }
 
     // MARK: - 受伤闪烁
@@ -155,27 +184,26 @@ class Player: SKNode {
 
     private func reset() {
         isGrounded = false
+        hasEverFallen = false
         isAttacking = false
-        position = CGPoint(x: 200, y: 200)
+        canJump = true           // 复活后立即可以跳跃
+        health = Constants.maxHealth  // 满血复活
+        position = CGPoint(x: Constants.playerStartX, y: Constants.playerStartY)
         physicsBody?.velocity = .zero
         alpha = 1.0
+        facingDirection = 1      // 面向右侧
+        xScale = abs(xScale)     // 重置朝向
     }
 
     // MARK: - 每帧更新
 
     func update() {
-        // 用速度方向变化判断落地：刚从下落（vy <= -50）转为非下落，说明着地
         let vy = physicsBody?.velocity.dy ?? 0
-        if vy > -50 && lastVelocityY <= -50 {
-            isGrounded = true
-        } else if vy < -50 {
-            isGrounded = false
-        }
-        lastVelocityY = vy
 
-        // 防止掉出屏幕底部
-        if position.y < 100 && isGrounded {
-            position.y = 100
+        // 只在明显下坠时标记为离开地面，避免每帧误判
+        // isGrounded 由 didContact/didEndContact 控制，这里只做辅助判断
+        if vy < -100 {
+            hasEverFallen = true
         }
     }
 
@@ -183,10 +211,7 @@ class Player: SKNode {
 
     func didContact(with category: UInt32) {
         if category == PhysicsCategories.ground {
-            let vy = physicsBody?.velocity.dy ?? 0
-            if vy <= 0 {
-                isGrounded = true
-            }
+            isGrounded = true
         }
     }
 
@@ -208,5 +233,9 @@ class Player: SKNode {
 
     func resetHealth() {
         health = 3
+    }
+
+    func getFacingDirection() -> CGFloat {
+        return facingDirection
     }
 }

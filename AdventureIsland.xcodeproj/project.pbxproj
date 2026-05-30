@@ -22,6 +22,10 @@
 		7B6BC8A4D83C05F3BE365927 /* bg_world3.png in Resources */ = {isa = PBXBuildFile; fileRef = 878D33C5D3928AE9C6018265 /* bg_world3.png */; };
 		7F3F29BBC778902255F407B3 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7524D0EDB92340877D90AFBF /* GameScene.swift */; };
 		9226703B5D66B60853852019 /* PhysicsCategories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B737D5FAE8E8842D919C005 /* PhysicsCategories.swift */; };
+		0F05DCBC6F61328D3EC67000 /* EntityTypeMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751054FD3E591DC0D93402D6 /* EntityTypeMapping.swift */; };
+		9D43F8EB07B68AF61F91FE7B /* GameUIBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50687D3E75B879A7E60992A1 /* GameUIBuilder.swift */; };
+		1274E9720FD8DB7F61270586 /* LevelSeedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11ED5BF76CE72E2A525FF41 /* LevelSeedStorage.swift */; };
+		42BA81689D7853CA9DE5FD4C /* TextureCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF3C85052076C6C6660C57A /* TextureCache.swift */; };
 		95FEEAEAE1B23FC843F65D10 /* bg_world2.png in Resources */ = {isa = PBXBuildFile; fileRef = EA3032C7E3CACB236181FAFC /* bg_world2.png */; };
 		97C3747199AE8D92165E54FD /* GameManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58005AB6165E6660FF0E6F23 /* GameManager.swift */; };
 		B3BF9DD81A0FE2934183BA5A /* BossScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBEEF9E1D2337A662CEFD09F /* BossScene.swift */; };
@@ -52,12 +56,16 @@
 		7CCEEFE2695EF94A80D94F0C /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		7D585D655646ACA998A0B2FD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7DEB55B5ACD011EC7900C569 /* bg_world4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg_world4.png; sourceTree = "<group>"; };
-		851E9AB7A1A66FE9E6DBEF16 /* AdventureIsland.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AdventureIsland.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		851E9AB7A1A66FE9E6DBEF16 /* AdventureIsland.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AdventureIsland.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		874D9320153A8E6B1EDDCFAC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		878D33C5D3928AE9C6018265 /* bg_world3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg_world3.png; sourceTree = "<group>"; };
 		97ECE724DF394E1D529B454C /* LevelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelManager.swift; sourceTree = "<group>"; };
 		A116CB57202E1A1486C68A91 /* AdventureIsland.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AdventureIsland.entitlements; sourceTree = "<group>"; };
 		A7241F254CF72349D6B0546F /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		751054FD3E591DC0D93402D6 /* EntityTypeMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntityTypeMapping.swift; sourceTree = "<group>"; };
+		50687D3E75B879A7E60992A1 /* GameUIBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameUIBuilder.swift; sourceTree = "<group>"; };
+		E11ED5BF76CE72E2A525FF41 /* LevelSeedStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelSeedStorage.swift; sourceTree = "<group>"; };
+		ECF3C85052076C6C6660C57A /* TextureCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextureCache.swift; sourceTree = "<group>"; };
 		AC81D827180658FABBBF5458 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		BD52AC9A09C5747022F5114C /* Enemy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enemy.swift; sourceTree = "<group>"; };
 		CE7BC57310159DE61A9EFEB7 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -91,6 +99,10 @@
 			isa = PBXGroup;
 			children = (
 				A7241F254CF72349D6B0546F /* Constants.swift */,
+				751054FD3E591DC0D93402D6 /* EntityTypeMapping.swift */,
+				50687D3E75B879A7E60992A1 /* GameUIBuilder.swift */,
+				E11ED5BF76CE72E2A525FF41 /* LevelSeedStorage.swift */,
+				ECF3C85052076C6C6660C57A /* TextureCache.swift */,
 				5B737D5FAE8E8842D919C005 /* PhysicsCategories.swift */,
 			);
 			path = Utils;
@@ -203,7 +215,9 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2650;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = A64013D3BB9A7E68893D4247 /* Build configuration list for PBXProject "AdventureIsland" */;
 			developmentRegion = en;
@@ -263,6 +277,10 @@
 				BC572FC02D815323847E16E6 /* LevelManager.swift in Sources */,
 				DC601CAE678FCF500EF59AC5 /* MenuScene.swift in Sources */,
 				9226703B5D66B60853852019 /* PhysicsCategories.swift in Sources */,
+		0F05DCBC6F61328D3EC67000 /* EntityTypeMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751054FD3E591DC0D93402D6 /* EntityTypeMapping.swift */; };
+		9D43F8EB07B68AF61F91FE7B /* GameUIBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50687D3E75B879A7E60992A1 /* GameUIBuilder.swift */; };
+		1274E9720FD8DB7F61270586 /* LevelSeedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11ED5BF76CE72E2A525FF41 /* LevelSeedStorage.swift */; };
+		42BA81689D7853CA9DE5FD4C /* TextureCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF3C85052076C6C6660C57A /* TextureCache.swift */; };
 				2F127BA8216314407FC7766B /* Player.swift in Sources */,
 				23CB9CA42EEF093DD61EC489 /* SceneDelegate.swift in Sources */,
 			);
@@ -311,7 +329,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -326,11 +343,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.dev.AdventureIsland;
 				PRODUCT_NAME = AdventureIsland;
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -345,7 +361,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.dev.AdventureIsland;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -391,7 +406,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -413,11 +427,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.dev.AdventureIsland;
 				PRODUCT_NAME = AdventureIsland;
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -432,7 +445,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.dev.AdventureIsland;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

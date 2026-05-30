@@ -6,25 +6,9 @@ class Item: SKNode {
     private var itemType: String = "coin"
     private var value: Int = 10
     private var sprite: SKSpriteNode!
+    private var isCollected: Bool = false
 
-    // PNG 文件名映射
-    private static let typeToImage: [String: String] = [
-        "coin": "10_item_coin",
-        "gold": "10_item_coin",
-        "apple": "11_item_apple",
-        "fruit": "11_item_apple",
-        "banana": "12_item_banana",
-        "grape": "17_item_grape",
-        "egg": "13_item_egg",
-        "heart": "14_item_heart",
-        "health": "14_item_heart",
-        "red_heart": "14_item_heart",
-        "diamond": "15_item_diamond",
-        "star": "16_item_star",
-        "powerup": "16_item_star",
-        "coconut": "11_item_apple",
-        "crystal": "15_item_diamond"
-    ]
+    // PNG 文件名映射（使用共享 EntityTypeMapping）
 
     // MARK: - 初始化
 
@@ -60,19 +44,15 @@ class Item: SKNode {
     }
 
     private func setupAppearance() {
-        let imageName = Item.typeToImage[itemType] ?? "10_item_coin"
-        print("🟡 Item[\(itemType)]: loading '\(imageName)'")
+        let imageName = EntityTypeMapping.item[itemType] ?? "10_item_coin"
 
-        let texture = SKTexture(imageNamed: imageName)
-        print("   texture size: \(texture.size())")
-
+        // 使用纹理缓存
+        let texture = TextureCache.shared.texture(for: imageName)
         if texture.size().width == 0 {
-            print("❌ Item[\(itemType)]: texture '\(imageName)' FAILED to load")
             sprite = SKSpriteNode(color: .yellow, size: CGSize(width: 35, height: 35))
         } else {
             let displaySize = CGSize(width: 35, height: 35)
             sprite = SKSpriteNode(texture: texture, size: displaySize)
-            print("✅ Item[\(itemType)]: loaded texture '\(imageName)'")
         }
 
         sprite.position = .zero
@@ -87,6 +67,8 @@ class Item: SKNode {
     // MARK: - 收集逻辑
 
     func collect() {
+        guard !isCollected else { return }
+        isCollected = true
         let scaleUp = SKAction.scale(to: 1.5, duration: 0.1)
         let fadeOut = SKAction.fadeOut(withDuration: 0.2)
         let remove = SKAction.removeFromParent()

@@ -36,7 +36,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var isLeftPressed: Bool = false
     private var isRightPressed: Bool = false
     private var isJumpPressed: Bool = false
+    private var isJumpConsumed: Bool = false  // 本次按键周期是否已消耗跳跃（防止按住一直跳）
     private var isAttackPressed: Bool = false
+    private var isAttackConsumed: Bool = false  // 本次按键周期是否已消耗攻击
 
     // MARK: - 背景滚动层
     private var backgroundLayer: SKNode!
@@ -56,11 +58,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var isPausedGame: Bool = false
     private var pauseNode: SKNode!
 
-    // 已计分的敌人（防止重复加分）
-    private var scoredEnemies: Set<ObjectIdentifier> = []
 
     // 玩家初始Y
-    private let playerStartY: CGFloat = 150
+    private let playerStartY: CGFloat = Constants.playerStartY
 
     // MARK: - 初始化
 
@@ -74,7 +74,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     override func didMove(to view: SKView) {
+        print("🔥 GameScene.didMove called! size=\(size), level=\(levelData.levelNumber), terrain=\(levelData.terrainType)")
         gameTime = levelData.timeLimit
+        print("   levelData.width=\(levelData.width), levelData.timeLimit=\(gameTime)")
+        preloadTexturesOnce()
         setupPhysics()
         setupCamera()
         setupBackground()
@@ -88,6 +91,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     // MARK: - 设置
+
+    // 游戏全程只预加载一次纹理（通过 flag 保证）
+    private static var texturesPreloaded: Bool = false
+
+    private func preloadTexturesOnce() {
+        guard !GameScene.texturesPreloaded else { return }
+        GameScene.texturesPreloaded = true
+
+        let allTextureNames = Set(
+            EntityTypeMapping.enemy.values +
+            EntityTypeMapping.item.values +
+            EntityTypeMapping.boss.values +
+            [
+                "01_player_master_higgins",
+                "bg_world1", "bg_world2", "bg_world3", "bg_world4",
+                "26_decoration_palm_tree", "22_decoration_clouds",
+                "32_projectile_fireball",
+                "adventure_island_logo1", "adventure_island_logo2", "adventure_island_logo3"
+            ]
+        )
+        TextureCache.shared.preload(named: Array(allTextureNames))
+    }
 
     private func setupPhysics() {
         worldBounds = CGRect(x: 0, y: 0, width: levelData.width, height: size.height)
@@ -112,7 +137,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let background: SKSpriteNode
         if let _ = UIImage(named: bgImageName) {
             background = SKSpriteNode(imageNamed: bgImageName)
-            background.size = size
+            // 背景图宽度延伸至整个关卡长度（不只屏幕宽度），实现滚动时背景不断裂
+            background.size = CGSize(width: levelData.width, height: size.height)
         } else {
             // Fall back to solid color background
             let bgColor: SKColor
@@ -127,11 +153,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             case "boss":     bgColor = SKColor(red: 0.3, green: 0.15, blue: 0.25, alpha: 1.0)
             default:        bgColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)
             }
-            background = SKSpriteNode(color: bgColor, size: size)
+            background = SKSpriteNode(color: bgColor, size: CGSize(width: levelData.width, height: size.height))
         }
-        background.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        // 背景宽度延伸至整个关卡长度，position 设为世界坐标系中央
+        // 相机移动时背景不动（固定在 world），相对玩家产生滚动感
+        background.position = CGPoint(x: levelData.width / 2, y: size.height / 2)
         background.zPosition = -100
         backgroundLayer.addChild(background)
+
+        // 背景层固定在世界坐标，不跟随相机移动
+        // 相机向右移动时，背景保持不动，产生玩家向右前进的视觉效果
+        backgroundLayer.position.x = 0
 
         // 添加地面（物理边界）
         let ground = SKShapeNode(rect: CGRect(x: 0, y: 0, width: levelData.width, height: 50))
@@ -142,6 +174,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ground.physicsBody?.categoryBitMask = PhysicsCategories.ground
         ground.physicsBody?.contactTestBitMask = PhysicsCategories.player
         backgroundLayer.addChild(ground)
+
+        // 添加终点触发区域（关卡末尾 200 像素处，纯传感器，不挡路）
+        let goalX = levelData.width - 200
+        let goalNode = SKShapeNode(rect: CGRect(x: goalX, y: 0, width: 4, height: size.height))
+        goalNode.fillColor = SKColor(red: 1.0, green: 0.85, blue: 0.0, alpha: 0.6)
+        goalNode.strokeColor = SKColor(red: 1.0, green: 0.85, blue: 0.0, alpha: 0.8)
+        goalNode.lineWidth = 2
+        goalNode.zPosition = -40
+        backgroundLayer.addChild(goalNode)
+
+        // 终点的物理体（垂直边缘线，不阻挡玩家，仅触发碰撞回调）
+        let goalBody = SKPhysicsBody(edgeFrom: CGPoint(x: goalX, y: 0), to: CGPoint(x: goalX, y: size.height))
+        goalBody.categoryBitMask = PhysicsCategories.goal
+        goalBody.contactTestBitMask = PhysicsCategories.player
+        goalNode.physicsBody = goalBody
 
         addBackgroundDecorations()
     }
@@ -305,9 +352,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     private func setupPlayer() {
+        print("🎨 setupPlayer called, playerStartY=\(playerStartY)")
         player = Player()
-        player.position = CGPoint(x: 200, y: playerStartY)
+        player.position = CGPoint(x: Constants.playerStartX, y: playerStartY)
         addChild(player)
+        print("   Player added at (\(player.position.x), \(player.position.y))")
 
         // 打印调试信息
         if let sprite = player.children.first as? SKSpriteNode {
@@ -329,6 +378,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             )
             addChild(enemy)
             enemies.append(enemy)
+            // 边界设置完毕后再启动巡逻，避免敌人一开始就在边界外乱走
+            enemy.startPatrolling()
         }
     }
 
@@ -374,21 +425,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         timeLabel.horizontalAlignmentMode = .left
         cameraNode.addChild(timeLabel)
 
-        // 暂停按钮（右上角）
-        let pauseBtn = SKShapeNode(circleOfRadius: 22)
-        pauseBtn.fillColor = SKColor(white: 0.1, alpha: 0.7)
-        pauseBtn.strokeColor = SKColor(white: 0.8, alpha: 0.8)
-        pauseBtn.lineWidth = 2
+        // 暂停按钮（右上角，嵌入式圆角矩形，与控制器风格统一）
+        let pauseBtn = SKNode()
         pauseBtn.name = "pauseButton"
         pauseBtn.position = CGPoint(x: size.width / 2 - 45, y: size.height / 2 - 45)
         cameraNode.addChild(pauseBtn)
 
-        let pauseIcon = SKLabelNode(text: "⏸")
-        pauseIcon.fontSize = 20
-        pauseIcon.fontColor = .white
-        pauseIcon.name = "pauseButton"
-        pauseIcon.position = CGPoint(x: 0, y: -7)
-        pauseBtn.addChild(pauseIcon)
+        let pauseBg = SKShapeNode(rect: CGRect(x: -18, y: -18, width: 36, height: 36), cornerRadius: 8)
+        pauseBg.fillColor = SKColor(red: 0.2, green: 0.55, blue: 1.0, alpha: 0.85)
+        pauseBg.strokeColor = SKColor(white: 0.5, alpha: 0.8)
+        pauseBg.lineWidth = 2
+        pauseBtn.addChild(pauseBg)
+
+        // 两根竖线表示暂停
+        let bar1 = SKShapeNode(rect: CGRect(x: -7, y: -8, width: 5, height: 16))
+        bar1.fillColor = .white
+        bar1.strokeColor = .clear
+        pauseBtn.addChild(bar1)
+
+        let bar2 = SKShapeNode(rect: CGRect(x: 2, y: -8, width: 5, height: 16))
+        bar2.fillColor = .white
+        bar2.strokeColor = .clear
+        pauseBtn.addChild(bar2)
     }
 
     private func setupAudio() {
@@ -416,8 +474,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         overlay.strokeColor = .clear
         pauseNode.addChild(overlay)
 
+        // 暂停时暂停游戏动作
+        isPausedGame = true
+
         // 标题
-        let title = SKLabelNode(text: "⏸ PAUSED")
+        let title = SKLabelNode(text: "PAUSED")
         title.fontName = "Helvetica-Bold"
         title.fontSize = 48
         title.fontColor = .white
@@ -482,112 +543,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private func setupControlArea() {
         let btnSize: CGFloat = 60
         let edgePadding: CGFloat = 20
-
-        // 按钮 Y 位置：屏幕底部上方
         let buttonY = -size.height / 2 + edgePadding + btnSize / 2
-
-        // === 左按钮（屏幕左下角，◀ 箭头）===
-        leftButton = SKNode()
-        leftButton.name = "leftButton"
-        leftButton.position = CGPoint(x: -size.width / 2 + edgePadding + btnSize / 2, y: buttonY)
-        let leftBg = SKShapeNode(circleOfRadius: btnSize / 2)
-        leftBg.fillColor = SKColor(red: 0.2, green: 0.55, blue: 1.0, alpha: 0.85)
-        leftBg.strokeColor = SKColor(white: 0.5, alpha: 0.8)
-        leftBg.lineWidth = 2.5
-        leftButton.addChild(leftBg)
-
-        // ◀ 箭头（指向左）
-        let leftPath = CGMutablePath()
-        leftPath.move(to: CGPoint(x: 10, y: 0))
-        leftPath.addLine(to: CGPoint(x: -8, y: -12))
-        leftPath.addLine(to: CGPoint(x: -8, y: 12))
-        leftPath.closeSubpath()
-        let leftArrow = SKShapeNode(path: leftPath)
-        leftArrow.fillColor = .white
-        leftArrow.strokeColor = .clear
-        leftButton.addChild(leftArrow)
-        cameraNode.addChild(leftButton)
-
-        // === 右按钮（◀ 右边的按钮，▶ 箭头）===
-        rightButton = SKNode()
-        rightButton.name = "rightButton"
-        rightButton.position = CGPoint(x: -size.width / 2 + edgePadding + btnSize * 1.6, y: buttonY)
-        let rightBg = SKShapeNode(circleOfRadius: btnSize / 2)
-        rightBg.fillColor = SKColor(red: 0.2, green: 0.55, blue: 1.0, alpha: 0.85)
-        rightBg.strokeColor = SKColor(white: 0.5, alpha: 0.8)
-        rightBg.lineWidth = 2.5
-        rightButton.addChild(rightBg)
-
-        // ▶ 箭头（指向右）
-        let rightPath = CGMutablePath()
-        rightPath.move(to: CGPoint(x: -10, y: 0))
-        rightPath.addLine(to: CGPoint(x: 8, y: -12))
-        rightPath.addLine(to: CGPoint(x: 8, y: 12))
-        rightPath.closeSubpath()
-        let rightArrow = SKShapeNode(path: rightPath)
-        rightArrow.fillColor = .white
-        rightArrow.strokeColor = .clear
-        rightButton.addChild(rightArrow)
-        cameraNode.addChild(rightButton)
-
-        // === 右下角：跳跃 + 攻击 ===
         let rightBaseX = size.width / 2 - edgePadding - btnSize / 2
 
-        // 跳跃按钮
-        jumpButton = SKNode()
-        jumpButton.name = "jumpButton"
-        jumpButton.position = CGPoint(x: rightBaseX - btnSize - 10, y: buttonY)
-        let jumpBg = SKShapeNode(circleOfRadius: btnSize / 2)
-        jumpBg.fillColor = SKColor(red: 0.2, green: 0.8, blue: 0.5, alpha: 0.85)
-        jumpBg.strokeColor = SKColor(white: 0.5, alpha: 0.8)
-        jumpBg.lineWidth = 2.5
-        jumpButton.addChild(jumpBg)
+        // 左右 D-pad 按钮
+        let (left, right) = GameUIBuilder.buildControlDpad(
+            into: cameraNode,
+            size: size,
+            buttonRadius: btnSize,
+            edgePadding: edgePadding
+        )
+        leftButton = left
+        rightButton = right
 
-        let jumpPath = CGMutablePath()
-        jumpPath.move(to: CGPoint(x: 0, y: 14))
-        jumpPath.addLine(to: CGPoint(x: -14, y: -8))
-        jumpPath.addLine(to: CGPoint(x: 14, y: -8))
-        jumpPath.closeSubpath()
-        let jumpArrow = SKShapeNode(path: jumpPath)
-        jumpArrow.fillColor = .white
-        jumpArrow.strokeColor = .clear
-        jumpButton.addChild(jumpArrow)
-        cameraNode.addChild(jumpButton)
+        // 跳跃按钮
+        jumpButton = GameUIBuilder.buildJumpButton(
+            into: cameraNode,
+            at: CGPoint(x: rightBaseX - btnSize - 10, y: buttonY),
+            buttonRadius: btnSize
+        )
 
         // 攻击按钮
-        attackButton = SKNode()
-        attackButton.name = "attackButton"
-        attackButton.position = CGPoint(x: rightBaseX, y: buttonY)
-        let attackBg = SKShapeNode(circleOfRadius: btnSize / 2)
-        attackBg.fillColor = SKColor(red: 1.0, green: 0.2, blue: 0.2, alpha: 0.85)
-        attackBg.strokeColor = SKColor(white: 0.5, alpha: 0.8)
-        attackBg.lineWidth = 2.5
-        attackButton.addChild(attackBg)
-
-        let fireballSprite = SKSpriteNode(imageNamed: "32_projectile_fireball")
-        if fireballSprite.texture != nil {
-            fireballSprite.size = CGSize(width: 36, height: 36)
-            fireballSprite.zPosition = 1
-            attackButton.addChild(fireballSprite)
-        } else {
-            let atkPath = CGMutablePath()
-            atkPath.move(to: CGPoint(x: 0, y: 14))
-            atkPath.addLine(to: CGPoint(x: -14, y: -10))
-            atkPath.addLine(to: CGPoint(x: 0, y: -2))
-            atkPath.addLine(to: CGPoint(x: 14, y: -10))
-            atkPath.closeSubpath()
-            let atkSymbol = SKShapeNode(path: atkPath)
-            atkSymbol.fillColor = .white
-            atkSymbol.strokeColor = .clear
-            attackButton.addChild(atkSymbol)
-        }
-        cameraNode.addChild(attackButton)
-
-        print("🎮 Control buttons setup:")
-        print("   leftButton ◀  at x=\(leftButton.position.x) (should move LEFT)")
-        print("   rightButton ▶ at x=\(rightButton.position.x) (should move RIGHT)")
-        print("   jumpButton ▲  at \(jumpButton.position)")
-        print("   attackButton at \(attackButton.position)")
+        attackButton = GameUIBuilder.buildAttackButton(
+            into: cameraNode,
+            at: CGPoint(x: rightBaseX, y: buttonY),
+            buttonRadius: btnSize
+        )
     }
 
     private func startGameTimer() {
@@ -606,6 +587,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - 触摸处理
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches {
+            let locInScene = touch.location(in: self)
+            let locInCamera = touch.location(in: cameraNode)
+            print("📍 touchesBegan: scene=\(locInScene), camera=\(locInCamera)")
+        }
+
         // 暂停菜单激活时，触摸只用于菜单按钮
         if pauseNode != nil {
             for touch in touches {
@@ -650,6 +637,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 height: 60
             )
 
+            let jumpBtnFrame = CGRect(
+                x: jumpButton.position.x - 30,
+                y: jumpButton.position.y - 30,
+                width: 60,
+                height: 60
+            )
+            let attackBtnFrame = CGRect(
+                x: attackButton.position.x - 30,
+                y: attackButton.position.y - 30,
+                width: 60,
+                height: 60
+            )
+
             if leftBtnFrame.contains(location) {
                 activeTouches[touch] = "leftButton"
                 handleButtonDown("leftButton")
@@ -658,14 +658,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 activeTouches[touch] = "rightButton"
                 handleButtonDown("rightButton")
                 print("🟢 touchesBegan: RIGHT button at \(location) → move RIGHT")
-            } else if jumpButton.frame.contains(location) {
+            } else if jumpBtnFrame.contains(location) {
                 activeTouches[touch] = "jumpButton"
                 handleButtonDown("jumpButton")
-                print("🟢 touchesBegan: JUMP button")
-            } else if attackButton.frame.contains(location) {
+                print("🟢 touchesBegan: JUMP button at \(location)")
+            } else if attackBtnFrame.contains(location) {
                 activeTouches[touch] = "attackButton"
                 handleButtonDown("attackButton")
-                print("🟢 touchesBegan: ATTACK button")
+                print("🟢 touchesBegan: ATTACK button at \(location)")
+            } else {
+                print("❓ touchesBegan: no button hit at \(location)")
+                print("   jumpBtn at \(jumpButton.position) frame=\(jumpBtnFrame)")
             }
         }
     }
@@ -697,8 +700,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             isRightPressed = true
         case "jumpButton":
             isJumpPressed = true
+            isJumpConsumed = false  // 新按下时允许跳跃
+            print("🟢 handleButtonDown: JUMP (isJumpPressed=true)")
         case "attackButton":
             isAttackPressed = true
+            print("🟢 handleButtonDown: ATTACK")
         default:
             break
         }
@@ -712,8 +718,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             isRightPressed = false
         case "jumpButton":
             isJumpPressed = false
+            isJumpConsumed = false
         case "attackButton":
             isAttackPressed = false
+            isAttackConsumed = false
         default:
             break
         }
@@ -734,18 +742,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             player.stop()
         }
 
-        if isJumpPressed {
+        // ── 跳跃 ──
+        if isJumpPressed && !isJumpConsumed {
+            print("🔴 update: calling player.jump()")
             player.jump()
-            isJumpPressed = false
+            isJumpConsumed = true
         }
+        // ⚠️ 禁止在 else 里重置 isJumpConsumed，防止残留触发
+        // isJumpConsumed 只在 handleButtonDown（设为false）和 handleButtonUp（设为false）中改变
 
-        if isAttackPressed && !attackHitCooldown {
+        if isAttackPressed && !isAttackConsumed {
+            print("⚔️ update: calling player.attack()")
             player.attack()
-            // 触发攻击判定（延迟一小段时间让动画开始）
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
-                self?.checkAttackHits()
-            }
-            isAttackPressed = false
+            checkAttackHits()  // 修复：攻击后立即检测是否命中敌人
+            isAttackConsumed = true
         }
 
         // 摄像机跟随（水平）
@@ -754,13 +764,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let clampedX = max(minX, min(player.position.x, maxX))
         cameraNode.position.x = clampedX
 
+        // 背景层固定在世界坐标，不跟随相机移动
+        // 这样当玩家向右移动时，背景保持不动，相机跟随玩家产生滚动感
+        backgroundLayer.position.x = 0
+
         player.update()
+
+        // 检查玩家是否到达终点（坐标检测，兜底方案）
+        if player.position.x >= levelData.width - 150 {
+            levelComplete()
+        }
 
         // 防止玩家掉落出屏幕
         if player.position.y < 50 {
             player.position.y = playerStartY
             player.stop()
         }
+
+        // 清理已死亡敌人（从数组移除，避免无效遍历）
+        enemies.removeAll { $0.parent == nil }
+        // 清理已收集的物品（同理）
+        items.removeAll { $0.parent == nil }
     }
 
     // MARK: - SKPhysicsContactDelegate
@@ -790,6 +814,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if let itemNode = contact.bodyA.node as? Item {
                 collectItem(itemNode)
             }
+        } else if maskA == PhysicsCategories.player && maskB == PhysicsCategories.goal {
+            // 玩家到达终点
+            levelComplete()
+        } else if maskB == PhysicsCategories.player && maskA == PhysicsCategories.goal {
+            // 玩家到达终点
+            levelComplete()
         }
     }
 
@@ -847,13 +877,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         damageCooldown = true
         takeDamage()
         player.takeDamage()
-        // 1.5秒冷却期内不能再受伤
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+        // 受伤冷却期内不能再受伤
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.damageCooldown) { [weak self] in
             self?.damageCooldown = false
         }
     }
 
     private func collectItem(_ item: Item) {
+        guard item.parent != nil else { return }  // 防止重复收集
         // 心脏道具恢复生命
         if item.isHealthItem() {
             health = min(health + 1, 3)
@@ -868,13 +899,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - 攻击判定（每帧检查玩家攻击是否命中敌人）
 
     private func checkAttackHits() {
-        guard attackHitCooldown == false else { return }
-        attackHitCooldown = true
-
-        let attackRange: CGFloat = 60
+        let attackRange: CGFloat = Constants.attackRange
         let playerX = player.position.x
         let playerY = player.position.y
-        let attackDirection: CGFloat = player.xScale > 0 ? 1 : -1
+        let attackDirection: CGFloat = player.getFacingDirection()
 
         /* hitEnemy tracked for potential future use */
 
@@ -891,8 +919,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
 
-        // 攻击冷却防止连续判定
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+        // 攻击命中后设置冷却，防止一次攻击重复判定
+        attackHitCooldown = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.attackCooldown) { [weak self] in
             self?.attackHitCooldown = false
         }
     }

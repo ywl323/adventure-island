@@ -15,10 +15,10 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
     private var levelNameLabel: SKLabelNode!
 
     // MARK: - 控制区域
-    private var leftButton: SKShapeNode!
-    private var rightButton: SKShapeNode!
-    private var jumpButton: SKShapeNode!
-    private var attackButton: SKShapeNode!
+    private var leftButton: SKNode!
+    private var rightButton: SKNode!
+    private var jumpButton: SKNode!
+    private var attackButton: SKNode!
 
     // MARK: - 游戏状态
     private var score: Int = 0
@@ -29,7 +29,6 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
 
     // 受伤/攻击冷却
     private var damageCooldown: Bool = false
-    private var attackHitCooldown: Bool = false
 
     // MARK: - 关卡数据
     private var levelData: LevelData
@@ -38,7 +37,9 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
     private var isLeftPressed: Bool = false
     private var isRightPressed: Bool = false
     private var isJumpPressed: Bool = false
+    private var isJumpConsumed: Bool = false  // 防止按住跳跃键一直跳
     private var isAttackPressed: Bool = false
+    private var isAttackConsumed: Bool = false  // 防止按住攻击键一直判定
 
     // MARK: - 背景
     private var backgroundLayer: SKNode!
@@ -92,16 +93,20 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         addChild(backgroundLayer)
 
         let bgColor: SKColor
-        switch levelData.specialFeature {
-        case "boss_raptor":
-            bgColor = SKColor(red: 0.4, green: 0.7, blue: 0.3, alpha: 1.0)
-        case "boss_frog":
-            bgColor = SKColor(red: 0.2, green: 0.5, blue: 0.3, alpha: 1.0)
-        case "boss_lava":
-            bgColor = SKColor(red: 0.6, green: 0.2, blue: 0.1, alpha: 1.0)
-        case "boss_dark":
-            bgColor = SKColor(red: 0.15, green: 0.05, blue: 0.2, alpha: 1.0)
-        default:
+        if levelData.terrainType == "boss" {
+            switch levelData.specialFeature {
+            case "boss_raptor":
+                bgColor = SKColor(red: 0.4, green: 0.7, blue: 0.3, alpha: 1.0)
+            case "boss_frog":
+                bgColor = SKColor(red: 0.2, green: 0.5, blue: 0.3, alpha: 1.0)
+            case "boss_lava":
+                bgColor = SKColor(red: 0.6, green: 0.2, blue: 0.1, alpha: 1.0)
+            case "boss_dark":
+                bgColor = SKColor(red: 0.15, green: 0.05, blue: 0.2, alpha: 1.0)
+            default:
+                bgColor = SKColor(red: 0.3, green: 0.5, blue: 0.8, alpha: 1.0)
+            }
+        } else {
             bgColor = SKColor(red: 0.3, green: 0.5, blue: 0.8, alpha: 1.0)
         }
 
@@ -138,7 +143,7 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
 
     private func setupPlayer() {
         player = Player()
-        player.position = CGPoint(x: 200, y: 200)
+        player.position = CGPoint(x: Constants.playerStartX, y: Constants.playerStartY)
         addChild(player)
     }
 
@@ -209,64 +214,36 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         let buttonRadius: CGFloat = 50
         let buttonY: CGFloat = 90
         let buttonSpacing: CGFloat = 110
+        let rightBaseX = size.width - 90
 
-        let leftBaseX: CGFloat = 90
+        // 左右移动按钮
+        let (left, right) = GameUIBuilder.buildControlDpad(
+            into: cameraNode,
+            size: size,
+            buttonRadius: buttonRadius,
+            edgePadding: 20  // 基准值，实际位置用 leftBaseX/rightBaseX 覆盖
+        )
+        // BossScene 的 D-pad 位置与 GameScene 不同，用计算好的坐标直接修改
+        left.position = CGPoint(x: 90, y: buttonY)
+        right.position = CGPoint(x: 90 + buttonSpacing, y: buttonY)
+        leftButton = left
+        rightButton = right
 
-        leftButton = SKShapeNode(circleOfRadius: buttonRadius)
-        leftButton.fillColor = SKColor(white: 0.2, alpha: 0.85)
-        leftButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
-        leftButton.lineWidth = 3
-        leftButton.position = CGPoint(x: leftBaseX, y: buttonY)
-        leftButton.name = "leftButton"
-        cameraNode.addChild(leftButton)
+        // 跳跃按钮
+        jumpButton = GameUIBuilder.buildJumpButton(
+            into: cameraNode,
+            at: CGPoint(x: rightBaseX - buttonSpacing, y: buttonY),
+            buttonRadius: buttonRadius
+        )
 
-        let leftArrow = SKLabelNode(text: "◀")
-        leftArrow.fontName = "Helvetica-Bold"
-        leftArrow.fontSize = 36
-        leftArrow.fontColor = .white
-        leftArrow.position = CGPoint(x: 0, y: -10)
-        leftButton.addChild(leftArrow)
-
-        rightButton = SKShapeNode(circleOfRadius: buttonRadius)
-        rightButton.fillColor = SKColor(white: 0.2, alpha: 0.85)
-        rightButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
-        rightButton.lineWidth = 3
-        rightButton.position = CGPoint(x: leftBaseX + buttonSpacing, y: buttonY)
-        rightButton.name = "rightButton"
-        cameraNode.addChild(rightButton)
-
-        let rightArrow = SKLabelNode(text: "▶")
-        rightArrow.fontName = "Helvetica-Bold"
-        rightArrow.fontSize = 36
-        rightArrow.fontColor = .white
-        rightArrow.position = CGPoint(x: 0, y: -10)
-        rightButton.addChild(rightArrow)
-
-        let rightBaseX: CGFloat = size.width - 90
-
-        jumpButton = SKShapeNode(circleOfRadius: buttonRadius)
-        jumpButton.fillColor = SKColor(red: 0.3, green: 0.6, blue: 1.0, alpha: 0.85)
-        jumpButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
-        jumpButton.lineWidth = 3
-        jumpButton.position = CGPoint(x: rightBaseX - buttonSpacing, y: buttonY)
-        jumpButton.name = "jumpButton"
-        cameraNode.addChild(jumpButton)
-
-        let jumpLabel = SKLabelNode(text: "▲")
-        jumpLabel.fontName = "Helvetica-Bold"
-        jumpLabel.fontSize = 32
-        jumpLabel.fontColor = .white
-        jumpLabel.position = CGPoint(x: 0, y: -8)
-        jumpButton.addChild(jumpLabel)
-
-        attackButton = SKShapeNode(circleOfRadius: buttonRadius)
-        attackButton.fillColor = SKColor(red: 1.0, green: 0.25, blue: 0.25, alpha: 0.85)
-        attackButton.strokeColor = SKColor(white: 1.0, alpha: 0.9)
-        attackButton.lineWidth = 3
-        attackButton.position = CGPoint(x: rightBaseX, y: buttonY)
-        attackButton.name = "attackButton"
-        cameraNode.addChild(attackButton)
-
+        // 攻击按钮（ATK 标签）
+        attackButton = GameUIBuilder.buildAttackButton(
+            into: cameraNode,
+            at: CGPoint(x: rightBaseX, y: buttonY),
+            buttonRadius: buttonRadius
+        )
+        // BossScene 攻击按钮用文字标签，与 builder 默认的斧头不同，替换为 ATK 标签
+        attackButton.children.filter { $0 is SKLabelNode }.forEach { $0.removeFromParent() }
         let attackLabel = SKLabelNode(text: "ATK")
         attackLabel.fontName = "Helvetica-Bold"
         attackLabel.fontSize = 22
@@ -391,8 +368,10 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
                 isRightPressed = true
             case "jumpButton":
                 isJumpPressed = true
+                isJumpConsumed = false  // 重置消耗状态，允许本次按键周期跳跃
             case "attackButton":
                 isAttackPressed = true
+                isAttackConsumed = false  // 重置消耗状态，允许本次按键周期攻击
             default:
                 break
             }
@@ -400,10 +379,25 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        isLeftPressed = false
-        isRightPressed = false
-        isJumpPressed = false
-        isAttackPressed = false
+        for touch in touches {
+            let location = touch.location(in: cameraNode!)
+            let node = cameraNode!.atPoint(location)
+            // 只重置实际松开的按钮，不误伤其他同时按住的按钮
+            switch node.name {
+            case "leftButton":
+                isLeftPressed = false
+            case "rightButton":
+                isRightPressed = false
+            case "jumpButton":
+                isJumpPressed = false
+                isJumpConsumed = false  // 释放后允许下次按键再跳
+            case "attackButton":
+                isAttackPressed = false
+                isAttackConsumed = false  // 释放后允许下次按键再攻击
+            default:
+                break
+            }
+        }
     }
 
     // MARK: - 更新逻辑
@@ -420,15 +414,15 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
             player.stop()
         }
 
-        if isJumpPressed {
+        if isJumpPressed && !isJumpConsumed {
             player.jump()
-            isJumpPressed = false
+            isJumpConsumed = true
         }
 
-        if isAttackPressed {
+        if isAttackPressed && !isAttackConsumed {
             player.attack()
             checkAttackHit()
-            isAttackPressed = false
+            isAttackConsumed = true
         }
 
         boss.update(playerPosition: player.position)
@@ -439,8 +433,8 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - 战斗逻辑
 
     private func checkAttackHit() {
-        let attackRange = CGRect(x: player.position.x - 50, y: player.position.y - 30, width: 100, height: 60)
-        if attackRange.intersects(boss.frame) {
+        let attackRange = CGRect(x: player.position.x - Constants.attackRange * 0.8, y: player.position.y - 30, width: Constants.attackRange * 1.6, height: 60)
+        if attackRange.intersects(boss.attackHitbox) {
             boss.takeDamage()
             addScore(100)
             updateBossHealthDisplay()
@@ -472,7 +466,7 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         health -= 1
         healthLabel.text = "Health: \(health)"
         player.takeDamage()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.damageCooldown) { [weak self] in
             self?.damageCooldown = false
         }
         if health <= 0 {

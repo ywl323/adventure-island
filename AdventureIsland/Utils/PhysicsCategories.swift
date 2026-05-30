@@ -28,6 +28,9 @@ struct PhysicsCategories {
     /// 触发器（隐藏区域）
     static let trigger: UInt32 = 0x1 << 6       // 64
 
+    /// 终点/目标区域
+    static let goal: UInt32 = 0x1 << 7         // 128
+
     // MARK: - 便捷组合
 
     /// 所有实体类别

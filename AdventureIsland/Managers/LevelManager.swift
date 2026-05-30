@@ -92,16 +92,32 @@ class LevelManager {
         return worlds.first { levelNumber >= $0.startLevel && levelNumber <= $0.endLevel }
     }
 
-    // MARK: - 关卡数据生成
+    // MARK: - 关卡数据生成（确定性）
     func generateLevelData(_ levelNumber: Int) -> LevelData {
         guard let config = getLevelConfig(levelNumber) else {
             return LevelData.empty()
         }
 
+        // 优先使用确定性种子数据，保持关卡完全可复现
+        if let seedData = LevelSeedStorage.getSpawnData(for: levelNumber) {
+            return LevelData(
+                levelNumber: config.levelNumber,
+                name: config.name,
+                width: config.width,
+                timeLimit: config.timeLimit,
+                backgroundMusic: config.backgroundMusic,
+                terrainType: config.terrainType,
+                difficulty: config.difficulty,
+                specialFeature: config.specialFeature,
+                enemies: seedData.enemies,
+                items: seedData.items
+            )
+        }
+
+        // 兜底：如果没有预生成数据（理论上不会走到这里），仍用随机生成
         var enemies: [EnemySpawnData] = []
         var items: [ItemSpawnData] = []
 
-        // 生成敌人位置
         for i in 0..<config.enemyCount {
             let x = CGFloat(i + 1) * (config.width / CGFloat(config.enemyCount + 1))
             let y = CGFloat.random(in: 100...300)
@@ -109,7 +125,6 @@ class LevelManager {
             enemies.append(EnemySpawnData(x: x, y: y, type: type))
         }
 
-        // 生成物品位置
         for i in 0..<config.itemCount {
             let x = CGFloat(i + 1) * (config.width / CGFloat(config.itemCount + 1))
             let y = CGFloat.random(in: 80...200)

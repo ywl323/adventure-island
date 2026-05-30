@@ -17,40 +17,7 @@ class Enemy: SKNode {
     private var patrolMinX: CGFloat = 0
     private var patrolMaxX: CGFloat = 0
 
-    // PNG 文件名映射
-    private static let typeToImage: [String: String] = [
-        "dinosaur": "02_enemy_dinosaur",
-        "raptor": "06_boss_raptor",
-        "snail": "03_enemy_snail",
-        "bee": "04_enemy_bee",
-        "piranha": "05_enemy_piranha",
-        "frog": "07_boss_frog",
-        "lizard": "02_enemy_dinosaur",
-        "snake": "02_enemy_dinosaur",
-        "bat": "29_enemy_bat",
-        "volcanic_bat": "29_enemy_bat",
-        "skeleton": "31_enemy_skeleton",
-        "fire_skeleton": "31_enemy_skeleton",
-        "scorpion": "30_enemy_scorpion",
-        "seagull": "04_enemy_bee",
-        "fire_lizard": "08_boss_lava_dragon",
-        "fire_beetle": "28_enemy_skull_fire",
-        "magma_worm": "28_enemy_skull_fire",
-        "magma_sprite": "28_enemy_skull_fire",
-        "magma_ghost": "28_enemy_skull_fire",
-        "magma_golem": "28_enemy_skull_fire",
-        "storm_vulture": "29_enemy_bat",
-        "lightning_lizard": "02_enemy_dinosaur",
-        "guardian_statue": "09_boss_dark_dragon",
-        "curse_ghost": "28_enemy_skull_fire",
-        "ancient_beetle": "28_enemy_skull_fire",
-        "sky_knight": "09_boss_dark_dragon",
-        "guardian_angel": "07_boss_frog",
-        "thunder_orb": "32_projectile_fireball",
-        "worm": "28_enemy_skull_fire",
-        "lava_dragon": "08_boss_lava_dragon",
-        "dark_dragon": "09_boss_dark_dragon"
-    ]
+    // PNG 文件名映射（使用共享 EntityTypeMapping）
 
     // 精灵尺寸
     private var spriteSize: CGSize = CGSize(width: 50, height: 50)
@@ -62,7 +29,7 @@ class Enemy: SKNode {
         super.init()
         configureByType()
         setupAppearance()
-        startPatrolling()
+        // 注意：不在这里启动巡逻，由 GameScene 在 setPatrolBounds 后统一调用 startPatrolling()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -103,21 +70,16 @@ class Enemy: SKNode {
     }
 
     private func setupAppearance() {
-        let imageName = Enemy.typeToImage[enemyType] ?? "02_enemy_dinosaur"
-        print("🔴 Enemy[\(enemyType)]: loading '\(imageName)'")
+        let imageName = EntityTypeMapping.enemy[enemyType] ?? "02_enemy_dinosaur"
 
-        // 尝试加载纹理
-        let texture = SKTexture(imageNamed: imageName)
-        print("   texture size: \(texture.size())")
-
+        // 使用纹理缓存（游戏启动时已预加载）
+        let texture = TextureCache.shared.texture(for: imageName)
         if texture.size().width == 0 {
-            print("❌ Enemy[\(enemyType)]: texture '\(imageName)' FAILED to load")
             sprite = SKSpriteNode(color: .red, size: spriteSize)
         } else {
-            // 用纹理实际尺寸或指定尺寸
             let displaySize = CGSize(width: 50, height: 50)
             sprite = SKSpriteNode(texture: texture, size: displaySize)
-            print("✅ Enemy[\(enemyType)]: loaded texture '\(imageName)'")
+        }
         }
 
         sprite.position = .zero
@@ -134,13 +96,15 @@ class Enemy: SKNode {
         physicsBody?.affectedByGravity = !flyingTypes.contains(enemyType)
     }
 
-    private func startPatrolling() {
+    /// 由 GameScene 在所有敌人创建完毕并设置巡逻边界后统一调用
+    /// 避免在 init() 中过早启动，导致边界尚未设置就乱走
+    func startPatrolling() {
         // 随机等待 1.5~3 秒后开始巡逻
         let wait = SKAction.wait(forDuration: TimeInterval.random(in: 1.5...3.0))
         let move = SKAction.run { [weak self] in
             guard let self = self else { return }
 
-            // 在边界处反转方向
+            // 到达右边界则向左，左边界则向右
             if self.patrolMaxX > self.patrolMinX {
                 if self.position.x >= self.patrolMaxX {
                     self.direction = -1
@@ -149,8 +113,8 @@ class Enemy: SKNode {
                 }
             }
 
-            self.direction *= -1
-            let moveAction = SKAction.moveBy(x: self.direction * self.moveSpeed * 0.5, y: 0, duration: 0.5)
+            let moveDistance = self.direction * self.moveSpeed * 0.5
+            let moveAction = SKAction.moveBy(x: moveDistance, y: 0, duration: 0.5)
             self.run(moveAction)
         }
         run(SKAction.repeatForever(SKAction.sequence([wait, move])))

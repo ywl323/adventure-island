@@ -20,13 +20,7 @@ class BossNode: SKNode {
     private var isHurt: Bool = false
     private var playerPosition: CGPoint = .zero
 
-    // PNG 映射
-    private static let typeToImage: [String: String] = [
-        "boss_raptor": "06_boss_raptor",
-        "boss_frog": "07_boss_frog",
-        "boss_lava": "08_boss_lava_dragon",
-        "boss_dark": "09_boss_dark_dragon"
-    ]
+    // PNG 映射（使用共享 EntityTypeMapping）
 
     private var spriteSize: CGSize = CGSize(width: 120, height: 120)
 
@@ -66,12 +60,11 @@ class BossNode: SKNode {
     }
 
     private func setupAppearance() {
-        let imageName = BossNode.typeToImage[bossType] ?? "09_boss_dark_dragon"
-        print("Boss[\(bossType)]: loading '\(imageName)'")
+        let imageName = EntityTypeMapping.boss[bossType] ?? "09_boss_dark_dragon"
 
-        let texture = SKTexture(imageNamed: imageName)
+        // 使用纹理缓存
+        let texture = TextureCache.shared.texture(for: imageName)
         if texture.size().width == 0 {
-            print("   FAILED to load texture '\(imageName)' — using placeholder")
             sprite = SKSpriteNode(color: .purple, size: spriteSize)
         } else {
             sprite = SKSpriteNode(texture: texture, size: spriteSize)
@@ -170,7 +163,17 @@ class BossNode: SKNode {
         run(SKAction.sequence([fadeOut, scaleUp, remove]))
     }
 
-    // MARK: - 碰撞
+    // MARK: - 碰撞/攻击判定
+
+    /// 安全的攻击判定框，永远基于 spriteSize，不会因缩放动画而变化
+    var attackHitbox: CGRect {
+        return CGRect(
+            x: position.x - spriteSize.width / 2,
+            y: position.y - spriteSize.height / 2,
+            width: spriteSize.width,
+            height: spriteSize.height
+        )
+    }
 
     func getDamage() -> Int {
         return damage
