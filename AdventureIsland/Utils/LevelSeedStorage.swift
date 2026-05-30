@@ -75,7 +75,7 @@ struct LevelSeedStorage {
     }
 
     // MARK: - 工具方法（与 LevelManager 内部逻辑一致）
-    private static func terrainEnemyType(at index: Int, terrain: String, rand: () -> Int) -> String {
+    private static func terrainEnemyType(at index: Int, terrain: String, randFunc: () -> Int) -> String {
         let baseTypes = ["basic", "flying", "fast"]
         let terrainTypes: [String: [String]] = [
             "grass": ["dinosaur", "snail", "seagull", "bee", "lizard"],
@@ -88,14 +88,14 @@ struct LevelSeedStorage {
             "boss": []
         ]
         let types = terrainTypes[terrain] ?? baseTypes
-        return types[abs(rand()) % types.count]
+        return types[abs(randFunc()) % types.count]
     }
 
-    private static func difficultyItemType(at index: Int, difficulty: Int, rand: () -> Int) -> String {
+    private static func difficultyItemType(at index: Int, difficulty: Int, randFunc: () -> Int) -> String {
         let easyItems = ["coin", "fruit", "health"]
         let mediumItems = ["coin", "fruit", "health", "powerup", "egg"]
         let hardItems = ["coin", "egg", "diamond", "powerup", "health"]
         let items = difficulty <= 2 ? easyItems : (difficulty <= 4 ? mediumItems : hardItems)
-        return items[abs(rand()) % items.count]
+        return items[abs(randFunc()) % items.count]
     }
 }
