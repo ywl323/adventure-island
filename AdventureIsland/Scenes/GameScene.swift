@@ -100,9 +100,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         GameScene.texturesPreloaded = true
 
         let allTextureNames = Set(
-            EntityTypeMapping.enemy.values +
-            EntityTypeMapping.item.values +
-            EntityTypeMapping.boss.values +
+            Array(EntityTypeMapping.enemy.values) +
+            Array(EntityTypeMapping.item.values) +
+            Array(EntityTypeMapping.boss.values) +
             [
                 "01_player_master_higgins",
                 "bg_world1", "bg_world2", "bg_world3", "bg_world4",
