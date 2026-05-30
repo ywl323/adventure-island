@@ -34,51 +34,48 @@ struct LevelSeedStorage {
         var result: [Int: LevelSpawnData] = [:]
 
         for levelNumber in 1...12 {
-            let rand = makeSeededRandom(seed: UInt64(levelNumber * 0x9E3779B97F4A7C15))
-
-            // 根据 levelNumber 查配置得到 terrainType/enemyCount/itemCount
             let config = LevelManager.shared.getLevelConfig(levelNumber)
-            let terrainType = config?.terrainType ?? "grass"
-            let enemyCount = config?.enemyCount ?? 3
-            let itemCount = config?.itemCount ?? 10
-            let width = config?.width ?? 3000
+            let terrain: String = config?.terrainType ?? "grass"
+            let eCount: Int = config?.enemyCount ?? 3
+            let iCount: Int = config?.itemCount ?? 10
+            let levelWidth: CGFloat = config?.width ?? 3000
+            let diff: Int = config?.difficulty ?? 1
 
-            // 敌人位置（确定性伪随机，均匀分布）
-            var enemies: [EnemySpawnData] = []
-            for i in 0..<enemyCount {
-                let seedY = UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(i &* 17 &+ 1))
-                let fnY = makeSeededRandom(seed: seedY)
-                let yVal = fnY()
-                let stepX = width / CGFloat(enemyCount + 1)
-                let posX = CGFloat(i + 1) * stepX
-                let posY = CGFloat(yVal % 200 + 100)
+            // 敌人
+            var enemySpawns: [EnemySpawnData] = []
+            for idx in 0..<eCount {
+                let seedY: UInt64 = UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(idx &* 17 &+ 1))
+                let fnY: () -> Int = makeSeededRandom(seed: seedY)
+                let yRaw: Int = fnY()
+                let posX: CGFloat = CGFloat(idx + 1) * (levelWidth / CGFloat(eCount + 1))
+                let posY: CGFloat = CGFloat(yRaw % 200 + 100)
 
-                let seedT = UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(i &* 7))
-                let fnT = makeSeededRandom(seed: seedT)
-                let enemyKind = terrainEnemyType(at: i, terrain: terrainType, randFunc: fnT)
+                let seedT: UInt64 = UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(idx &* 7))
+                let fnT: () -> Int = makeSeededRandom(seed: seedT)
+                let rVal: Int = fnT()
+                let enemyKind: String = Self.terrainEnemyTypeInline(terrain: terrain, rand: rVal)
 
-                enemies.append(EnemySpawnData(x: posX, y: posY, type: enemyKind))
+                enemySpawns.append(EnemySpawnData(x: posX, y: posY, type: enemyKind))
             }
 
-            // 物品位置（确定性伪随机）
-            var items: [ItemSpawnData] = []
-            for i in 0..<itemCount {
-                let seedY = UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(i &* 11 &+ 1001))
-                let fnY = makeSeededRandom(seed: seedY)
-                let yVal = fnY()
-                let stepX = width / CGFloat(itemCount + 1)
-                let posX = CGFloat(i + 1) * stepX
-                let posY = CGFloat(yVal % 120 + 80)
+            // 物品
+            var itemSpawns: [ItemSpawnData] = []
+            for idx in 0..<iCount {
+                let seedY: UInt64 = UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(idx &* 11 &+ 1001))
+                let fnY: () -> Int = makeSeededRandom(seed: seedY)
+                let yRaw: Int = fnY()
+                let posX: CGFloat = CGFloat(idx + 1) * (levelWidth / CGFloat(iCount + 1))
+                let posY: CGFloat = CGFloat(yRaw % 120 + 80)
 
-                let seedT = UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(i &* 5 &+ 2000))
-                let fnT = makeSeededRandom(seed: seedT)
-                let diff = config?.difficulty ?? 1
-                let itemKind = difficultyItemType(at: i, difficulty: diff, randFunc: fnT)
+                let seedT: UInt64 = UInt64(levelNumber &* 0x9E3779B97F4A7C15 &+ UInt64(idx &* 5 &+ 2000))
+                let fnT: () -> Int = makeSeededRandom(seed: seedT)
+                let rVal: Int = fnT()
+                let itemKind: String = Self.difficultyItemTypeInline(difficulty: diff, rand: rVal)
 
-                items.append(ItemSpawnData(x: posX, y: posY, type: itemKind))
+                itemSpawns.append(ItemSpawnData(x: posX, y: posY, type: itemKind))
             }
 
-            result[levelNumber] = LevelSpawnData(enemies: enemies, items: items)
+            result[levelNumber] = LevelSpawnData(enemies: enemySpawns, items: itemSpawns)
         }
 
         return result
@@ -101,11 +98,12 @@ struct LevelSeedStorage {
         return types[abs(randFunc()) % types.count]
     }
 
-    private static func difficultyItemType(at index: Int, difficulty: Int, randFunc: () -> Int) -> String {
+    private static func difficultyItemTypeInline(difficulty: Int, rand: Int) -> String {
         let easyItems = ["coin", "fruit", "health"]
         let mediumItems = ["coin", "fruit", "health", "powerup", "egg"]
         let hardItems = ["coin", "egg", "diamond", "powerup", "health"]
-        let items = difficulty <= 2 ? easyItems : (difficulty <= 4 ? mediumItems : hardItems)
-        return items[abs(randFunc()) % items.count]
+        let items: [String] = difficulty <= 2 ? easyItems : (difficulty <= 4 ? mediumItems : hardItems)
+        let idx: Int = abs(rand) % items.count
+        return items[idx]
     }
 }
