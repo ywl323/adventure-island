@@ -142,7 +142,7 @@ class Player: SKNode {
         let axe = axeNode
         axe.name = "axe"
         axe.zPosition = 10
-        axe.setScale(Constants.projectileSpriteScale)
+        axe.setScale(0.5)  // 斧子缩小到合理尺寸
         axe.position = CGPoint(x: 0, y: 20)
 
         // 根据角色朝向决定飞行方向（使用独立的facingDirection，避免被xScale动画干扰）

@@ -137,23 +137,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // 设置场景背景色为蓝色天空（与 bg_world1 天空匹配），避免初始黑屏
         self.backgroundColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)  // 初始纯色天空
 
-        // 背景使用原始尺寸，放在 world 坐标（不在 cameraNode 内，跟随 backgroundLayer）
-        // 背景覆盖整个关卡宽度，玩家向右移动时背景保持不动（视差效果）
+        // 背景放在 cameraNode 子节点（跟随相机，永远填满屏幕）
         let bgImageName = getBackgroundImageName()
-        if let bgImg = UIImage(named: bgImageName) {
-            // 保持原始宽高比，以屏幕高度为基准适配
-            let aspect = bgImg.size.width / bgImg.size.height
-            let bgHeight = size.height
-            let bgWidth = bgHeight * aspect
-            // 如果关卡宽度 > 背景宽度，平铺拼接
-            let totalWidth = max(levelData.width, bgWidth)
+        if UIImage(named: bgImageName) != nil {
             let bgNode = SKSpriteNode(imageNamed: bgImageName)
-            bgNode.size = CGSize(width: bgWidth, height: bgHeight)
-            bgNode.position = CGPoint(x: 200, y: size.height / 2)  // 对齐相机初始位置
+            bgNode.size = CGSize(width: 1280, height: 720)  // 原始像素分辨率
+            bgNode.position = CGPoint(x: 0, y: 0)  // 相对相机居中
             bgNode.anchorPoint = CGPoint(x: 0.5, y: 0.5)
             bgNode.zPosition = -100
-            backgroundLayer.addChild(bgNode)
+            cameraNode.addChild(bgNode)  // 跟随相机，永远在屏幕中央
         } else {
+            // 无背景图时用纯色（放在 backgroundLayer，跟随世界坐标）
             let bgColor: SKColor
             switch levelData.terrainType {
             case "grass":    bgColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)
