@@ -10,6 +10,7 @@ class Player: SKNode {
     private var isAttacking: Bool = false
     private var health: Int = 3
     private var canJump: Bool = true         // 跳跃冷却，防止连续触发
+    private var isJumpLocked: Bool = false    // 跳跃序列锁：跳跃进行中锁定，落地后自动解锁
     private var facingDirection: CGFloat = 1 // 1=右, -1=左，独立于xScale避免动画干扰
 
 
@@ -85,8 +86,8 @@ class Player: SKNode {
     // MARK: - 跳跃物理
 
     func jump() {
-        guard canJump else {
-            print("⏳ jump() denied: cooldown")
+        guard canJump && !isJumpLocked else {
+            print("⏳ jump() denied: canJump=\(canJump), isJumpLocked=\(isJumpLocked)")
             return
         }
         guard isGrounded else {
@@ -94,11 +95,10 @@ class Player: SKNode {
             return
         }
         print("✅ jump() executed! isGrounded=\(isGrounded)")
-        // 立即锁定，防止残留触发；延迟后才解锁（防连跳）
         canJump = false
+        isJumpLocked = true  // 锁住跳跃序列，落地前不能再跳
         physicsBody?.velocity = CGVector(dx: physicsBody?.velocity.dx ?? 0, dy: Constants.jumpForce)
         AudioManager.shared.playSE("se_jump")
-        // 离开地面后由 didEndContact 回调设置 isGrounded = false
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.jumpCooldown) { [weak self] in
             self?.canJump = true
         }
@@ -214,6 +214,7 @@ class Player: SKNode {
     func didContact(with category: UInt32) {
         if category == PhysicsCategories.ground {
             isGrounded = true
+            isJumpLocked = false  // 落地后解锁跳跃序列，允许下次跳跃
         }
     }
 
