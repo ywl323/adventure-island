@@ -594,7 +594,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // 跳跃按钮
         jumpButton = GameUIBuilder.buildJumpButton(
             into: cameraNode,
-            at: CGPoint(x: rightBaseX - btnSize + 20, y: buttonY),
+            at: CGPoint(x: rightBaseX - btnSize * 2 - 40, y: buttonY)  // 边缘间隙 40pt,
             buttonRadius: btnSize
         )
 
