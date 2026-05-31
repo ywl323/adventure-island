@@ -258,6 +258,8 @@ class MenuScene: SKScene {
             startSelectedLevel()
         } else if node.name?.starts(with: "levelDot") == true {
             handleLevelDotTap(at: node.name!)
+        } else if node.name == nil, let parentName = node.parent?.name, parentName.starts(with: "levelDot") {
+            // Locked level hint label tapped — ignore silently, prevent mis-routing to dot handler
         } else if node.name == "leftArrow" || (node.parent != nil && node.parent?.name == "leftArrow") {
             currentWorldIndex = (currentWorldIndex - 1 + LevelManager.shared.worlds.count) % LevelManager.shared.worlds.count
             selectedLevelIndex = 0

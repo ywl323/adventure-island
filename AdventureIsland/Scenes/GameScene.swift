@@ -170,7 +170,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Fallback: 确保永远有一个可见背景（调试用）
         let fallbackBg = SKSpriteNode(color: SKColor(red: 0.3, green: 0.5, blue: 0.8, alpha: 1.0), size: CGSize(width: levelData.width, height: size.height))
         fallbackBg.position = CGPoint(x: levelData.width / 2, y: size.height / 2)
-        fallbackBg.zPosition = -200
+        fallbackBg.zPosition = -300
         backgroundLayer.addChild(fallbackBg)
 
         // 背景层固定在世界坐标，不跟随相机移动
@@ -486,9 +486,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         overlay.strokeColor = .clear
         pauseNode.addChild(overlay)
 
-        // 暂停时暂停游戏动作
-        isPausedGame = true
-
         // 标题
         let title = SKLabelNode(text: "PAUSED")
         title.fontName = "Helvetica-Bold"
@@ -528,8 +525,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         menuLabel.name = "menuButton"
         menuLabel.position = CGPoint(x: 0, y: -5)
         pauseNode.addChild(menuLabel)
-
-        isPausedGame = false
     }
 
     private func resumeGame() {

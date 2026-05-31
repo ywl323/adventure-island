@@ -41,6 +41,9 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
     private var isAttackPressed: Bool = false
     private var isAttackConsumed: Bool = false  // 防止按住攻击键一直判定
 
+    // 多指触摸跟踪：touch hash → button name，避免 touchesEnded 无法识别释放的是哪个键
+    private var activeTouches: [Int: String] = [:]
+
     // MARK: - 背景
     private var backgroundLayer: SKNode!
 
@@ -359,44 +362,57 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         for touch in touches {
             let location = touch.location(in: cameraNode!)
             let node = cameraNode!.atPoint(location)
+            let buttonName: String?
             switch node.name {
-            case "pauseButton":
-                togglePause()
-            case "leftButton":
-                isLeftPressed = true
-            case "rightButton":
-                isRightPressed = true
-            case "jumpButton":
-                isJumpPressed = true
-                isJumpConsumed = false  // 重置消耗状态，允许本次按键周期跳跃
-            case "attackButton":
-                isAttackPressed = true
-                isAttackConsumed = false  // 重置消耗状态，允许本次按键周期攻击
-            default:
-                break
+            case "pauseButton":  buttonName = "pauseButton"
+            case "leftButton":   buttonName = "leftButton"
+            case "rightButton":  buttonName = "rightButton"
+            case "jumpButton":   buttonName = "jumpButton"
+            case "attackButton": buttonName = "attackButton"
+            default:             buttonName = nil
+            }
+            if let name = buttonName {
+                activeTouches[touch.hash] = name
+                handleButtonDown(name)
             }
         }
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
-            let location = touch.location(in: cameraNode!)
-            let node = cameraNode!.atPoint(location)
-            // 只重置实际松开的按钮，不误伤其他同时按住的按钮
-            switch node.name {
-            case "leftButton":
-                isLeftPressed = false
-            case "rightButton":
-                isRightPressed = false
-            case "jumpButton":
-                isJumpPressed = false
-                isJumpConsumed = false  // 释放后允许下次按键再跳
-            case "attackButton":
-                isAttackPressed = false
-                isAttackConsumed = false  // 释放后允许下次按键再攻击
-            default:
-                break
+            if let name = activeTouches[touch.hash] {
+                handleButtonUp(name)
             }
+            activeTouches.removeValue(forKey: touch.hash)
+        }
+    }
+
+    private func handleButtonDown(_ name: String) {
+        switch name {
+        case "pauseButton":  togglePause()
+        case "leftButton":   isLeftPressed = true
+        case "rightButton":  isRightPressed = true
+        case "jumpButton":
+            isJumpPressed = true
+            isJumpConsumed = false
+        case "attackButton":
+            isAttackPressed = true
+            isAttackConsumed = false
+        default: break
+        }
+    }
+
+    private func handleButtonUp(_ name: String) {
+        switch name {
+        case "leftButton":   isLeftPressed = false
+        case "rightButton":  isRightPressed = false
+        case "jumpButton":
+            isJumpPressed = false
+            isJumpConsumed = false
+        case "attackButton":
+            isAttackPressed = false
+            isAttackConsumed = false
+        default: break
         }
     }
 

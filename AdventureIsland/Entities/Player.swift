@@ -23,8 +23,8 @@ class Player: SKNode {
 
     override init() {
         super.init()
-        // 初始设为 false：玩家尚未与物理世界交互，等待第一次 didEndContact
-        isGrounded = false
+        // 初始设为 true：玩家出生点在地面上方，等待物理引擎检测到地面后再更新状态
+        isGrounded = true
         setupPhysics()
         setupPlayer()
     }

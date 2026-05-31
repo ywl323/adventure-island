@@ -15,7 +15,7 @@ struct LevelSeedStorage {
     private static func generateAllSeeds() -> [Int: LevelSpawnData] {
         var result: [Int: LevelSpawnData] = [:]
 
-        for levelNum in 1...12 {
+        for levelNum in 1...16 {
             let config = LevelManager.shared.getLevelConfig(levelNum)
             let terrain = config?.terrainType ?? "grass"
             let eCount = config?.enemyCount ?? 3
