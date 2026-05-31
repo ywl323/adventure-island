@@ -18,10 +18,15 @@ struct GameUIBuilder {
 
         let buttonY = -size.height / 2 + edgePadding + buttonRadius
 
+        // 左按钮：更宽间距，避免重叠
+        let dpadY = -size.height / 2 + edgePadding + buttonRadius
+        let leftX = 100.0
+        let rightX = 210.0
+
         // 左按钮
         let leftBtn = SKNode()
         leftBtn.name = leftButtonName
-        leftBtn.position = CGPoint(x: -size.width / 2 + edgePadding + buttonRadius, y: buttonY)
+        leftBtn.position = CGPoint(x: leftX, y: dpadY)
         let leftBg = SKShapeNode(circleOfRadius: buttonRadius / 2)
         leftBg.fillColor = SKColor(red: 0.2, green: 0.55, blue: 1.0, alpha: 0.85)
         leftBg.strokeColor = SKColor(white: 0.5, alpha: 0.8)
@@ -42,7 +47,7 @@ struct GameUIBuilder {
         // 右按钮
         let rightBtn = SKNode()
         rightBtn.name = rightButtonName
-        rightBtn.position = CGPoint(x: -size.width / 2 + edgePadding + buttonRadius * 1.6, y: buttonY)
+        rightBtn.position = CGPoint(x: rightX, y: dpadY)
         let rightBg = SKShapeNode(circleOfRadius: buttonRadius / 2)
         rightBg.fillColor = SKColor(red: 0.2, green: 0.55, blue: 1.0, alpha: 0.85)
         rightBg.strokeColor = SKColor(white: 0.5, alpha: 0.8)
