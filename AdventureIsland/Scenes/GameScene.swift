@@ -185,21 +185,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ground.physicsBody?.categoryBitMask = PhysicsCategories.ground
         ground.physicsBody?.contactTestBitMask = PhysicsCategories.player
         backgroundLayer.addChild(ground)
-
-        // 添加终点触发区域（关卡末尾 200 像素处，纯传感器，不挡路）
+        // 终点线：交替方块条纹 + 垂直光晕，更有视觉吸引力
         let goalX = levelData.width - 200
-        let goalNode = SKShapeNode(rect: CGRect(x: goalX, y: 0, width: 4, height: size.height))
-        goalNode.fillColor = SKColor(red: 1.0, green: 0.85, blue: 0.0, alpha: 0.6)
-        goalNode.strokeColor = SKColor(red: 1.0, green: 0.85, blue: 0.0, alpha: 0.8)
-        goalNode.lineWidth = 2
+        let goalNode = SKNode()
+        goalNode.position = CGPoint(x: goalX, y: 0)
         goalNode.zPosition = -40
+
+        // 交替方块条纹（黑白相间）
+        let stripeCount = Int(size.height / 20)
+        let stripeW: CGFloat = 12
+        let stripeH: CGFloat = 20
+        for i in 0..<stripeCount {
+            let stripe = SKShapeNode(rect: CGRect(x: -stripeW/2, y: CGFloat(i)*stripeH, width: stripeW, height: stripeH))
+            stripe.fillColor = i % 2 == 0 ? SKColor(white: 1.0, alpha: 0.5) : SKColor(white: 0.0, alpha: 0.6)
+            stripe.strokeColor = .clear
+            goalNode.addChild(stripe)
+        }
+        // 外框光晕（垂直金色光效）
+        let glowLeft = SKShapeNode(rect: CGRect(x: -stripeW/2-6, y: 0, width: 3, height: size.height))
+        glowLeft.fillColor = SKColor(red: 1.0, green: 0.85, blue: 0.0, alpha: 0.4)
+        glowLeft.strokeColor = .clear
+        goalNode.addChild(glowLeft)
+        let glowRight = SKShapeNode(rect: CGRect(x: stripeW/2+3, y: 0, width: 3, height: size.height))
+        glowRight.fillColor = SKColor(red: 1.0, green: 0.85, blue: 0.0, alpha: 0.4)
+        glowRight.strokeColor = .clear
+        goalNode.addChild(glowRight)
         backgroundLayer.addChild(goalNode)
 
-        // 终点的物理体（垂直边缘线，不阻挡玩家，仅触发碰撞回调）
-        let goalBody = SKPhysicsBody(edgeFrom: CGPoint(x: goalX, y: 0), to: CGPoint(x: goalX, y: size.height))
-        goalBody.categoryBitMask = PhysicsCategories.goal
-        goalBody.contactTestBitMask = PhysicsCategories.player
-        goalNode.physicsBody = goalBody
+        // 终点的物理体（传感器，仅触发碰撞回调）
+        let goalSensor = SKPhysicsBody(rectangleOf: CGSize(width: stripeW, height: size.height))
+        goalSensor.isDynamic = false
+        goalSensor.categoryBitMask = PhysicsCategories.goal
+        goalSensor.contactTestBitMask = PhysicsCategories.player
+        goalNode.physicsBody = goalSensor
 
         addBackgroundDecorations()
     }
@@ -498,12 +516,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         title.position = CGPoint(x: 0, y: 60)
         pauseNode.addChild(title)
 
-        // 继续按钮
-        let resumeBg = SKShapeNode(rect: CGRect(x: -100, y: -10, width: 200, height: 50), cornerRadius: 10)
+        // 继续按钮（居中，y=30）
+        let resumeBg = SKShapeNode(rect: CGRect(x: -100, y: -25, width: 200, height: 50), cornerRadius: 10)
         resumeBg.fillColor = SKColor(red: 0.2, green: 0.6, blue: 0.2, alpha: 0.9)
         resumeBg.strokeColor = .white
         resumeBg.lineWidth = 2
         resumeBg.name = "resumeButton"
+        resumeBg.horizontalAlignmentMode = .center
+        resumeBg.verticalAlignmentMode = .center
         pauseNode.addChild(resumeBg)
 
         let resumeLabel = SKLabelNode(text: "▶ RESUME")
@@ -511,15 +531,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         resumeLabel.fontSize = 24
         resumeLabel.fontColor = .white
         resumeLabel.name = "resumeButton"
-        resumeLabel.position = CGPoint(x: 0, y: 5)
-        pauseNode.addChild(resumeLabel)
+        resumeLabel.horizontalAlignmentMode = .center
+        resumeLabel.verticalAlignmentMode = .center
+        resumeLabel.position = .zero
+        resumeBg.addChild(resumeLabel)
 
-        // 返回菜单按钮
-        let menuBg = SKShapeNode(rect: CGRect(x: -100, y: -70, width: 200, height: 45), cornerRadius: 8)
+        // 返回菜单按钮（y=-35，与resume间距65pt）
+        let menuBg = SKShapeNode(rect: CGRect(x: -100, y: -22, width: 200, height: 44), cornerRadius: 8)
         menuBg.fillColor = SKColor(white: 0.2, alpha: 0.8)
         menuBg.strokeColor = SKColor(white: 0.4, alpha: 0.6)
         menuBg.lineWidth = 1.5
         menuBg.name = "menuButton"
+        menuBg.horizontalAlignmentMode = .center
+        menuBg.verticalAlignmentMode = .center
         pauseNode.addChild(menuBg)
 
         let menuLabel = SKLabelNode(text: "☰ MENU")
@@ -527,8 +551,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         menuLabel.fontSize = 22
         menuLabel.fontColor = .white
         menuLabel.name = "menuButton"
-        menuLabel.position = CGPoint(x: 0, y: -5)
-        pauseNode.addChild(menuLabel)
+        menuLabel.horizontalAlignmentMode = .center
+        menuLabel.verticalAlignmentMode = .center
+        menuLabel.position = .zero
+        menuBg.addChild(menuLabel)
     }
 
     private func resumeGame() {

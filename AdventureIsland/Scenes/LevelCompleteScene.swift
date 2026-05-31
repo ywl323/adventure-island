@@ -164,58 +164,80 @@ class LevelCompleteScene: SKScene {
     }
 
     private func setupButtons() {
-        // 使用带命中区域的父节点包裹 SKLabelNode，
-        // SKShapeNode 背景作为实际命中区域（比文字更大），文字只负责显示
-
+        // 三个按钮统一使用父节点包裹：父节点定位，子节点水平垂直居中
+        // 统一按钮高度 50pt，NEXT LEVEL 更宽（220pt），RETRY/MENU 保持 150pt
+        let btnH: CGFloat = 50
         let btnY = size.height * 0.22
+        let btnGap: CGFloat = 15  // 按钮间距
 
-        // NEXT LEVEL 按钮
-        let nextBg = SKShapeNode(rect: CGRect(x: -90, y: -20, width: 180, height: 40), cornerRadius: 8)
-        nextBg.fillColor = SKColor(white: 0.2, alpha: 0.6)
-        nextBg.strokeColor = SKColor(white: 0.4, alpha: 0.5)
-        nextBg.lineWidth = 1.5
-        nextBg.name = "nextButton"
-        nextBg.position = CGPoint(x: size.width / 2, y: btnY)
-        addChild(nextBg)
+        // NEXT LEVEL 按钮（居中，最宽）
+        let nextWrap = SKNode()
+        nextWrap.name = "nextButton"
+        nextWrap.position = CGPoint(x: size.width / 2, y: btnY)
+        addChild(nextWrap)
+
+        let nextBg = SKShapeNode(rect: CGRect(x: -110, y: -btnH/2, width: 220, height: btnH), cornerRadius: 10)
+        nextBg.fillColor = SKColor(red: 0.2, green: 0.5, blue: 0.2, alpha: 0.85)
+        nextBg.strokeColor = SKColor(white: 0.5, alpha: 0.6)
+        nextBg.lineWidth = 2
+        nextBg.horizontalAlignmentMode = .center
+        nextBg.verticalAlignmentMode = .center
+        nextWrap.addChild(nextBg)
 
         let nextLabel = SKLabelNode(text: "NEXT LEVEL →")
         nextLabel.fontName = "Helvetica-Bold"
-        nextLabel.fontSize = min(size.width * 0.028, 28)
+        nextLabel.fontSize = min(size.width * 0.03, 30)
         nextLabel.fontColor = .white
-        nextLabel.position = CGPoint(x: 0, y: -7)
-        nextBg.addChild(nextLabel)
+        nextLabel.horizontalAlignmentMode = .center
+        nextLabel.verticalAlignmentMode = .center
+        nextLabel.position = .zero
+        nextWrap.addChild(nextLabel)
 
-        // RETRY 按钮
-        let retryBg = SKShapeNode(rect: CGRect(x: -65, y: -18, width: 130, height: 36), cornerRadius: 6)
-        retryBg.fillColor = SKColor(white: 0.15, alpha: 0.5)
-        retryBg.strokeColor = SKColor(white: 0.3, alpha: 0.4)
-        retryBg.lineWidth = 1
-        retryBg.name = "retryButton"
-        retryBg.position = CGPoint(x: size.width * 0.2, y: btnY)
-        addChild(retryBg)
+        // RETRY 按钮（左侧，与 NEXT LEVEL 同高度）
+        let retryWrap = SKNode()
+        retryWrap.name = "retryButton"
+        retryWrap.position = CGPoint(x: size.width * 0.25, y: btnY)
+        addChild(retryWrap)
+
+        let retryBg = SKShapeNode(rect: CGRect(x: -75, y: -btnH/2, width: 150, height: btnH), cornerRadius: 10)
+        retryBg.fillColor = SKColor(white: 0.15, alpha: 0.6)
+        retryBg.strokeColor = SKColor(white: 0.35, alpha: 0.5)
+        retryBg.lineWidth = 1.5
+        retryBg.horizontalAlignmentMode = .center
+        retryBg.verticalAlignmentMode = .center
+        retryWrap.addChild(retryBg)
 
         let retryLabel = SKLabelNode(text: "↺ RETRY")
         retryLabel.fontName = "Helvetica-Bold"
-        retryLabel.fontSize = min(size.width * 0.022, 22)
-        retryLabel.fontColor = SKColor(white: 0.5, alpha: 1.0)
-        retryLabel.position = CGPoint(x: 0, y: -5)
-        retryBg.addChild(retryLabel)
+        retryLabel.fontSize = min(size.width * 0.024, 24)
+        retryLabel.fontColor = SKColor(white: 0.7, alpha: 1.0)
+        retryLabel.horizontalAlignmentMode = .center
+        retryLabel.verticalAlignmentMode = .center
+        retryLabel.position = .zero
+        retryWrap.addChild(retryLabel)
 
-        // MENU 按钮
-        let menuBg = SKShapeNode(rect: CGRect(x: -65, y: -18, width: 130, height: 36), cornerRadius: 6)
-        menuBg.fillColor = SKColor(white: 0.15, alpha: 0.5)
-        menuBg.strokeColor = SKColor(white: 0.3, alpha: 0.4)
-        menuBg.lineWidth = 1
-        menuBg.name = "menuButton"
-        menuBg.position = CGPoint(x: size.width * 0.8, y: btnY)
-        addChild(menuBg)
+        // MENU 按钮（右侧）
+        let menuWrap = SKNode()
+        menuWrap.name = "menuButton"
+        menuWrap.position = CGPoint(x: size.width * 0.75, y: btnY)
+        addChild(menuWrap)
+
+        let menuBg = SKShapeNode(rect: CGRect(x: -75, y: -btnH/2, width: 150, height: btnH), cornerRadius: 10)
+        menuBg.fillColor = SKColor(white: 0.15, alpha: 0.6)
+        menuBg.strokeColor = SKColor(white: 0.35, alpha: 0.5)
+        menuBg.lineWidth = 1.5
+        menuBg.horizontalAlignmentMode = .center
+        menuBg.verticalAlignmentMode = .center
+        menuWrap.addChild(menuBg)
 
         let menuLabel = SKLabelNode(text: "☰ MENU")
         menuLabel.fontName = "Helvetica-Bold"
-        menuLabel.fontSize = min(size.width * 0.022, 22)
-        menuLabel.fontColor = SKColor(white: 0.5, alpha: 1.0)
-        menuLabel.position = CGPoint(x: 0, y: -5)
-        menuBg.addChild(menuLabel)
+        menuLabel.fontSize = min(size.width * 0.024, 24)
+        menuLabel.fontColor = SKColor(white: 0.7, alpha: 1.0)
+        menuLabel.horizontalAlignmentMode = .center
+        menuLabel.verticalAlignmentMode = .center
+        menuLabel.position = .zero
+        menuWrap.addChild(menuLabel)
     }
 
     private func presentGameScene(levelNum: Int) {
