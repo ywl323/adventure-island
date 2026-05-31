@@ -183,7 +183,7 @@ class Player: SKNode {
     }
 
     private func reset() {
-        isGrounded = false
+        isGrounded = true  // 复活后设为 true，物理引擎接触地面后会更新
         hasEverFallen = false
         isAttacking = false
         canJump = true           // 复活后立即可以跳跃
