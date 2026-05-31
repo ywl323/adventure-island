@@ -708,9 +708,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         case "rightButton":
             isRightPressed = true
         case "jumpButton":
-            isJumpPressed = true
-            isJumpConsumed = false  // 新按下时允许跳跃
-            print("🟢 handleButtonDown: JUMP (isJumpPressed=true)")
+            if !isJumpConsumed {  // 防止同一帧多次触发
+                isJumpConsumed = true
+                player?.jump()
+                print("🟢 handleButtonDown: JUMP executed")
+            }
         case "attackButton":
             isAttackPressed = true
             print("🟢 handleButtonDown: ATTACK")
@@ -751,14 +753,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             player.stop()
         }
 
-        // ── 跳跃 ──
+        // ── 跳跃（双重保护：handleButtonDown 直接调用 + update() 兜底）──
         if isJumpPressed && !isJumpConsumed {
-            print("🔴 update: calling player.jump()")
-            player.jump()
+            player?.jump()
             isJumpConsumed = true
         }
-        // ⚠️ 禁止在 else 里重置 isJumpConsumed，防止残留触发
-        // isJumpConsumed 只在 handleButtonDown（设为false）和 handleButtonUp（设为false）中改变
 
         if isAttackPressed && !isAttackConsumed {
             print("⚔️ update: calling player.attack()")
