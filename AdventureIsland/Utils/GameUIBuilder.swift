@@ -16,9 +16,6 @@ struct GameUIBuilder {
         rightButtonName: String = "rightButton"
     ) -> (left: SKNode, right: SKNode) {
 
-        let buttonY = -size.height / 2 + edgePadding + buttonRadius
-
-        // 左按钮：更宽间距，避免重叠
         let dpadY = -size.height / 2 + edgePadding + buttonRadius
         let leftX = 100.0
         let rightX = 210.0
