@@ -146,7 +146,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let totalWidth = max(levelData.width, bgWidth)
             let bgNode = SKSpriteNode(imageNamed: bgImageName)
             bgNode.size = CGSize(width: bgWidth, height: bgHeight)
-            bgNode.position = CGPoint(x: totalWidth / 2, y: size.height / 2)
+            bgNode.position = CGPoint(x: 200, y: size.height / 2)  // 对齐相机初始位置
             bgNode.anchorPoint = CGPoint(x: 0.5, y: 0.5)
             bgNode.zPosition = -100
             backgroundLayer.addChild(bgNode)
@@ -571,7 +571,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // 跳跃按钮
         jumpButton = GameUIBuilder.buildJumpButton(
             into: cameraNode,
-            at: CGPoint(x: rightBaseX - 90, y: buttonY),
+            at: CGPoint(x: rightBaseX - 132, y: buttonY),
             buttonRadius: btnSize
         )
 
