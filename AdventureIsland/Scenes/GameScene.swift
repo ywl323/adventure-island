@@ -708,7 +708,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         case "rightButton":
             isRightPressed = true
         case "jumpButton":
-            if !isJumpConsumed {  // 防止同一帧多次触发
+            if !isJumpConsumed && (player?.isGrounded == true) {
                 isJumpConsumed = true
                 player?.jump()
                 print("🟢 handleButtonDown: JUMP executed")
@@ -753,8 +753,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             player.stop()
         }
 
-        // ── 跳跃（双重保护：handleButtonDown 直接调用 + update() 兜底）──
-        if isJumpPressed && !isJumpConsumed {
+        // ── 跳跃（按钮按下触发，仅在 player 实际在地面时才跳）──
+        if isJumpPressed && !isJumpConsumed && (player?.isGrounded == true) {
             player?.jump()
             isJumpConsumed = true
         }

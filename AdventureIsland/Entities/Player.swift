@@ -5,7 +5,7 @@ class Player: SKNode {
 
     // MARK: - 属性
     private var moveSpeed: CGFloat = Constants.playerSpeed
-    var isGrounded: Bool = false  // 可被 GameScene 初始化
+    var isGrounded: Bool = false  // 可被外部（GameScene）读取和写入
     private var hasEverFallen: Bool = false  // 玩家是否曾经下坠过（用于判断能否跳跃）
     private var isAttacking: Bool = false
     private var health: Int = 3

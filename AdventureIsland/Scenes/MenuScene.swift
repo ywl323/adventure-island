@@ -232,8 +232,8 @@ class MenuScene: SKScene {
     private func setupStartButton() {
         // 大尺寸醒目的 START 按钮，命中区域覆盖整个背景
         let btnY = size.height * 0.26
-        let btnW: CGFloat = 300
-        let btnH: CGFloat = 80
+        let btnW: CGFloat = 200
+        let btnH: CGFloat = 60
 
         // 深绿色底框（发光感）
         let shadowBg = SKShapeNode(rect: CGRect(x: -btnW/2 + 4, y: -btnH/2 - 4, width: btnW, height: btnH), cornerRadius: 16)
@@ -255,9 +255,9 @@ class MenuScene: SKScene {
         startButton = SKLabelNode(text: "START")
         startButton.name = "startButton"
         startButton.fontName = "Helvetica-Bold"
-        startButton.fontSize = min(size.width * 0.055, 52)
+        startButton.fontSize = min(size.width * 0.04, 40)
         startButton.fontColor = .white
-        startButton.position = CGPoint(x: 0, y: -12)
+        startButton.position = CGPoint(x: 0, y: 0)
         startBg.addChild(startButton)
     }
 
