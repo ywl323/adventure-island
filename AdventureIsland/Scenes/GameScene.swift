@@ -141,6 +141,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // 背景覆盖整个关卡宽度，保证玩家向右移动时不会露出蓝色空白
         let bgSize = CGSize(width: levelData.width, height: size.height)
         let bgCenterWorld = CGPoint(x: levelData.width / 2, y: size.height / 2)
+        let background: SKSpriteNode
         if let _ = UIImage(named: bgImageName) {
             background = SKSpriteNode(imageNamed: bgImageName)
             background.size = bgSize
