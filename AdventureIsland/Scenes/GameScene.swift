@@ -522,8 +522,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         resumeBg.strokeColor = .white
         resumeBg.lineWidth = 2
         resumeBg.name = "resumeButton"
-        resumeBg.horizontalAlignmentMode = .center
-        resumeBg.verticalAlignmentMode = .center
         pauseNode.addChild(resumeBg)
 
         let resumeLabel = SKLabelNode(text: "▶ RESUME")
@@ -542,8 +540,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         menuBg.strokeColor = SKColor(white: 0.4, alpha: 0.6)
         menuBg.lineWidth = 1.5
         menuBg.name = "menuButton"
-        menuBg.horizontalAlignmentMode = .center
-        menuBg.verticalAlignmentMode = .center
         pauseNode.addChild(menuBg)
 
         let menuLabel = SKLabelNode(text: "☰ MENU")

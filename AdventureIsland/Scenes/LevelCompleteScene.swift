@@ -180,8 +180,6 @@ class LevelCompleteScene: SKScene {
         nextBg.fillColor = SKColor(red: 0.2, green: 0.5, blue: 0.2, alpha: 0.85)
         nextBg.strokeColor = SKColor(white: 0.5, alpha: 0.6)
         nextBg.lineWidth = 2
-        nextBg.horizontalAlignmentMode = .center
-        nextBg.verticalAlignmentMode = .center
         nextWrap.addChild(nextBg)
 
         let nextLabel = SKLabelNode(text: "NEXT LEVEL →")
@@ -203,8 +201,6 @@ class LevelCompleteScene: SKScene {
         retryBg.fillColor = SKColor(white: 0.15, alpha: 0.6)
         retryBg.strokeColor = SKColor(white: 0.35, alpha: 0.5)
         retryBg.lineWidth = 1.5
-        retryBg.horizontalAlignmentMode = .center
-        retryBg.verticalAlignmentMode = .center
         retryWrap.addChild(retryBg)
 
         let retryLabel = SKLabelNode(text: "↺ RETRY")
@@ -226,8 +222,6 @@ class LevelCompleteScene: SKScene {
         menuBg.fillColor = SKColor(white: 0.15, alpha: 0.6)
         menuBg.strokeColor = SKColor(white: 0.35, alpha: 0.5)
         menuBg.lineWidth = 1.5
-        menuBg.horizontalAlignmentMode = .center
-        menuBg.verticalAlignmentMode = .center
         menuWrap.addChild(menuBg)
 
         let menuLabel = SKLabelNode(text: "☰ MENU")
