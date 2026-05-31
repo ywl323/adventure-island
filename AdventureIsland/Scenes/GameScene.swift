@@ -708,11 +708,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         case "rightButton":
             isRightPressed = true
         case "jumpButton":
-            if !isJumpConsumed && (player?.isGrounded == true) {
-                isJumpConsumed = true
-                player?.jump()
-                print("🟢 handleButtonDown: JUMP executed")
-            }
+            isJumpPressed = true
+            isJumpConsumed = false   // 每次按下都重置
+            player?.jump()           // Player 内部会检查 isGrounded/isJumpLocked
+            isJumpConsumed = true    // 调用完后立即标记，防止同一次按下重复触发
         case "attackButton":
             isAttackPressed = true
             print("🟢 handleButtonDown: ATTACK")
@@ -729,7 +728,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             isRightPressed = false
         case "jumpButton":
             isJumpPressed = false
-            isJumpConsumed = false
+            isJumpConsumed = false  // 松开手指后重置，下次按下可以再跳
         case "attackButton":
             isAttackPressed = false
             isAttackConsumed = false
@@ -753,11 +752,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             player.stop()
         }
 
-        // ── 跳跃（按钮按下触发，仅在 player 实际在地面时才跳）──
-        if isJumpPressed && !isJumpConsumed && (player?.isGrounded == true) {
-            player?.jump()
-            isJumpConsumed = true
-        }
+        // 跳跃完全由 handleButtonDown 处理，update() 不再参与
 
         if isAttackPressed && !isAttackConsumed {
             print("⚔️ update: calling player.attack()")

@@ -257,6 +257,8 @@ class MenuScene: SKScene {
         startButton.fontName = "Helvetica-Bold"
         startButton.fontSize = min(size.width * 0.04, 40)
         startButton.fontColor = .white
+        startButton.horizontalAlignmentMode = .center
+        startButton.verticalAlignmentMode = .center
         startButton.position = CGPoint(x: 0, y: 0)
         startBg.addChild(startButton)
     }
