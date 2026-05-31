@@ -93,12 +93,12 @@ class Player: SKNode {
             print("⏳ jump() denied: not grounded (isGrounded=false)")
             return
         }
-        print("✅ jump() executed! isGrounded=\(isGrounded)")
+        print("✅ jump() executed! isGrounded=\(isGrounded))
+        // 立即锁定，防止残留触发；延迟后才解锁（防连跳）
+        canJump = false
         physicsBody?.velocity = CGVector(dx: physicsBody?.velocity.dx ?? 0, dy: Constants.jumpForce)
         AudioManager.shared.playSE("se_jump")
-        canJump = false
-        // 离开地面时重置跳跃冷却，这样下次落地才能再跳
-        isGrounded = false
+        // 离开地面后由 didEndContact 回调设置 isGrounded = false
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.jumpCooldown) { [weak self] in
             self?.canJump = true
         }
