@@ -110,11 +110,12 @@ class Player: SKNode {
         guard !isAttacking else { return }
         isAttacking = true
 
-        // 生成石斧投射物
+        // 生成石斧投射物（分叉处理：图片 vs fallback ShapeNode）
         let axeNode: SKNode
         if UIImage(named: "24_projectile_stone_axe") != nil {
-            axeNode = SKSpriteNode(imageNamed: "24_projectile_stone_axe")
-            axeNode.size = CGSize(width: 40, height: 40)
+            let axeSprite = SKSpriteNode(imageNamed: "24_projectile_stone_axe")
+            axeSprite.size = CGSize(width: 40, height: 40)
+            axeNode = axeSprite
         } else {
             // Fallback：使用更明显的斧形 ShapeNode（更像真实的斧子）
             let axeShape = SKShapeNode()
