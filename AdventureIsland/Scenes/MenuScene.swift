@@ -230,37 +230,34 @@ class MenuScene: SKScene {
     }
 
     private func setupStartButton() {
-        // 使用带命中背景的父节点，避免文字过小导致难以点击
+        // 大尺寸醒目的 START 按钮，命中区域覆盖整个背景
         let btnY = size.height * 0.26
+        let btnW: CGFloat = 300
+        let btnH: CGFloat = 80
 
-        let btnW: CGFloat = 280
-        let btnH: CGFloat = 70
+        // 深绿色底框（发光感）
+        let shadowBg = SKShapeNode(rect: CGRect(x: -btnW/2 + 4, y: -btnH/2 - 4, width: btnW, height: btnH), cornerRadius: 16)
+        shadowBg.fillColor = SKColor(red: 0.0, green: 0.4, blue: 0.0, alpha: 0.6)
+        shadowBg.strokeColor = .clear
+        shadowBg.zPosition = -1
+        addChild(shadowBg)
 
-        // 金色外发光底层
-        let outerGlow = SKShapeNode(rect: CGRect(x: -btnW/2 - 5, y: -btnH/2 - 5, width: btnW + 10, height: btnH + 10), cornerRadius: 18)
-        outerGlow.fillColor = SKColor(red: 1.0, green: 0.85, blue: 0.0, alpha: 0.25)
-        outerGlow.strokeColor = SKColor(red: 1.0, green: 0.75, blue: 0.0, alpha: 0.5)
-        outerGlow.lineWidth = 3
-        outerGlow.name = "startButton"
-        outerGlow.position = CGPoint(x: size.width / 2, y: btnY)
-        addChild(outerGlow)
-
-        // 主按钮背景（亮绿色）
+        // 主按钮背景（亮绿）
         let startBg = SKShapeNode(rect: CGRect(x: -btnW/2, y: -btnH/2, width: btnW, height: btnH), cornerRadius: 14)
-        startBg.fillColor = SKColor(red: 0.12, green: 0.75, blue: 0.12, alpha: 1.0)
-        startBg.strokeColor = SKColor(red: 0.3, green: 1.0, blue: 0.3, alpha: 0.8)
-        startBg.lineWidth = 3
+        startBg.fillColor = SKColor(red: 0.1, green: 0.72, blue: 0.1, alpha: 1.0)
+        startBg.strokeColor = SKColor(red: 0.4, green: 1.0, blue: 0.4, alpha: 0.8)
+        startBg.lineWidth = 4
         startBg.name = "startButton"
         startBg.position = CGPoint(x: size.width / 2, y: btnY)
         addChild(startBg)
 
         // 文字标签
-        startButton = SKLabelNode(text: "▶  开始游戏  ◀")
-        startButton.name = "startButtonLabel"
+        startButton = SKLabelNode(text: "START")
+        startButton.name = "startButton"
         startButton.fontName = "Helvetica-Bold"
-        startButton.fontSize = min(size.width * 0.052, 50)
+        startButton.fontSize = min(size.width * 0.055, 52)
         startButton.fontColor = .white
-        startButton.position = CGPoint(x: 0, y: -10)
+        startButton.position = CGPoint(x: 0, y: -12)
         startBg.addChild(startButton)
     }
 
@@ -276,7 +273,7 @@ class MenuScene: SKScene {
         } else if node.name?.starts(with: "levelDot") == true {
             handleLevelDotTap(at: node.name!)
         } else if node.name == nil, let parentName = node.parent?.name, parentName.starts(with: "levelDot") {
-            // Locked level hint label tapped — ignore silently, prevent mis-routing to dot handler
+            // Locked level hint label tapped — ignore silently
         } else if node.name == "leftArrow" || (node.parent != nil && node.parent?.name == "leftArrow") {
             currentWorldIndex = (currentWorldIndex - 1 + LevelManager.shared.worlds.count) % LevelManager.shared.worlds.count
             selectedLevelIndex = 0
