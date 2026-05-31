@@ -492,7 +492,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         resumeBg.strokeColor = .white
         resumeBg.lineWidth = 2
         resumeBg.name = "resumeButton"
-        resumeBg.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         resumeBg.position = .zero
         resumeWrap.addChild(resumeBg)
 
@@ -517,7 +516,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         menuBg.strokeColor = SKColor(white: 0.4, alpha: 0.6)
         menuBg.lineWidth = 1.5
         menuBg.name = "menuButton"
-        menuBg.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         menuBg.position = .zero
         menuWrap.addChild(menuBg)
 
@@ -573,7 +571,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // 跳跃按钮
         jumpButton = GameUIBuilder.buildJumpButton(
             into: cameraNode,
-            at: CGPoint(x: rightBaseX - 90, y: buttonY)
+            at: CGPoint(x: rightBaseX - 90, y: buttonY),
             buttonRadius: btnSize
         )
 
