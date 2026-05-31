@@ -231,21 +231,36 @@ class MenuScene: SKScene {
 
     private func setupStartButton() {
         // 使用带命中背景的父节点，避免文字过小导致难以点击
-        let btnY = size.height * 0.28
+        let btnY = size.height * 0.26
 
-        let startBg = SKShapeNode(rect: CGRect(x: -110, y: -25, width: 220, height: 50), cornerRadius: 12)
-        startBg.fillColor = SKColor(red: 0.2, green: 0.55, blue: 0.2, alpha: 0.85)
-        startBg.strokeColor = SKColor(white: 0.4, alpha: 0.7)
-        startBg.lineWidth = 2
+        let btnW: CGFloat = 280
+        let btnH: CGFloat = 70
+
+        // 金色外发光底层
+        let outerGlow = SKShapeNode(rect: CGRect(x: -btnW/2 - 5, y: -btnH/2 - 5, width: btnW + 10, height: btnH + 10), cornerRadius: 18)
+        outerGlow.fillColor = SKColor(red: 1.0, green: 0.85, blue: 0.0, alpha: 0.25)
+        outerGlow.strokeColor = SKColor(red: 1.0, green: 0.75, blue: 0.0, alpha: 0.5)
+        outerGlow.lineWidth = 3
+        outerGlow.name = "startButton"
+        outerGlow.position = CGPoint(x: size.width / 2, y: btnY)
+        addChild(outerGlow)
+
+        // 主按钮背景（亮绿色）
+        let startBg = SKShapeNode(rect: CGRect(x: -btnW/2, y: -btnH/2, width: btnW, height: btnH), cornerRadius: 14)
+        startBg.fillColor = SKColor(red: 0.12, green: 0.75, blue: 0.12, alpha: 1.0)
+        startBg.strokeColor = SKColor(red: 0.3, green: 1.0, blue: 0.3, alpha: 0.8)
+        startBg.lineWidth = 3
         startBg.name = "startButton"
         startBg.position = CGPoint(x: size.width / 2, y: btnY)
         addChild(startBg)
 
-        startButton = SKLabelNode(text: "▶ START")
+        // 文字标签
+        startButton = SKLabelNode(text: "▶  开始游戏  ◀")
+        startButton.name = "startButtonLabel"
         startButton.fontName = "Helvetica-Bold"
-        startButton.fontSize = min(size.width * 0.04, 40)
+        startButton.fontSize = min(size.width * 0.052, 50)
         startButton.fontColor = .white
-        startButton.position = CGPoint(x: 0, y: -7)
+        startButton.position = CGPoint(x: 0, y: -10)
         startBg.addChild(startButton)
     }
 
@@ -254,7 +269,9 @@ class MenuScene: SKScene {
         let location = touch.location(in: self)
         let node = self.atPoint(location)
 
-        if node.name == "startButton" {
+        let nodeName = node.name ?? node.parent?.name
+
+        if nodeName == "startButton" {
             startSelectedLevel()
         } else if node.name?.starts(with: "levelDot") == true {
             handleLevelDotTap(at: node.name!)
