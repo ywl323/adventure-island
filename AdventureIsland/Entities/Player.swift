@@ -114,21 +114,29 @@ class Player: SKNode {
         let axeNode: SKSpriteNode
         if UIImage(named: "24_projectile_stone_axe") != nil {
             axeNode = SKSpriteNode(imageNamed: "24_projectile_stone_axe")
-            axeNode.size = CGSize(width: 30, height: 30)
+            axeNode.size = CGSize(width: 40, height: 40)
         } else {
-            // Fallback：使用简单的斧形 ShapeNode
+            // Fallback：使用更明显的斧形 ShapeNode（更像真实的斧子）
             let axeShape = SKShapeNode()
-            let path = CGMutablePath()
-            path.move(to: CGPoint(x: 0, y: 8))
-            path.addLine(to: CGPoint(x: -10, y: -4))
-            path.addLine(to: CGPoint(x: 0, y: -2))
-            path.addLine(to: CGPoint(x: 10, y: -4))
-            path.closeSubpath()
-            axeShape.path = path
-            axeShape.fillColor = SKColor(red: 0.5, green: 0.45, blue: 0.4, alpha: 1.0)
-            axeShape.strokeColor = .clear
-            axeNode = SKSpriteNode(color: .clear, size: CGSize(width: 24, height: 18))
-            axeNode.addChild(axeShape)
+            // 斧柄
+            let handle = SKShapeNode(rect: CGRect(x: -3, y: -16, width: 6, height: 20))
+            handle.fillColor = SKColor(red: 0.55, green: 0.35, blue: 0.2, alpha: 1.0)
+            handle.strokeColor = .clear
+            // 斧刃（半月形）
+            let bladePath = CGMutablePath()
+            bladePath.move(to: CGPoint(x: -14, y: 2))
+            bladePath.addQuadCurve(to: CGPoint(x: 14, y: 2), control: CGPoint(x: 0, y: 12))
+            bladePath.addLine(to: CGPoint(x: 14, y: -2))
+            bladePath.addQuadCurve(to: CGPoint(x: -14, y: -2), control: CGPoint(x: 0, y: 6))
+            bladePath.closeSubpath()
+            let blade = SKShapeNode(path: bladePath)
+            blade.fillColor = SKColor(red: 0.55, green: 0.55, blue: 0.6, alpha: 1.0)
+            blade.strokeColor = SKColor(red: 0.3, green: 0.3, blue: 0.35, alpha: 1.0)
+            blade.lineWidth = 1
+            // 组装斧子
+            axeNode = SKNode()
+            axeNode.addChild(handle)
+            axeNode.addChild(blade)
         }
         let axe = axeNode
         axe.name = "axe"
@@ -148,8 +156,14 @@ class Player: SKNode {
             SKAction.moveBy(x: dx, y: dy, duration: duration),
             SKAction.removeFromParent()
         ])
-        let spin = SKAction.rotate(byAngle: direction * .pi * 4, duration: duration)
-        axe.run(SKAction.group([fly, spin]))
+        let spin = SKAction.rotate(byAngle: direction * .pi * 2, duration: duration)
+        // 斧子不旋转，改用轻微上下晃动模拟重量感
+        let wobble = SKAction.sequence([
+            SKAction.moveBy(x: 0, y: 3, duration: 0.1),
+            SKAction.moveBy(x: 0, y: -3, duration: 0.1)
+        ])
+        let wobbleRepeat = SKAction.repeatForever(wobble)
+        axe.run(SKAction.group([fly, spin, wobbleRepeat]))
 
         addChild(axe)
 
