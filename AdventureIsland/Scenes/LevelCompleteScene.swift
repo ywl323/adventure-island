@@ -168,7 +168,6 @@ class LevelCompleteScene: SKScene {
         // 统一按钮高度 50pt，NEXT LEVEL 更宽（220pt），RETRY/MENU 保持 150pt
         let btnH: CGFloat = 50
         let btnY = size.height * 0.22
-        let btnGap: CGFloat = 15  // 按钮间距
 
         // NEXT LEVEL 按钮（居中，最宽）
         let nextWrap = SKNode()
