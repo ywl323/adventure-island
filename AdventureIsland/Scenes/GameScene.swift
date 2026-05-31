@@ -474,8 +474,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         pauseNode = SKNode()
         pauseNode.name = "pauseOverlay"
+        pauseNode.position = .zero
+        scene?.addChild(pauseNode)
+        // 暂停菜单固定在屏幕中心（scene 坐标系的屏幕中央）
         pauseNode.position = CGPoint(x: cameraNode.position.x, y: cameraNode.position.y)
-        cameraNode.addChild(pauseNode)
 
         // 半透明背景
         let overlay = SKShapeNode(rect: CGRect(x: -size.width/2, y: -size.height/2, width: size.width, height: size.height))
@@ -548,7 +550,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private func setupControlArea() {
         let btnSize: CGFloat = 60
         let edgePadding: CGFloat = 20
-        let buttonY = -size.height / 2 + edgePadding + btnSize / 2
+        // D-pad uses buttonRadius=50 in GameUIBuilder, so buttonY = -size.height/2 + 70
+        // Match that here so jump/attack align with D-pad
+        let buttonY = -size.height / 2 + 20 + 50
         let rightBaseX = size.width / 2 - edgePadding - btnSize / 2
 
         // 左右 D-pad 按钮

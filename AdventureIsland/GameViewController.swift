@@ -15,8 +15,8 @@ class GameViewController: UIViewController {
         skView = SKView(frame: view.bounds)
         skView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         skView.ignoresSiblingOrder = true
-        skView.showsFPS = true
-        skView.showsNodeCount = true
+        skView.showsFPS = false
+        skView.showsNodeCount = false
         skView.preferredFramesPerSecond = 60
         skView.backgroundColor = .black
         view.addSubview(skView)
