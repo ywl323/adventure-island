@@ -134,21 +134,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         backgroundLayer = SKNode()
         addChild(backgroundLayer)
 
-        // 背景使用原始尺寸（不拉伸），跟随相机固定在屏幕区域
-        // 相机左右移动时，背景保持不动，营造远景效果
+        // 背景平铺覆盖整个关卡（不拉伸），使用原始图片尺寸平铺
+        // 如果 level 宽度 > 背景宽度，自动平铺拼接
         let bgImageName = getBackgroundImageName()
-        let bgCenter = CGPoint(x: size.width / 2, y: size.height / 2)
         if let bgImg = UIImage(named: bgImageName) {
-            let background = SKSpriteNode(imageNamed: bgImageName)
-            // 保持原始宽高比，适配屏幕宽度
-            let aspect = bgImg.size.width / bgImg.size.height
-            let bgHeight = size.height
-            let bgWidth = bgHeight * aspect
-            background.size = CGSize(width: bgWidth, height: bgHeight)
-            background.position = bgCenter
-            background.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-            background.zPosition = -100
-            cameraNode.addChild(background)
+            let nativeW = bgImg.size.width
+            let nativeH = bgImg.size.height
+            // 原始尺寸不平铺，只在屏幕范围内显示
+            let bgNode = SKSpriteNode(imageNamed: bgImageName)
+            bgNode.size = CGSize(width: nativeW, height: nativeH)
+            bgNode.position = CGPoint(x: size.width / 2, y: size.height / 2)
+            bgNode.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+            bgNode.zPosition = -100
+            cameraNode.addChild(bgNode)
         } else {
             // Fallback solid color
             let bgColor: SKColor
@@ -164,13 +162,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             default:        bgColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)
             }
             let background = SKSpriteNode(color: bgColor, size: CGSize(width: size.width, height: size.height))
-            background.position = bgCenter
+            background.position = CGPoint(x: size.width / 2, y: size.height / 2)
             background.zPosition = -100
             cameraNode.addChild(background)
         }
-
-        // 背景层跟随相机移动
-        // 相机向右移动时，背景保持不动，产生玩家向右前进的视觉效果
         backgroundLayer.position.x = 0
 
         // 添加地面（物理边界）
