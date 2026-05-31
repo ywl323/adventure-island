@@ -134,21 +134,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         backgroundLayer = SKNode()
         addChild(backgroundLayer)
 
-        // 背景平铺覆盖整个关卡（不拉伸），使用原始图片尺寸平铺
-        // 如果 level 宽度 > 背景宽度，自动平铺拼接
+        // 背景使用原始尺寸，放在 world 坐标（不在 cameraNode 内，跟随 backgroundLayer）
+        // 背景覆盖整个关卡宽度，玩家向右移动时背景保持不动（视差效果）
         let bgImageName = getBackgroundImageName()
         if let bgImg = UIImage(named: bgImageName) {
-            let nativeW = bgImg.size.width
-            let nativeH = bgImg.size.height
-            // 原始尺寸不平铺，只在屏幕范围内显示
+            // 保持原始宽高比，以屏幕高度为基准适配
+            let aspect = bgImg.size.width / bgImg.size.height
+            let bgHeight = size.height
+            let bgWidth = bgHeight * aspect
+            // 如果关卡宽度 > 背景宽度，平铺拼接
+            let totalWidth = max(levelData.width, bgWidth)
             let bgNode = SKSpriteNode(imageNamed: bgImageName)
-            bgNode.size = CGSize(width: nativeW, height: nativeH)
-            bgNode.position = CGPoint(x: size.width / 2, y: size.height / 2)
+            bgNode.size = CGSize(width: bgWidth, height: bgHeight)
+            bgNode.position = CGPoint(x: totalWidth / 2, y: size.height / 2)
             bgNode.anchorPoint = CGPoint(x: 0.5, y: 0.5)
             bgNode.zPosition = -100
-            cameraNode.addChild(bgNode)
+            backgroundLayer.addChild(bgNode)
         } else {
-            // Fallback solid color
             let bgColor: SKColor
             switch levelData.terrainType {
             case "grass":    bgColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)
@@ -161,10 +163,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             case "boss":     bgColor = SKColor(red: 0.3, green: 0.15, blue: 0.25, alpha: 1.0)
             default:        bgColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)
             }
-            let background = SKSpriteNode(color: bgColor, size: CGSize(width: size.width, height: size.height))
-            background.position = CGPoint(x: size.width / 2, y: size.height / 2)
-            background.zPosition = -100
-            cameraNode.addChild(background)
+            let bg = SKSpriteNode(color: bgColor, size: CGSize(width: levelData.width, height: size.height))
+            bg.position = CGPoint(x: levelData.width / 2, y: size.height / 2)
+            bg.zPosition = -100
+            backgroundLayer.addChild(bg)
         }
         backgroundLayer.position.x = 0
 
