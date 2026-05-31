@@ -137,7 +137,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Try to load background image first, fall back to solid color
         // 背景始终固定为屏幕尺寸，不拉伸，与相机联动
         let bgImageName = getBackgroundImageName()
-        let bgSize = size // 固定屏幕大小，不随关卡宽度延伸
+        let bgSize = size
+        let background: SKSpriteNode // 固定屏幕大小，不随关卡宽度延伸
         if let _ = UIImage(named: bgImageName) {
             background = SKSpriteNode(imageNamed: bgImageName)
             background.size = bgSize
