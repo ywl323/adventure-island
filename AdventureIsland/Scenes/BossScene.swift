@@ -387,6 +387,15 @@ class BossScene: SKScene, SKPhysicsContactDelegate {
         }
     }
 
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches {
+            if let name = activeTouches[touch.hash] {
+                handleButtonUp(name)
+            }
+            activeTouches.removeValue(forKey: touch.hash)
+        }
+    }
+
     private func handleButtonDown(_ name: String) {
         switch name {
         case "pauseButton":  togglePause()
