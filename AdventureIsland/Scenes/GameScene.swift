@@ -508,12 +508,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         title.position = CGPoint(x: 0, y: 60)
         pauseNode.addChild(title)
 
-        // 继续按钮（rect y=0，中心在 y=25）
+        // 继续按钮（rect 底边在 y=0，顶边在 y=50）
         let resumeBg = SKShapeNode(rect: CGRect(x: -100, y: 0, width: 200, height: 50), cornerRadius: 10)
         resumeBg.fillColor = SKColor(red: 0.2, green: 0.6, blue: 0.2, alpha: 0.9)
         resumeBg.strokeColor = .white
         resumeBg.lineWidth = 2
         resumeBg.name = "resumeButton"
+        resumeBg.position = CGPoint(x: 0, y: 25)  // 按钮中心在 y=25（rect 底边对齐 y=0）
         pauseNode.addChild(resumeBg)
 
         let resumeLabel = SKLabelNode(text: "► RESUME")
@@ -526,12 +527,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         resumeLabel.position = .zero
         resumeBg.addChild(resumeLabel)
 
-        // 返回菜单按钮（resume 下方，rect 底边在 y=-80，中心在 y=-55）
-        let menuBg = SKShapeNode(rect: CGRect(x: -100, y: -80, width: 200, height: 50), cornerRadius: 10)
+        // 返回菜单按钮（resume 下方，rect 底边在 y=-70，间距 20pt）
+        let menuBg = SKShapeNode(rect: CGRect(x: -100, y: -70, width: 200, height: 50), cornerRadius: 10)
         menuBg.fillColor = SKColor(white: 0.2, alpha: 0.8)
         menuBg.strokeColor = SKColor(white: 0.4, alpha: 0.6)
         menuBg.lineWidth = 1.5
         menuBg.name = "menuButton"
+        menuBg.position = CGPoint(x: 0, y: -45)  // 按钮中心在 y=-45
         pauseNode.addChild(menuBg)
 
         let menuLabel = SKLabelNode(text: "MENU")
@@ -541,7 +543,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         menuLabel.name = "menuButton"
         menuLabel.horizontalAlignmentMode = .center
         menuLabel.verticalAlignmentMode = .center
-        menuLabel.position = CGPoint(x: 0, y: -3)
+        menuLabel.position = .zero
         menuBg.addChild(menuLabel)
     }
 
