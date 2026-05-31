@@ -524,7 +524,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         resumeBg.name = "resumeButton"
         pauseNode.addChild(resumeBg)
 
-        let resumeLabel = SKLabelNode(text: "▶ RESUME")
+        let resumeLabel = SKLabelNode(text: "► RESUME")
         resumeLabel.fontName = "Helvetica-Bold"
         resumeLabel.fontSize = 24
         resumeLabel.fontColor = .white
@@ -542,7 +542,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         menuBg.name = "menuButton"
         pauseNode.addChild(menuBg)
 
-        let menuLabel = SKLabelNode(text: "☰ MENU")
+        let menuLabel = SKLabelNode(text: "MENU")
         menuLabel.fontName = "Helvetica-Bold"
         menuLabel.fontSize = 22
         menuLabel.fontColor = .white
