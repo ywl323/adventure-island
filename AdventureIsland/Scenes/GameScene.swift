@@ -363,6 +363,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         print("🎨 setupPlayer called, playerStartY=\(playerStartY)")
         player = Player()
         player.position = CGPoint(x: Constants.playerStartX, y: playerStartY)
+        player.zPosition = 10
         addChild(player)
         print("   Player added at (\(player.position.x), \(player.position.y))")
 
@@ -402,7 +403,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     private func setupHUD() {
         levelLabel = SKLabelNode(text: "Level \(levelData.levelNumber): \(levelData.name)")
-        levelLabel.fontName = "Helvetica-Bold"
+        levelLabel.fontName = "System"
         levelLabel.fontSize = min(size.width * 0.028, 22)
         levelLabel.fontColor = .white
         levelLabel.position = CGPoint(x: -size.width / 2 + 80, y: size.height / 2 - 30)
@@ -410,7 +411,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         cameraNode.addChild(levelLabel)
 
         scoreLabel = SKLabelNode(text: "Score: 0")
-        scoreLabel.fontName = "Helvetica-Bold"
+        scoreLabel.fontName = "System"
         scoreLabel.fontSize = min(size.width * 0.025, 18)
         scoreLabel.fontColor = .white
         scoreLabel.position = CGPoint(x: -size.width / 2 + 80, y: size.height / 2 - 60)
@@ -418,7 +419,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         cameraNode.addChild(scoreLabel)
 
         healthLabel = SKLabelNode(text: "❤️ 3")
-        healthLabel.fontName = "Helvetica-Bold"
+        healthLabel.fontName = "System"
         healthLabel.fontSize = min(size.width * 0.025, 18)
         healthLabel.fontColor = .white
         healthLabel.position = CGPoint(x: -size.width / 2 + 80, y: size.height / 2 - 90)
@@ -426,7 +427,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         cameraNode.addChild(healthLabel)
 
         timeLabel = SKLabelNode(text: "Time: \(gameTime)")
-        timeLabel.fontName = "Helvetica-Bold"
+        timeLabel.fontName = "System"
         timeLabel.fontSize = min(size.width * 0.025, 18)
         timeLabel.fontColor = .white
         timeLabel.position = CGPoint(x: -size.width / 2 + 80, y: size.height / 2 - 120)

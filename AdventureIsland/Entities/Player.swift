@@ -55,6 +55,7 @@ class Player: SKNode {
             sprite = SKSpriteNode(texture: texture, size: CGSize(width: 50, height: 60))
         }
         sprite.setScale(Constants.playerSpriteScale)
+        sprite.zPosition = 1
         sprite.position = .zero
         sprite.anchorPoint = CGPoint(x: 0.5, y: 0.0)
         addChild(sprite)
