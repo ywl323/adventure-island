@@ -111,7 +111,7 @@ class Player: SKNode {
         isAttacking = true
 
         // 生成石斧投射物
-        let axeNode: SKSpriteNode
+        let axeNode: SKNode
         if UIImage(named: "24_projectile_stone_axe") != nil {
             axeNode = SKSpriteNode(imageNamed: "24_projectile_stone_axe")
             axeNode.size = CGSize(width: 40, height: 40)
