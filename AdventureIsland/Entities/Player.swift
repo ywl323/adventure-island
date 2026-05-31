@@ -5,7 +5,7 @@ class Player: SKNode {
 
     // MARK: - 属性
     private var moveSpeed: CGFloat = Constants.playerSpeed
-    private var isGrounded: Bool = false
+    var isGrounded: Bool = false  // 可被 GameScene 初始化
     private var hasEverFallen: Bool = false  // 玩家是否曾经下坠过（用于判断能否跳跃）
     private var isAttacking: Bool = false
     private var health: Int = 3
@@ -133,6 +133,7 @@ class Player: SKNode {
         let axe = axeNode
         axe.name = "axe"
         axe.zPosition = 10
+        axe.setScale(Constants.projectileSpriteScale)
         axe.position = CGPoint(x: 0, y: 20)
 
         // 根据角色朝向决定飞行方向（使用独立的facingDirection，避免被xScale动画干扰）

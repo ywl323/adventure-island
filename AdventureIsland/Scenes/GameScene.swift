@@ -365,6 +365,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player = Player()
         player.position = CGPoint(x: Constants.playerStartX, y: playerStartY)
         player.zPosition = 10
+        player.isGrounded = true  // 初始静止时视为在地面上，避免游戏开始时自动跳
         addChild(player)
         print("   Player added at (\(player.position.x), \(player.position.y))")
 

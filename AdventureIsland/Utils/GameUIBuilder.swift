@@ -16,9 +16,10 @@ struct GameUIBuilder {
         rightButtonName: String = "rightButton"
     ) -> (left: SKNode, right: SKNode) {
 
+        // D-pad 用 camera 局部坐标系，左下角为基准
         let dpadY = -size.height / 2 + edgePadding + buttonRadius
-        let leftX = 100.0
-        let rightX = 210.0
+        let leftX = -size.width / 2 + edgePadding + buttonRadius
+        let buttonSpacing = buttonRadius * 1.4
 
         // 左按钮
         let leftBtn = SKNode()
@@ -44,7 +45,7 @@ struct GameUIBuilder {
         // 右按钮
         let rightBtn = SKNode()
         rightBtn.name = rightButtonName
-        rightBtn.position = CGPoint(x: rightX, y: dpadY)
+        rightBtn.position = CGPoint(x: leftX + buttonSpacing, y: dpadY)
         let rightBg = SKShapeNode(circleOfRadius: buttonRadius / 2)
         rightBg.fillColor = SKColor(red: 0.2, green: 0.55, blue: 1.0, alpha: 0.85)
         rightBg.strokeColor = SKColor(white: 0.5, alpha: 0.8)

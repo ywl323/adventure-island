@@ -35,7 +35,8 @@ struct Constants {
 
     // MARK: - 玩家参数
     static let playerPhysicsRadius: CGFloat = 20.0    // 碰撞体半径
-    static let playerSpriteScale: CGFloat = 1.0     // 精灵缩放比例（纹理已是正确尺寸）
+    static let playerSpriteScale: CGFloat = 2.0     // 玩家精灵缩放（原始50×60px，×2=100×120px）
+    static let projectileSpriteScale: CGFloat = 2.0  // 斧子投射物缩放
     static let jumpCooldown: TimeInterval = 0.5       // 跳跃冷却时间
     static let attackDuration: TimeInterval = 0.5     // 攻击动作持续时间
     static let attackMoveDistance: CGFloat = 180.0   // 斧子飞行的水平距离
