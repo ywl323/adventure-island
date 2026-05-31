@@ -251,9 +251,27 @@ class LevelCompleteScene: SKScene {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
-        let node = self.atPoint(location)
+        let touchedNodes = self.nodes(at: location)
 
-        switch node.name {
+        var buttonName: String? = nil
+        for node in touchedNodes {
+            if let name = node.name, name == "nextButton" || name == "retryButton" || name == "menuButton" {
+                buttonName = name
+                break
+            }
+            // Also check parent chain (for wrapped nodes)
+            var parent = node.parent
+            while parent != nil {
+                if let name = parent?.name, name == "nextButton" || name == "retryButton" || name == "menuButton" {
+                    buttonName = name
+                    break
+                }
+                parent = parent?.parent
+            }
+            if buttonName != nil { break }
+        }
+
+        switch buttonName {
         case "nextButton":
             let nextLevel = levelNumber + 1
             if nextLevel <= LevelManager.shared.getTotalLevels() {
