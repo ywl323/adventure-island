@@ -134,20 +134,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         backgroundLayer = SKNode()
         addChild(backgroundLayer)
 
-        // Try to load background image first, fall back to solid color
-        // 背景始终固定为屏幕尺寸，不拉伸，与相机联动
+        // 背景使用原始尺寸（不拉伸），跟随相机固定在屏幕区域
+        // 相机左右移动时，背景保持不动，营造远景效果
         let bgImageName = getBackgroundImageName()
-        // 背景固定屏幕大小，不随关卡宽度延伸
-        // 背景覆盖整个关卡宽度，保证玩家向右移动时不会露出蓝色空白
-        let bgSize = CGSize(width: levelData.width, height: size.height)
-        let bgCenterWorld = CGPoint(x: levelData.width / 2, y: size.height / 2)
-        let background: SKSpriteNode
-        if let _ = UIImage(named: bgImageName) {
-            background = SKSpriteNode(imageNamed: bgImageName)
-            background.size = bgSize
-            background.position = bgCenterWorld
+        let bgCenter = CGPoint(x: size.width / 2, y: size.height / 2)
+        if let bgImg = UIImage(named: bgImageName) {
+            let background = SKSpriteNode(imageNamed: bgImageName)
+            // 保持原始宽高比，适配屏幕宽度
+            let aspect = bgImg.size.width / bgImg.size.height
+            let bgHeight = size.height
+            let bgWidth = bgHeight * aspect
+            background.size = CGSize(width: bgWidth, height: bgHeight)
+            background.position = bgCenter
             background.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+            background.zPosition = -100
+            cameraNode.addChild(background)
         } else {
+            // Fallback solid color
             let bgColor: SKColor
             switch levelData.terrainType {
             case "grass":    bgColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)
@@ -160,19 +163,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             case "boss":     bgColor = SKColor(red: 0.3, green: 0.15, blue: 0.25, alpha: 1.0)
             default:        bgColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)
             }
-            background = SKSpriteNode(color: bgColor, size: bgSize)
-            background.position = bgCenterWorld
+            let background = SKSpriteNode(color: bgColor, size: CGSize(width: size.width, height: size.height))
+            background.position = bgCenter
+            background.zPosition = -100
+            cameraNode.addChild(background)
         }
-        background.zPosition = -100
-        backgroundLayer.addChild(background)
 
-        // Fallback: 纯色背景直接覆盖屏幕尺寸，放在 level 中央，不延伸整个关卡宽度
-        let fallbackBg = SKSpriteNode(color: SKColor(red: 0.3, green: 0.5, blue: 0.8, alpha: 1.0), size: bgSize)
-        fallbackBg.position = bgCenterWorld
-        fallbackBg.zPosition = -300
-        backgroundLayer.addChild(fallbackBg)
-
-        // 背景层固定在世界坐标，不跟随相机移动
+        // 背景层跟随相机移动
         // 相机向右移动时，背景保持不动，产生玩家向右前进的视觉效果
         backgroundLayer.position.x = 0
 
