@@ -19,7 +19,7 @@ struct GameUIBuilder {
         // D-pad 用 camera 局部坐标系，左下角为基准
         let dpadY = -size.height / 2 + edgePadding + buttonRadius
         let leftX = -size.width / 2 + edgePadding + buttonRadius
-        let buttonSpacing = buttonRadius + 40  // 边缘间隙 40pt = 按钮直径 buttonRadius + 间隙40 = 100
+        let buttonSpacing = buttonRadius * 1.2  // 边缘间隙 12pt (tight) = 按钮直径 buttonRadius + 间隙40 = 100
 
         // 左按钮
         let leftBtn = SKNode()

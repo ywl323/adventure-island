@@ -481,14 +481,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         title.position = CGPoint(x: 0, y: 60)
         pauseNode.addChild(title)
 
-        // 继续按钮（rect 底边在 y=0，顶边在 y=50）
-        let resumeBg = SKShapeNode(rect: CGRect(x: -100, y: 0, width: 200, height: 50), cornerRadius: 10)
+        // 继续按钮：父节点定位置，子节点居中
+        let resumeWrap = SKNode()
+        resumeWrap.name = "resumeButton"
+        resumeWrap.position = CGPoint(x: 0, y: 10)
+        pauseNode.addChild(resumeWrap)
+
+        let resumeBg = SKShapeNode(rect: CGRect(x: -100, y: -25, width: 200, height: 50), cornerRadius: 10)
         resumeBg.fillColor = SKColor(red: 0.2, green: 0.6, blue: 0.2, alpha: 0.9)
         resumeBg.strokeColor = .white
         resumeBg.lineWidth = 2
         resumeBg.name = "resumeButton"
-        resumeBg.position = CGPoint(x: 0, y: 25)  // 按钮中心在 y=25（rect 底边对齐 y=0）
-        pauseNode.addChild(resumeBg)
+        resumeBg.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        resumeBg.position = .zero
+        resumeWrap.addChild(resumeBg)
 
         let resumeLabel = SKLabelNode(text: "► RESUME")
         resumeLabel.fontName = "Helvetica-Bold"
@@ -497,17 +503,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         resumeLabel.name = "resumeButton"
         resumeLabel.horizontalAlignmentMode = .center
         resumeLabel.verticalAlignmentMode = .center
-        resumeLabel.position = .zero
-        resumeBg.addChild(resumeLabel)
+        resumeLabel.position = CGPoint(x: 0, y: 2)
+        resumeWrap.addChild(resumeLabel)
 
-        // 返回菜单按钮（resume 下方，rect 底边在 y=-70，间距 20pt）
-        let menuBg = SKShapeNode(rect: CGRect(x: -100, y: -70, width: 200, height: 50), cornerRadius: 10)
+        // 返回菜单按钮
+        let menuWrap = SKNode()
+        menuWrap.name = "menuButton"
+        menuWrap.position = CGPoint(x: 0, y: -60)
+        pauseNode.addChild(menuWrap)
+
+        let menuBg = SKShapeNode(rect: CGRect(x: -100, y: -25, width: 200, height: 50), cornerRadius: 10)
         menuBg.fillColor = SKColor(white: 0.2, alpha: 0.8)
         menuBg.strokeColor = SKColor(white: 0.4, alpha: 0.6)
         menuBg.lineWidth = 1.5
         menuBg.name = "menuButton"
-        menuBg.position = CGPoint(x: 0, y: -45)  // 按钮中心在 y=-45
-        pauseNode.addChild(menuBg)
+        menuBg.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        menuBg.position = .zero
+        menuWrap.addChild(menuBg)
 
         let menuLabel = SKLabelNode(text: "MENU")
         menuLabel.fontName = "Helvetica-Bold"
@@ -516,8 +528,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         menuLabel.name = "menuButton"
         menuLabel.horizontalAlignmentMode = .center
         menuLabel.verticalAlignmentMode = .center
-        menuLabel.position = .zero
-        menuBg.addChild(menuLabel)
+        menuLabel.position = CGPoint(x: 0, y: 2)
+        menuWrap.addChild(menuLabel)
     }
 
     private func resumeGame() {
@@ -561,7 +573,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // 跳跃按钮
         jumpButton = GameUIBuilder.buildJumpButton(
             into: cameraNode,
-            at: CGPoint(x: rightBaseX - btnSize * 2 - 40, y: buttonY),  // 边缘间隙 40pt
+            at: CGPoint(x: rightBaseX - 90, y: buttonY)
             buttonRadius: btnSize
         )
 
