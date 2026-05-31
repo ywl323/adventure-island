@@ -118,7 +118,6 @@ class Player: SKNode {
             axeNode = axeSprite
         } else {
             // Fallback：使用更明显的斧形 ShapeNode（更像真实的斧子）
-            let axeShape = SKShapeNode()
             // 斧柄
             let handle = SKShapeNode(rect: CGRect(x: -3, y: -16, width: 6, height: 20))
             handle.fillColor = SKColor(red: 0.55, green: 0.35, blue: 0.2, alpha: 1.0)
