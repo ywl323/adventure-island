@@ -165,13 +165,16 @@ class BossNode: SKNode {
 
     // MARK: - 碰撞/攻击判定
 
-    /// 安全的攻击判定框，永远基于 spriteSize，不会因缩放动画而变化
+    /// 安全的攻击判定框，考虑 xScale/yScale 翻转
     var attackHitbox: CGRect {
+        let scaledWidth = spriteSize.width * abs(xScale)
+        let scaledHeight = spriteSize.height * abs(yScale)
+        let offsetX = xScale < 0 ? spriteSize.width / 2 : -spriteSize.width / 2
         return CGRect(
-            x: position.x - spriteSize.width / 2,
-            y: position.y - spriteSize.height / 2,
-            width: spriteSize.width,
-            height: spriteSize.height
+            x: position.x + offsetX,
+            y: position.y - scaledHeight / 2,
+            width: scaledWidth,
+            height: scaledHeight
         )
     }
 
