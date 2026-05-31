@@ -134,6 +134,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         backgroundLayer = SKNode()
         addChild(backgroundLayer)
 
+        // 设置场景背景色为蓝色天空（与 bg_world1 天空匹配），避免初始黑屏
+        self.backgroundColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)  // 初始纯色天空
+
         // 背景使用原始尺寸，放在 world 坐标（不在 cameraNode 内，跟随 backgroundLayer）
         // 背景覆盖整个关卡宽度，玩家向右移动时背景保持不动（视差效果）
         let bgImageName = getBackgroundImageName()
