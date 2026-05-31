@@ -138,12 +138,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // 背景始终固定为屏幕尺寸，不拉伸，与相机联动
         let bgImageName = getBackgroundImageName()
         // 背景固定屏幕大小，不随关卡宽度延伸
-        let bgSize = size
-        let background: SKSpriteNode // 固定屏幕大小，不随关卡宽度延伸
+        // 背景覆盖整个关卡宽度，保证玩家向右移动时不会露出蓝色空白
+        let bgSize = CGSize(width: levelData.width, height: size.height)
+        let bgCenterWorld = CGPoint(x: levelData.width / 2, y: size.height / 2)
         if let _ = UIImage(named: bgImageName) {
             background = SKSpriteNode(imageNamed: bgImageName)
             background.size = bgSize
-            background.position = CGPoint(x: size.width / 2, y: size.height / 2)
+            background.position = bgCenterWorld
             background.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         } else {
             let bgColor: SKColor
@@ -159,14 +160,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             default:        bgColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)
             }
             background = SKSpriteNode(color: bgColor, size: bgSize)
-            background.position = CGPoint(x: size.width / 2, y: size.height / 2)
+            background.position = bgCenterWorld
         }
         background.zPosition = -100
         backgroundLayer.addChild(background)
 
-        // Fallback: 确保永远有一个可见背景（调试用）
-        let fallbackBg = SKSpriteNode(color: SKColor(red: 0.3, green: 0.5, blue: 0.8, alpha: 1.0), size: CGSize(width: levelData.width, height: size.height))
-        fallbackBg.position = CGPoint(x: levelData.width / 2, y: size.height / 2)
+        // Fallback: 纯色背景直接覆盖屏幕尺寸，放在 level 中央，不延伸整个关卡宽度
+        let fallbackBg = SKSpriteNode(color: SKColor(red: 0.3, green: 0.5, blue: 0.8, alpha: 1.0), size: bgSize)
+        fallbackBg.position = bgCenterWorld
         fallbackBg.zPosition = -300
         backgroundLayer.addChild(fallbackBg)
 
@@ -233,7 +234,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             for i in 0..<Int(levelData.width / 300) {
                 let treeSprite = SKSpriteNode(imageNamed: "26_decoration_palm_tree")
                 if treeSprite.texture != nil {
-                    // 根据屏幕尺寸计算大小，保持比例
                     let targetHeight = size.height * 0.35
                     let scale = targetHeight / treeSprite.texture!.size().height
                     treeSprite.setScale(scale)
@@ -248,31 +248,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
             }
 
-            // 云朵（中等尺寸 PNG，根据屏幕比例）
+
+            // 云朵跟随相机可见区域（相机局部坐标）
+            let cloudY = size.height / 2 - size.height * 0.12
             for i in 0..<6 {
                 let cloudSprite = SKSpriteNode(imageNamed: "22_decoration_clouds")
                 if cloudSprite.texture != nil {
-                    let targetWidth = size.width * 0.25  // 屏幕宽度的25%作为云宽度
+                    let targetWidth = size.width * 0.25
                     let scale = targetWidth / cloudSprite.texture!.size().width
                     cloudSprite.setScale(scale)
                     cloudSprite.position = CGPoint(
-                        x: CGFloat(i) * (levelData.width / 6) + CGFloat.random(in: -50...50),
-                        y: size.height - size.height * 0.12
+                        x: -size.width / 2 + CGFloat(i) * (size.width / 5) + CGFloat.random(in: -30...30),
+                        y: cloudY
                     )
                     cloudSprite.zPosition = -80
                     cloudSprite.alpha = 0.9
-                    backgroundLayer.addChild(cloudSprite)
-                    print("☁️ Cloud PNG: scaled to \(cloudSprite.frame.size)")
+                    cameraNode.addChild(cloudSprite)
                 } else {
                     let cloud = createCloudNode()
-                    cloud.setScale(size.width / 800)  // 随屏幕调整
+                    cloud.setScale(size.width / 800)
                     cloud.position = CGPoint(
-                        x: CGFloat(i) * (levelData.width / 6) + CGFloat.random(in: -50...50),
-                        y: size.height - size.height * 0.12
+                        x: -size.width / 2 + CGFloat(i) * (size.width / 5) + CGFloat.random(in: -30...30),
+                        y: cloudY
                     )
-                    backgroundLayer.addChild(cloud)
+                    cameraNode.addChild(cloud)
                 }
             }
+
 
         case "underground", "ruins":
             for i in 0..<Int(levelData.width / 400) {
@@ -294,7 +296,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 lava.zPosition = -40
                 backgroundLayer.addChild(lava)
             }
-
         default:
             break
         }
@@ -554,7 +555,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let edgePadding: CGFloat = 20
         // D-pad uses buttonRadius=50 in GameUIBuilder, so buttonY = -size.height/2 + 70
         // Match that here so jump/attack align with D-pad
-        let buttonY = -size.height / 2 + 20 + 50
+        let buttonY = -size.height / 2 + edgePadding + btnSize
         let rightBaseX = size.width / 2 - edgePadding - btnSize / 2
 
         // 左右 D-pad 按钮

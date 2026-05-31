@@ -38,13 +38,13 @@ struct Constants {
     static let playerSpriteScale: CGFloat = 2.0     // 玩家精灵缩放（原始50×60px，×2=100×120px）
     static let projectileSpriteScale: CGFloat = 2.0  // 斧子投射物缩放
     static let jumpCooldown: TimeInterval = 0.5       // 跳跃冷却时间
-    static let attackDuration: TimeInterval = 0.5     // 攻击动作持续时间
+    static let attackDuration: TimeInterval = 1.5      // 斧子飞行时间（调慢才能看清）
     static let attackMoveDistance: CGFloat = 180.0   // 斧子飞行的水平距离
     static let attackMoveHeight: CGFloat = 40.0      // 斧子飞行的垂直高度
     static let attackFinishDelay: TimeInterval = 0.3  // 攻击结束延迟
 
     // MARK: - 战斗参数
-    static let attackRange: CGFloat = 60.0           // 玩家攻击判定范围
+    static let attackRange: CGFloat = 180.0         // 玩家攻击判定范围（与斧子飞行距离一致）
     static let attackCooldown: TimeInterval = 0.4     // 攻击命中冷却（防止一次攻击重复判定）
     static let damageCooldown: TimeInterval = 1.5     // 受伤后无敌时间
 
