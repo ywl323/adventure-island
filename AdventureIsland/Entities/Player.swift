@@ -93,7 +93,7 @@ class Player: SKNode {
             print("⏳ jump() denied: not grounded (isGrounded=false)")
             return
         }
-        print("✅ jump() executed! isGrounded=\(isGrounded))
+        print("✅ jump() executed! isGrounded=\(isGrounded)")
         // 立即锁定，防止残留触发；延迟后才解锁（防连跳）
         canJump = false
         physicsBody?.velocity = CGVector(dx: physicsBody?.velocity.dx ?? 0, dy: Constants.jumpForce)
