@@ -241,7 +241,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private func addBackgroundDecorations() {
         switch levelData.terrainType {
         case "grass":
-            // 棕榈树（使用中等尺寸 PNG）
+            // 棕榈树跟随世界坐标放置
             for i in 0..<Int(levelData.width / 300) {
                 let treeSprite = SKSpriteNode(imageNamed: "26_decoration_palm_tree")
                 if treeSprite.texture != nil {
@@ -251,41 +251,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     treeSprite.position = CGPoint(x: CGFloat(i) * 300 + 80, y: targetHeight / 2)
                     treeSprite.zPosition = -30
                     backgroundLayer.addChild(treeSprite)
-                    print("🌴 Tree PNG: scaled to \(treeSprite.frame.size)")
                 } else {
                     let tree = createTreeNode()
                     tree.position = CGPoint(x: CGFloat(i) * 300 + 80, y: 80)
                     backgroundLayer.addChild(tree)
                 }
             }
-
-
-            // 云朵跟随相机可见区域（相机局部坐标）
-            let cloudY = size.height / 2 - size.height * 0.12
-            for i in 0..<6 {
-                let cloudSprite = SKSpriteNode(imageNamed: "22_decoration_clouds")
-                if cloudSprite.texture != nil {
-                    let targetWidth = size.width * 0.25
-                    let scale = targetWidth / cloudSprite.texture!.size().width
-                    cloudSprite.setScale(scale)
-                    cloudSprite.position = CGPoint(
-                        x: -size.width / 2 + CGFloat(i) * (size.width / 5) + CGFloat.random(in: -30...30),
-                        y: cloudY
-                    )
-                    cloudSprite.zPosition = -80
-                    cloudSprite.alpha = 0.9
-                    cameraNode.addChild(cloudSprite)
-                } else {
-                    let cloud = createCloudNode()
-                    cloud.setScale(size.width / 800)
-                    cloud.position = CGPoint(
-                        x: -size.width / 2 + CGFloat(i) * (size.width / 5) + CGFloat.random(in: -30...30),
-                        y: cloudY
-                    )
-                    cameraNode.addChild(cloud)
-                }
-            }
-
 
         case "underground", "ruins":
             for i in 0..<Int(levelData.width / 400) {
