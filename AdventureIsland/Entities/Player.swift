@@ -25,7 +25,7 @@ class Player: SKNode {
     override init() {
         super.init()
         // 初始设为 true：玩家出生点在地面上方，等待物理引擎检测到地面后再更新状态
-        isGrounded = true
+        isGrounded = false
         setupPhysics()
         setupPlayer()
     }
@@ -90,8 +90,8 @@ class Player: SKNode {
             print("⏳ jump() denied: canJump=\(canJump), isJumpLocked=\(isJumpLocked)")
             return
         }
-        guard isGrounded else {
-            print("⏳ jump() denied: not grounded (isGrounded=false)")
+        guard hasEverFallen && isGrounded else {
+            print("⏳ jump() denied: hasEverFallen=\(hasEverFallen), isGrounded=\(isGrounded)")
             return
         }
         print("✅ jump() executed! isGrounded=\(isGrounded)")
@@ -228,6 +228,7 @@ class Player: SKNode {
     func didContact(with category: UInt32) {
         if category == PhysicsCategories.ground {
             isGrounded = true
+            hasEverFallen = true
             isJumpLocked = false  // 落地后解锁跳跃序列，允许下次跳跃
         }
     }

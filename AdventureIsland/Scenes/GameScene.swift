@@ -347,7 +347,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player = Player()
         player.position = CGPoint(x: Constants.playerStartX, y: playerStartY)
         player.zPosition = 10
-        player.isGrounded = true  // 初始静止时视为在地面上，避免游戏开始时自动跳
         addChild(player)
         print("   Player added at (\(player.position.x), \(player.position.y))")
 
@@ -709,9 +708,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             isRightPressed = true
         case "jumpButton":
             isJumpPressed = true
-            isJumpConsumed = false   // 每次按下都重置
-            player?.jump()           // Player 内部会检查 isGrounded/isJumpLocked
-            isJumpConsumed = true    // 调用完后立即标记，防止同一次按下重复触发
+            isJumpConsumed = false
+            print("🟢 handleButtonDown: JUMP pressed — player.isGrounded=\(player?.isGrounded ?? false)")
+            player?.jump()
+            isJumpConsumed = true
         case "attackButton":
             isAttackPressed = true
             print("🟢 handleButtonDown: ATTACK")
