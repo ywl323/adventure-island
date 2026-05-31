@@ -594,12 +594,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - 触摸处理
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for touch in touches {
-            let locInScene = touch.location(in: self)
-            let locInCamera = touch.location(in: cameraNode)
-            print("📍 touchesBegan: scene=\(locInScene), camera=\(locInCamera)")
-        }
-
+        print("📍 touchesBegan: count=\(touches.count), touches=\(touches.map { String(format: "%p", ObjectIdentifier($0)) })")
         // 暂停菜单激活时，触摸只用于菜单按钮
         if pauseNode != nil {
             for touch in touches {
@@ -621,40 +616,79 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         for touch in touches {
             let location = touch.location(in: cameraNode)
-            let node = cameraNode.atPoint(location)
 
-            // 暂停按钮（保留 AABB 检测）
+            // 暂停按钮
             let pauseBtnFrame = CGRect(x: size.width/2 - 45 - 22, y: size.height/2 - 45 - 22, width: 44, height: 44)
             if pauseBtnFrame.contains(location) {
                 togglePause()
                 return
             }
 
-            // 遍历父节点链，找到按钮名字
-            var buttonName: String? = nil
-            var current: SKNode? = node
-            while let c = current {
-                if let name = c.name, name.hasSuffix("Button") || name == "pauseBtn" {
-                    buttonName = name
-                    break
+            // 使用按钮节点位置做 AABB 检测（camera 局部坐标）
+            let hitRadius: CGFloat = 40
+            if leftButton != nil {
+                let leftFrame = CGRect(
+                    x: leftButton.position.x - hitRadius,
+                    y: leftButton.position.y - hitRadius,
+                    width: hitRadius * 2,
+                    height: hitRadius * 2
+                )
+                if leftFrame.contains(location) {
+                    activeTouches[touch] = "leftButton"
+                    handleButtonDown("leftButton")
+                    continue
                 }
-                current = c.parent
             }
-
-            if let name = buttonName {
-                activeTouches[touch] = name
-                handleButtonDown(name)
-                print("🟢 touchesBegan: \(name) hit at \(location)")
+            if rightButton != nil {
+                let rightFrame = CGRect(
+                    x: rightButton.position.x - hitRadius,
+                    y: rightButton.position.y - hitRadius,
+                    width: hitRadius * 2,
+                    height: hitRadius * 2
+                )
+                if rightFrame.contains(location) {
+                    activeTouches[touch] = "rightButton"
+                    handleButtonDown("rightButton")
+                    continue
+                }
+            }
+            if jumpButton != nil {
+                let jumpFrame = CGRect(
+                    x: jumpButton.position.x - hitRadius,
+                    y: jumpButton.position.y - hitRadius,
+                    width: hitRadius * 2,
+                    height: hitRadius * 2
+                )
+                if jumpFrame.contains(location) {
+                    activeTouches[touch] = "jumpButton"
+                    handleButtonDown("jumpButton")
+                    continue
+                }
+            }
+            if attackButton != nil {
+                let attackFrame = CGRect(
+                    x: attackButton.position.x - hitRadius,
+                    y: attackButton.position.y - hitRadius,
+                    width: hitRadius * 2,
+                    height: hitRadius * 2
+                )
+                if attackFrame.contains(location) {
+                    activeTouches[touch] = "attackButton"
+                    handleButtonDown("attackButton")
+                    continue
+                }
             }
         }
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        print("📍 touchesEnded: count=\(touches.count)")
         for touch in touches {
-            if let name = activeTouches[touch] {
-                handleButtonUp(name)
-                activeTouches.removeValue(forKey: touch)
-                print("🔴 touchesEnded: \(name)")
+            let name = activeTouches[touch]
+            activeTouches.removeValue(forKey: touch)
+            if let n = name {
+                handleButtonUp(n)
+                print("🔴 touchesEnded: \(n)")
             }
         }
     }
@@ -669,13 +703,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     private func handleButtonDown(_ name: String) {
+        print("🟡 handleButtonDown: [\(name)]")
         switch name {
         case "leftButton":
             isLeftPressed = true
         case "rightButton":
             isRightPressed = true
         case "jumpButton":
-            // 直接触发跳跃，无状态机
+            print("🟢 JUMP pressed — about to call player?.jump()")
             player?.jump()
         case "attackButton":
             isAttackPressed = true
