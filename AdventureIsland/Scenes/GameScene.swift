@@ -91,10 +91,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         print("🎨 GameScene setup complete. frame=\(frame), children=\(children.count)")
     }
 
-    override func draw(_ currentContext: CGContext) {
-        print("🎨 GameScene.draw called! frame=\(frame)")
-        super.draw(currentContext)
-    }
 
     // MARK: - 设置
 
