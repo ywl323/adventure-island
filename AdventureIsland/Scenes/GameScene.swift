@@ -135,14 +135,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(backgroundLayer)
 
         // Try to load background image first, fall back to solid color
+        // 背景始终固定为屏幕尺寸，不拉伸，与相机联动
         let bgImageName = getBackgroundImageName()
-        let background: SKSpriteNode
+        let bgSize = size // 固定屏幕大小，不随关卡宽度延伸
         if let _ = UIImage(named: bgImageName) {
             background = SKSpriteNode(imageNamed: bgImageName)
-            // 背景图宽度延伸至整个关卡长度（不只屏幕宽度），实现滚动时背景不断裂
-            background.size = CGSize(width: levelData.width, height: size.height)
+            background.size = bgSize
+            background.position = CGPoint(x: size.width / 2, y: size.height / 2)
+            background.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         } else {
-            // Fall back to solid color background
             let bgColor: SKColor
             switch levelData.terrainType {
             case "grass":    bgColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)
@@ -155,11 +156,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             case "boss":     bgColor = SKColor(red: 0.3, green: 0.15, blue: 0.25, alpha: 1.0)
             default:        bgColor = SKColor(red: 0.55, green: 0.75, blue: 1.0, alpha: 1.0)
             }
-            background = SKSpriteNode(color: bgColor, size: CGSize(width: levelData.width, height: size.height))
+            background = SKSpriteNode(color: bgColor, size: bgSize)
+            background.position = CGPoint(x: size.width / 2, y: size.height / 2)
         }
-        // 背景宽度延伸至整个关卡长度，position 设为世界坐标系中央
-        // 相机移动时背景不动（固定在 world），相对玩家产生滚动感
-        background.position = CGPoint(x: levelData.width / 2, y: size.height / 2)
         background.zPosition = -100
         backgroundLayer.addChild(background)
 
@@ -474,13 +473,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         pauseNode = SKNode()
         pauseNode.name = "pauseOverlay"
-        pauseNode.position = .zero
-        addChild(pauseNode)
+        pauseNode.position = CGPoint(x: cameraNode.position.x, y: cameraNode.position.y)
+        cameraNode.addChild(pauseNode)
 
         // 半透明背景
         let overlay = SKShapeNode(rect: CGRect(x: -size.width/2, y: -size.height/2, width: size.width, height: size.height))
         overlay.fillColor = SKColor(white: 0, alpha: 0.6)
         overlay.strokeColor = .clear
+        overlay.position = .zero
         pauseNode.addChild(overlay)
 
         // 标题
