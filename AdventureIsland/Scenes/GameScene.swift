@@ -35,8 +35,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // 触摸状态
     private var isLeftPressed: Bool = false
     private var isRightPressed: Bool = false
-    private var isJumpPressed: Bool = false
-    private var isJumpConsumed: Bool = false  // 本次按键周期是否已消耗跳跃（防止按住一直跳）
+    // 跳跃状态由 touchesBegan/touchesEnded 的 activeTouches 追踪
     private var isAttackPressed: Bool = false
     private var isAttackConsumed: Bool = false  // 本次按键周期是否已消耗攻击
 
@@ -622,61 +621,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         for touch in touches {
             let location = touch.location(in: cameraNode)
+            let node = cameraNode.atPoint(location)
 
-            // 暂停按钮
+            // 暂停按钮（保留 AABB 检测）
             let pauseBtnFrame = CGRect(x: size.width/2 - 45 - 22, y: size.height/2 - 45 - 22, width: 44, height: 44)
             if pauseBtnFrame.contains(location) {
                 togglePause()
                 return
             }
 
-            // 左按钮命中区域（cameraNode 坐标系）
-            let leftBtnFrame = CGRect(
-                x: leftButton.position.x - 30,
-                y: leftButton.position.y - 30,
-                width: 60,
-                height: 60
-            )
-            // 右按钮命中区域
-            let rightBtnFrame = CGRect(
-                x: rightButton.position.x - 30,
-                y: rightButton.position.y - 30,
-                width: 60,
-                height: 60
-            )
+            // 遍历父节点链，找到按钮名字
+            var buttonName: String? = nil
+            var current: SKNode? = node
+            while let c = current {
+                if let name = c.name, name.hasSuffix("Button") || name == "pauseBtn" {
+                    buttonName = name
+                    break
+                }
+                current = c.parent
+            }
 
-            let jumpBtnFrame = CGRect(
-                x: jumpButton.position.x - 30,
-                y: jumpButton.position.y - 30,
-                width: 60,
-                height: 60
-            )
-            let attackBtnFrame = CGRect(
-                x: attackButton.position.x - 30,
-                y: attackButton.position.y - 30,
-                width: 60,
-                height: 60
-            )
-
-            if leftBtnFrame.contains(location) {
-                activeTouches[touch] = "leftButton"
-                handleButtonDown("leftButton")
-                print("🟢 touchesBegan: LEFT button at \(location) → move LEFT")
-            } else if rightBtnFrame.contains(location) {
-                activeTouches[touch] = "rightButton"
-                handleButtonDown("rightButton")
-                print("🟢 touchesBegan: RIGHT button at \(location) → move RIGHT")
-            } else if jumpBtnFrame.contains(location) {
-                activeTouches[touch] = "jumpButton"
-                handleButtonDown("jumpButton")
-                print("🟢 touchesBegan: JUMP button at \(location)")
-            } else if attackBtnFrame.contains(location) {
-                activeTouches[touch] = "attackButton"
-                handleButtonDown("attackButton")
-                print("🟢 touchesBegan: ATTACK button at \(location)")
-            } else {
-                print("❓ touchesBegan: no button hit at \(location)")
-                print("   jumpBtn at \(jumpButton.position) frame=\(jumpBtnFrame)")
+            if let name = buttonName {
+                activeTouches[touch] = name
+                handleButtonDown(name)
+                print("🟢 touchesBegan: \(name) hit at \(location)")
             }
         }
     }
@@ -707,14 +675,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         case "rightButton":
             isRightPressed = true
         case "jumpButton":
-            isJumpPressed = true
-            isJumpConsumed = false
-            print("🟢 handleButtonDown: JUMP pressed — player.isGrounded=\(player?.isGrounded ?? false)")
+            // 直接触发跳跃，无状态机
             player?.jump()
-            isJumpConsumed = true
         case "attackButton":
             isAttackPressed = true
-            print("🟢 handleButtonDown: ATTACK")
         default:
             break
         }
@@ -726,9 +690,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             isLeftPressed = false
         case "rightButton":
             isRightPressed = false
-        case "jumpButton":
-            isJumpPressed = false
-            isJumpConsumed = false  // 松开手指后重置，下次按下可以再跳
         case "attackButton":
             isAttackPressed = false
             isAttackConsumed = false
